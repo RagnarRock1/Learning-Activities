@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Third Man Argument</title>
+<style>
+  :root {
+    --ink: #1B1F27;
+    --ink-2: #14171E;
+    --parchment: #EDE6D6;
+    --parchment-edge: #DCD2B8;
+    --text: #2A2620;
+    --text-soft: #5B5546;
+    --yes: #4C7A5E;
+    --yes-dark: #3A5F48;
+    --no: #8C3B2E;
+    --no-dark: #712F24;
+    --neutral: #8A7A4B;
+    --neutral-dark: #6F6039;
+    --regress: #6B5B73;
+    --focus: #C9A227;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: radial-gradient(ellipse at 50% -10%, #262B36 0%, var(--ink) 55%, var(--ink-2) 100%);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+  }
+
+  .stage {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .masthead { text-align: center; margin-bottom: 22px; }
+
+  .masthead h2 {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Sitka Text", Georgia, serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: #F1EEE4;
+    margin: 0;
+  }
+
+  .masthead p {
+    color: #9CA3AF;
+    font-size: 0.85rem;
+    margin: 4px 0 0;
+  }
+
+  .card {
+    background: var(--parchment);
+    width: 100%;
+    max-width: 480px;
+    padding: 34px 28px 28px;
+    border-top: 3px double var(--parchment-edge);
+    border-bottom: 3px double var(--parchment-edge);
+    box-shadow: 0 18px 40px rgba(15, 10, 5, 0.35);
+    opacity: 0;
+    transform: translateY(8px);
+    animation: rise 0.38s ease forwards;
+  }
+
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+  .card h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Sitka Text", Georgia, serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    line-height: 1.32;
+    margin: 0 0 10px;
+  }
+
+  .card .note {
+    font-size: 0.92rem;
+    color: var(--text-soft);
+    line-height: 1.5;
+    margin: 0 0 22px;
+  }
+
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+
+  button.choice {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 13px 18px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    color: #F5F1E6;
+    background: var(--neutral);
+    text-align: left;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+
+  button.choice:hover { transform: translateY(-1px); background: var(--neutral-dark); }
+  button.choice:active { transform: translateY(0); }
+  button.choice:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  button.choice.tone-yes { background: var(--yes); }
+  button.choice.tone-yes:hover { background: var(--yes-dark); }
+  button.choice.tone-no { background: var(--no); }
+  button.choice.tone-no:hover { background: var(--no-dark); }
+
+  .exit-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #F5F1E6;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin-bottom: 12px;
+  }
+  .exit-tag.regress { background: var(--regress); }
+  .exit-tag.escape { background: var(--no); }
+  .exit-tag.verdict { background: var(--neutral-dark); }
+
+  .recap-toggle {
+    margin-top: 20px;
+    background: none;
+    border: none;
+    color: var(--text-soft);
+    text-decoration: underline;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  .recap {
+    margin-top: 14px;
+    border-top: 1px solid var(--parchment-edge);
+    padding-top: 14px;
+    max-height: 260px;
+    overflow-y: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text-soft);
+  }
+
+  .recap .step { margin-bottom: 10px; }
+  .recap .step .q { color: var(--text); font-weight: 600; }
+  .recap .step .a { color: var(--yes-dark); }
+
+  button.restart {
+    margin-top: 22px;
+    width: 100%;
+    background: var(--ink);
+    color: #F1EEE4;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 12px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  button.restart:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="masthead">
+    <h2>The Third Man Argument</h2>
+    <p>PHI 110</p>
+  </div>
+  <div id="root"></div>
+</div>
+
+<script>
+const ROUND_QUALIFIER = { 1: "right away", 2: "after one round", 3: "after two rounds" };
+
+function formName(depth) {
+  return depth === 1 ? "Man Itself" : `Man-${depth}`;
+}
+
+const SELF_PRED_TEXT = {
+  1: "Is Man Itself also a man?",
+  2: "Call the new Form &ldquo;Man-2.&rdquo; Is Man-2 also a man?",
+  3: "Now there's &ldquo;Man-3.&rdquo; Same question: is Man-3 also a man?"
+};
+
+const NEW_FORM_TEXT = {
+  1: "If Man Itself is a man, you now have four men: your neighbor, your mail carrier, your uncle, and Man Itself. Does explaining why this group are all men require its own Form too?",
+  2: "Same move again. Your group is now five men, including Man-2. Does this larger group need its own Form?",
+  3: "The group keeps growing, six men now, including Man-3. Does it need yet another Form?"
+};
+
+const graph = {
+  intro: {
+    type: "info",
+    text: "Plato's Theory of Forms says that whenever many things share a quality, like being large, or beautiful, or human, there's a single Form that explains why. This game walks through a famous problem with that idea, first raised by Plato's own character Parmenides against young Socrates, and sharpened later by Aristotle. It's called the Third Man Argument.",
+    choices: [{ label: "Begin", next: "setup" }]
+  },
+  setup: {
+    type: "info",
+    text: "Picture three particular men: your neighbor, your mail carrier, and your uncle. Plato's Theory of Forms says they're all men because they each participate in one Form: Man Itself. Let's test that idea.",
+    choices: [{ label: "Continue", next: "ask_self_predication" }]
+  },
+  ask_self_predication: {
+    type: "question",
+    dynamic: "self_pred"
+  },
+  ask_new_form: {
+    type: "question",
+    dynamic: "new_form"
+  },
+  end_regress: {
+    type: "insight",
+    tag: "regress",
+    tagLabel: "Problem Found",
+    headline: "The regress never closes.",
+    text: "You can see the pattern by now. Every time a Form gets folded into the group it was supposed to explain, by being a man itself, the group needs a new Form, which is also a man, which joins the group, which needs a new Form. Forever. Your neighbor, your mail carrier, and your uncle are all men because of Man Itself; but if Man Itself is also a man, a further Form, traditionally called the &ldquo;third man,&rdquo; is needed to explain why this larger group are all men; and if that Form is also a man, a fourth is needed, and so on. Worth knowing: Plato's own text, the dialogue Parmenides, actually runs this argument using &ldquo;Large&rdquo; instead of &ldquo;Man.&rdquo; The name comes from Aristotle's later version, which is the one that stuck. Either way, if the Theory of Forms is supposed to give a tidy, final explanation of why things resemble each other, this argument says it can't. It just keeps generating more Forms it still owes an explanation for.",
+    choices: [{ label: "See how Plato might respond", next: "plato_response" }]
+  },
+  end_loses_power: {
+    type: "insight",
+    tag: "escape",
+    tagLabel: "Problem Found",
+    dynamic: "end_loses_power"
+  },
+  end_ad_hoc: {
+    type: "insight",
+    tag: "escape",
+    tagLabel: "Problem Found",
+    dynamic: "end_ad_hoc"
+  },
+  plato_response: {
+    type: "info",
+    text: "Plato never spells out an answer to this in the Parmenides itself; the dialogue raises it against young Socrates and moves on without resolving it. But Plato's own writing points toward a possible defense, made most explicit in a different dialogue, the Republic. There, describing the highest of all the Forms, the Form of the Good, Socrates says something startling: the Good is not itself a being among beings at all. It is, in his words, &ldquo;beyond being,&rdquo; exceeding even being itself in dignity and power. The Good doesn't have goodness the way a good act or a good person has it. It is the source of goodness for everything else, standing outside the very category it explains. If that's the kind of thing a Form can be, not one more item in the group it accounts for, but the ground the whole group stands on, then perhaps Man Itself works the same way. It wouldn't &ldquo;be a man&rdquo; by holding a place in the class of men; it would be whatever makes something count as a man in the first place, existing on a different level entirely. On this reading, the regress never starts, because the Form was never really eligible to join the group to begin with.",
+    choices: [{ label: "Weigh the response", next: "weigh_defense" }]
+  },
+  weigh_defense: {
+    type: "question",
+    text: "Here's the catch worth weighing: Plato says this outright about the Good specifically, in a different dialogue than the one that raises the regress. Stretching it to cover an ordinary Form like Man is a reconstruction, not something Plato states. Does that reconstruction still hold up, or is it borrowing a move built for one uniquely special case and generalizing it without real justification?",
+    choices: [
+      { label: "It holds up. The same logic genuinely applies to any Form.", next: "end_defense_holds" },
+      { label: "It's a stretch. What works for the Good doesn't automatically work for Man.", next: "end_defense_dodge" }
+    ]
+  },
+  end_defense_holds: {
+    type: "exit",
+    tag: "verdict",
+    tagLabel: "Your Verdict",
+    headline: "You find the defense convincing.",
+    text: "This is close to the strongest form the response usually takes, and a good number of readers of Plato find it persuasive: if the Good can stand outside being altogether and still explain goodness in everything else, there's no obvious reason the same move can't work for Man Itself. Once a Form is understood as beyond the category it explains rather than a member of it, it was never a legitimate part of the group the regress needs, and the argument loses its grip. The cost is accepting that Plato's Forms don't all sit at the same ontological level as the things that participate in them, some further outside being than others. That's a real commitment, but arguably one Plato was building toward all along."
+  },
+  end_defense_dodge: {
+    type: "exit",
+    tag: "verdict",
+    tagLabel: "Your Verdict",
+    headline: "You find the defense unconvincing.",
+    text: "This is the sharper worry critics raise: saying a Form is &ldquo;beyond being&rdquo; explains a lot about the uniquely elevated Form of the Good, but it's less clear it can be exported to every ordinary Form on demand, whenever a Form needs to dodge a regress. If Man Itself is beyond being in some special sense, it's fair to ask what work that sense is doing, and whether it's motivated by anything besides needing an exit from this specific argument. The whole point of the Form was to explain why your neighbor is a man in the ordinary sense; if the Form's own relationship to being a man is entirely different, it's not obvious it still grounds the resemblance it was introduced to explain. On this reading, the fix escapes the letter of the argument by borrowing a move built for one special case and generalizing it without clear justification."
+  }
+};
+
+let state = { node: "intro", depth: 1, history: [], recapOpen: false };
+
+function getNode(id) {
+  const raw = graph[id];
+  if (!raw.dynamic) return raw;
+
+  if (raw.dynamic === "self_pred") {
+    return {
+      type: "question",
+      text: SELF_PRED_TEXT[state.depth],
+      choices: [
+        { label: "Yes", tone: "yes", next: "ask_new_form" },
+        { label: "No", tone: "no", next: "end_loses_power" }
+      ]
+    };
+  }
+
+  if (raw.dynamic === "new_form") {
+    return {
+      type: "question",
+      text: NEW_FORM_TEXT[state.depth],
+      choices: [
+        { label: "Yes", tone: "yes", next: state.depth >= 3 ? "end_regress" : "next_round" },
+        { label: "No", tone: "no", next: "end_ad_hoc" }
+      ]
+    };
+  }
+
+  if (raw.dynamic === "end_loses_power") {
+    const q = ROUND_QUALIFIER[state.depth] || "eventually";
+    return {
+      type: "insight",
+      tag: raw.tag,
+      tagLabel: raw.tagLabel,
+      headline: "You've dodged the regress, but the Forms stop doing their job.",
+      text: `Denying that ${formName(state.depth)} is a man blocks the regress ${q}. But Plato usually describes Forms as paradigm cases: Beauty Itself is supremely beautiful, Justice Itself is perfectly just. If a Form doesn't have the very quality it's supposed to explain, it's not clear it can still serve as the standard everything else gets measured against. You've stopped the argument, at the cost of part of what made Forms useful to begin with.`,
+      choices: [{ label: "See how Plato might respond", next: "plato_response" }]
+    };
+  }
+
+  if (raw.dynamic === "end_ad_hoc") {
+    const q = ROUND_QUALIFIER[state.depth] || "eventually";
+    return {
+      type: "insight",
+      tag: raw.tag,
+      tagLabel: raw.tagLabel,
+      headline: "You've blocked the regress, but the fix looks arbitrary.",
+      text: `Saying the group no longer needs an explaining Form works, the argument stops ${q}. But the same rule, that groups of things sharing a quality need a Form to explain it, applied without complaint at every earlier step. The only thing that changed is that a Form joined the group. Critics call this an ad hoc fix: a special exception with no justification except that it stops the argument.`,
+      choices: [{ label: "See how Plato might respond", next: "plato_response" }]
+    };
+  }
+}
+
+function goto(nextId) {
+  if (nextId === "next_round") {
+    state.depth += 1;
+    state.node = "ask_self_predication";
+  } else {
+    state.node = nextId;
+  }
+  render();
+}
+
+function choose(choice) {
+  const node = getNode(state.node);
+  state.history.push({ q: node.text, a: choice.label });
+  goto(choice.next);
+}
+
+function restart() {
+  state = { node: "intro", depth: 1, history: [], recapOpen: false };
+  render();
+}
+
+function toggleRecap() {
+  state.recapOpen = !state.recapOpen;
+  render();
+}
+
+function render() {
+  const root = document.getElementById("root");
+  const node = getNode(state.node);
+
+  let html = '<div class="card">';
+
+  if (node.tag) {
+    html += `<span class="exit-tag ${node.tag}">${node.tagLabel || "Conclusion"}</span>`;
+  }
+
+  if (node.type === "exit") {
+    html += `<h1>${node.headline}</h1>`;
+    html += `<p class="note">${node.text}</p>`;
+    html += `<button class="recap-toggle" onclick="toggleRecap()">${state.recapOpen ? "Hide" : "Show"} your reasoning path</button>`;
+    if (state.recapOpen) {
+      html += '<div class="recap">';
+      state.history.forEach(step => {
+        html += `<div class="step"><div class="q">${step.q}</div><div class="a">&rarr; ${step.a}</div></div>`;
+      });
+      html += '</div>';
+    }
+    html += '<button class="restart" onclick="restart()">Start over</button>';
+  } else if (node.type === "insight") {
+    html += `<h1>${node.headline}</h1>`;
+    html += `<p class="note">${node.text}</p>`;
+    html += '<div class="choices">';
+    node.choices.forEach((choice, i) => {
+      html += `<button class="choice tone-${choice.tone || 'neutral'}" onclick="choose(getNode('${state.node}').choices[${i}])">${choice.label}</button>`;
+    });
+    html += '</div>';
+  } else {
+    html += `<h1>${node.text}</h1>`;
+    html += '<div class="choices">';
+    node.choices.forEach((choice, i) => {
+      html += `<button class="choice tone-${choice.tone || 'neutral'}" onclick="choose(getNode('${state.node}').choices[${i}])">${choice.label}</button>`;
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  root.innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>
