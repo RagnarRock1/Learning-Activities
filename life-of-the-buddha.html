@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Life of the Buddha</title>
+<style>
+  :root {
+    --paper: #F6EEDD;
+    --paper-edge: #E8DCC0;
+    --text: #2E2618;
+    --text-soft: #6B5E48;
+    --accent: #C97A3D;
+    --accent-dark: #A85F29;
+    --focus: #C9A227;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    transition: background 1.1s ease;
+  }
+
+  .stage {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .masthead {
+    text-align: center;
+    margin-bottom: 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .wheel-wrap { width: 46px; height: 46px; }
+  .wheel-wrap svg { width: 100%; height: 100%; }
+  .wheel-track { fill: none; stroke: rgba(255,255,255,0.18); stroke-width: 2.5; }
+  .wheel-progress {
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset 1.1s ease, stroke 1.1s ease;
+  }
+
+  .masthead h2 {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Sitka Text", Georgia, serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: #FBF6EA;
+    margin: 0;
+  }
+
+  .masthead p {
+    color: rgba(251,246,234,0.65);
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  .clarity-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .clarity-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(251,246,234,0.4);
+  }
+
+  .clarity-meter { display: flex; gap: 5px; }
+
+  .clarity-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transition: background 0.4s ease, box-shadow 0.4s ease;
+  }
+
+  .clarity-dot.filled {
+    background: #FBF6EA;
+    box-shadow: 0 0 6px rgba(251,246,234,0.6);
+  }
+
+  .card {
+    background: var(--paper);
+    width: 100%;
+    max-width: 480px;
+    padding: 32px 28px 28px;
+    border: 1px solid var(--paper-edge);
+    border-radius: 16px;
+    box-shadow: 0 20px 46px rgba(20, 14, 4, 0.28);
+    opacity: 0;
+    transform: translateY(8px);
+    animation: rise 0.42s ease forwards;
+  }
+
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+  .card h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Sitka Text", Georgia, serif;
+    font-weight: 600;
+    font-size: 1.42rem;
+    line-height: 1.34;
+    margin: 0 0 10px;
+  }
+
+  .card .note {
+    font-size: 0.95rem;
+    color: var(--text-soft);
+    line-height: 1.6;
+    margin: 0 0 22px;
+  }
+
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+
+  button.choice {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 13px 20px;
+    border: none;
+    border-radius: 26px;
+    cursor: pointer;
+    color: #FBF6EA;
+    background: var(--accent);
+    text-align: center;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+
+  button.choice:hover { background: var(--accent-dark); transform: translateY(-1px); }
+  button.choice:active { transform: translateY(0); }
+  button.choice:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .exit-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #FBF6EA;
+    padding: 4px 10px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+  .exit-tag.offramp { background: #8A7256; }
+  .exit-tag.true { background: var(--accent-dark); }
+
+  .recap-toggle {
+    margin-top: 20px;
+    background: none;
+    border: none;
+    color: var(--text-soft);
+    text-decoration: underline;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  .recap {
+    margin-top: 14px;
+    border-top: 1px solid var(--paper-edge);
+    padding-top: 14px;
+    max-height: 260px;
+    overflow-y: auto;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--text-soft);
+  }
+
+  .recap .step { margin-bottom: 10px; }
+  .recap .step .q { color: var(--text); font-weight: 600; }
+  .recap .step .a { color: var(--accent-dark); }
+
+  button.restart {
+    margin-top: 22px;
+    width: 100%;
+    background: var(--text);
+    color: var(--paper);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 12px;
+    border: none;
+    border-radius: 26px;
+    cursor: pointer;
+  }
+  button.restart:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .mara-stage {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 6px auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mara-ring {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+  }
+  .mara-ring-track { fill: none; stroke: rgba(46,38,24,0.12); stroke-width: 6; }
+  .mara-ring-progress {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 6;
+    stroke-linecap: round;
+  }
+
+  .mara-zone {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,122,61,0.35), rgba(201,122,61,0.12));
+    border: 2px solid var(--accent);
+    touch-action: none;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+  }
+
+  .mara-zone.holding {
+    background: radial-gradient(circle, rgba(201,122,61,0.55), rgba(201,122,61,0.22));
+  }
+
+  .mara-zone.warn { border-color: #8C3B2E; }
+
+  .mara-caption {
+    position: absolute;
+    bottom: -8px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  .mara-caption.show { opacity: 1; }
+
+  .mara-flee {
+    display: block;
+    margin: 4px auto 0;
+    background: none;
+    border: none;
+    color: var(--text-soft);
+    text-decoration: underline;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+  .mara-flee:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  @keyframes maraShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(3px); }
+  }
+  .mara-stage.shake { animation: maraShake 0.4s ease; }
+
+  .sight-caption {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    text-align: center;
+    margin: -8px 0 10px;
+  }
+
+  .sights-timer-track {
+    width: 100%;
+    height: 5px;
+    background: rgba(46, 38, 24, 0.12);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 2px 0 10px;
+  }
+  .sights-timer-fill {
+    height: 100%;
+    width: 100%;
+    background: var(--accent);
+    transition: width 0.1s linear;
+  }
+
+  .sight-stage {
+    position: relative;
+    width: 100%;
+    height: 190px;
+    margin: 0 0 8px;
+    border-radius: 12px;
+    background: rgba(46, 38, 24, 0.05);
+    overflow: hidden;
+  }
+
+  .sight-target {
+    position: absolute;
+    width: 68px;
+    min-height: 32px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3px 6px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #FBF6EA;
+    background: var(--accent);
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+    transition: background 0.2s ease, transform 0.2s ease, opacity 0.3s ease;
+  }
+
+  .sight-target.distraction { background: #8A7256; }
+  .sight-target.found {
+    background: #4C7A5E;
+    opacity: 0.32;
+    transform: scale(0.82);
+    pointer-events: none;
+  }
+  .sight-target.penalty-flash { background: #8C3B2E; }
+
+  .sights-counter {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin-top: 2px;
+  }
+
+  .balance-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin-bottom: 6px;
+  }
+
+  .balance-track {
+    position: relative;
+    height: 18px;
+    border-radius: 9px;
+    background: linear-gradient(to right, rgba(140,59,46,0.18), rgba(201,122,61,0.14), rgba(140,59,46,0.1));
+    margin: 4px 0 16px;
+    touch-action: none;
+  }
+
+  .balance-sweetspot {
+    position: absolute;
+    left: 42%;
+    width: 16%;
+    top: 0; bottom: 0;
+    background: rgba(76,122,94,0.28);
+    border-radius: 6px;
+  }
+
+  .balance-marker {
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    width: 30px;
+    height: 30px;
+    margin-left: -15px;
+    margin-top: -15px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid #FBF6EA;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    cursor: grab;
+    touch-action: none;
+  }
+  .balance-marker.dragging { cursor: grabbing; }
+
+  .balance-track.shake { animation: maraShake 0.4s ease; }
+
+  .balance-caption {
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    text-align: center;
+    min-height: 1.2em;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    margin: -8px 0 8px;
+  }
+  .balance-caption.show { opacity: 1; }
+
+  .balance-progress-track {
+    width: 100%;
+    height: 6px;
+    background: rgba(46,38,24,0.12);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .balance-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #4C7A5E;
+    transition: width 0.1s linear;
+  }
+
+  .sequence-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 4px 0 4px;
+  }
+
+  .sequence-slot {
+    font-family: inherit;
+    text-align: left;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 2px solid var(--paper-edge);
+    background: #FBF6EA;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  }
+  .sequence-slot:hover { border-color: var(--accent); }
+  .sequence-slot.selected {
+    border-color: var(--accent-dark);
+    background: rgba(201,122,61,0.16);
+    transform: scale(1.02);
+  }
+  .sequence-slot.dragging {
+    cursor: grabbing;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.28);
+    transform: rotate(-1deg) scale(1.03);
+  }
+  .sequence-slot:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  .impermanence-caption {
+    min-height: 2.6em;
+    text-align: center;
+    font-size: 0.86rem;
+    color: var(--text-soft);
+    line-height: 1.5;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    margin-bottom: 10px;
+  }
+  .impermanence-caption.show { opacity: 1; }
+  .impermanence-term { font-weight: 700; font-style: italic; color: var(--text); }
+  #impermanenceContinue { display: none; width: 100%; }
+  #impermanenceContinue.show { display: block; }
+
+  .sandcastle-stage {
+    position: relative;
+    height: 140px;
+    margin: 4px 0 12px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: linear-gradient(to bottom, rgba(159,196,204,0.14), rgba(227,169,79,0.12));
+  }
+  .sandcastle-svg { width: 100%; height: 100%; display: block; }
+  .sandcastle-fill { fill: #D9A55C; }
+  .wave-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(122,168,178,0.92), rgba(159,196,204,0.55));
+    transform: translateX(-115%);
+    transition: transform 1.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  .wave-overlay.active { transform: translateX(0); }
+
+  .cup-stage { display: flex; justify-content: center; margin: 4px 0 14px; }
+  .cup-svg { width: 100px; height: 128px; }
+  .cup-fill { fill: #9FC4CC; }
+  .cup-outline { fill: none; stroke: rgba(46,38,24,0.4); stroke-width: 2.5; }
+
+  .box-stage {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    min-height: 120px;
+    margin: 4px 0 6px;
+  }
+  .you-box {
+    width: 100px;
+    height: 100px;
+    border-radius: 16px;
+    background: var(--accent);
+    color: #FBF6EA;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+  }
+  .part-box {
+    padding: 14px 12px;
+    border-radius: 10px;
+    background: rgba(46,38,24,0.05);
+    border: 2px solid var(--paper-edge);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text);
+    cursor: pointer;
+    animation: partAppear 0.4s ease;
+  }
+  @keyframes partAppear { from { opacity: 0; transform: scale(0.7); } to { opacity: 1; transform: scale(1); } }
+  .part-box.shake { animation: maraShake 0.3s ease; }
+
+
+  .poison-zones {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .poison-zone {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 2px dashed var(--paper-edge);
+    border-radius: 12px;
+    padding: 8px 14px;
+    text-align: left;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .poison-zone-text { flex: 1; }
+  .poison-zone-label { font-weight: 700; font-size: 0.86rem; margin-bottom: 2px; }
+  .poison-zone-desc { font-size: 0.76rem; color: var(--text-soft); }
+  .poison-zone.filled {
+    border-style: solid;
+    border-color: #4C7A5E;
+    background: rgba(76,122,94,0.14);
+  }
+  .poison-zone.wrong-flash { border-color: #8C3B2E; background: rgba(140,59,46,0.12); }
+  .poison-zone-answer { margin-top: 3px; font-size: 0.76rem; font-weight: 700; color: #3A5F48; }
+
+  .vial-svg { display: block; flex-shrink: 0; }
+  .vial-glass { fill: rgba(255,255,255,0.16); stroke: rgba(46,38,24,0.4); stroke-width: 2.5; }
+  .vial-neck { fill: rgba(255,255,255,0.16); stroke: rgba(46,38,24,0.4); stroke-width: 2.5; }
+  .vial-liquid { transition: fill 0.6s ease; }
+  .vial-cork { stroke: rgba(46,38,24,0.4); stroke-width: 1.5; }
+
+  .antidote-tray {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  .antidote-token {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 10px 6px;
+    border-radius: 14px;
+    background: rgba(46,38,24,0.05);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  }
+  .antidote-token-label {
+    font-weight: 700;
+    font-size: 0.7rem;
+    color: var(--text);
+    text-align: center;
+  }
+  .antidote-token.dragging { box-shadow: 0 8px 18px rgba(0,0,0,0.3); background: rgba(46,38,24,0.09); }
+  .antidote-token.selected { background: rgba(201,122,61,0.2); box-shadow: 0 0 0 3px rgba(201,122,61,0.35); }
+  .antidote-token.wrong-flash { background: rgba(140,59,46,0.16); }
+  .antidote-token.matched { display: none; }
+</style>
+</head>
+
+<body>
+
+<div class="stage" id="stage">
+  <div class="masthead">
+    <div class="wheel-wrap">
+      <svg viewBox="0 0 40 40">
+        <circle class="wheel-track" cx="20" cy="20" r="16"></circle>
+        <circle class="wheel-progress" id="wheelProgress" cx="20" cy="20" r="16"></circle>
+      </svg>
+    </div>
+    <h2>The Life of the Buddha</h2>
+    <p>REL 100</p>
+    <div class="clarity-row">
+      <span class="clarity-label">clarity</span>
+      <div class="clarity-meter" id="clarityMeter"></div>
+    </div>
+  </div>
+  <div id="root"></div>
+</div>
+
+<script>
+const graph = {
+  intro: {
+    type: "info", progress: 0.0,
+    text: "This is the traditional story of how Siddhartha Gautama became the Buddha, &ldquo;the Awakened One.&rdquo; Along the way, you'll make the choices he faced. Some are obvious forks in the road. Others are smaller and easy to miss, how you meet ordinary moments along the way. Those add up too.",
+    choices: [{ label: "Begin", next: "palace_setup" }]
+  },
+  palace_setup: {
+    type: "info", progress: 0.03,
+    text: "You are Siddhartha, a prince. At your birth, a sage predicted you would become either a great king or a great spiritual teacher. Your father, hoping for the first, raised you inside palace walls, surrounded by comfort, and made sure you never saw anything unpleasant. You've lived this way for twenty-nine years.",
+    choices: [{ label: "Continue", next: "choice_leave_palace" }]
+  },
+  choice_leave_palace: {
+    type: "question", progress: 0.06,
+    text: "One day, you consider riding out beyond the palace walls. Do you go, or stay where everything is arranged for your comfort?",
+    choices: [
+      { label: "Ride out", next: "four_sights_scene" },
+      { label: "Stay inside", next: "end_sheltered" }
+    ]
+  },
+  end_sheltered: {
+    type: "exit", progress: 0.06, tag: "offramp", tagLabel: "Where The Story Ends",
+    headline: "You remain a prince.",
+    text: "You never see what your father worked so hard to hide. Comfort does its job. There's no shame in a good life, but the story historically told about the Buddha starts with a confrontation you never have. Without it, there's no reason to leave, and nothing here becomes Buddhism."
+  },
+  four_sights_scene: {
+    type: "sights_scene", progress: 0.20, next: "four_sights_reveal"
+  },
+  four_sights_reveal: {
+    type: "info", progress: 0.30,
+    text: "Four things break through everything your father tried to shield you from. An old man, bent and frail. A sick woman, shaking with fever. A funeral procession, carrying a body to be burned. A wandering ascetic, owning nothing, calm in a way you don't recognize. Your charioteer explains each one: this is what aging looks like, what illness does, what waits for everyone in the end, and what it might look like to search for something beyond all of it. You've never let yourself see any of this clearly before.",
+    choices: [{ label: "Continue", next: "choice_renounce" }]
+  },
+  choice_renounce: {
+    type: "question", progress: 0.33,
+    text: "You can't unsee any of it. Aging, sickness, death, they were always waiting for you too, prince or not. Do you leave the palace to search for something beyond them, or go back inside and let the feeling pass?",
+    choices: [
+      { label: "Leave", next: "great_departure" },
+      { label: "Go back inside", next: "end_returned" }
+    ]
+  },
+  end_returned: {
+    type: "exit", progress: 0.33, tag: "offramp", tagLabel: "Where The Story Ends",
+    headline: "You go back inside.",
+    text: "The palace absorbs you again, feasts, music, the same comfort as before. The feeling fades, mostly. Historically, this is exactly the pull Siddhartha had to break to become the Buddha, comfort reasserting itself right at the point where something had cracked open. You stayed. Nothing here becomes Buddhism."
+  },
+  great_departure: {
+    type: "info", progress: 0.40,
+    text: "That night, you leave the palace for good, your wife and newborn son sleeping behind you. You give up your title, your inheritance, everything you were raised to become. You study for a time with two respected teachers and master everything they can teach you. It isn't enough.",
+    choices: [{ label: "Continue", next: "reflect_departure" }]
+  },
+  reflect_departure: {
+    type: "question", progress: 0.44,
+    text: "Before you go looking for another teacher, do you sit for a while with what you've just given up, or hurry ahead to find someone with answers?",
+    choices: [
+      { label: "Sit with it", next: "ascetic_practice", clarity: 1 },
+      { label: "Hurry ahead", next: "ascetic_practice" }
+    ]
+  },
+  ascetic_practice: {
+    type: "info", progress: 0.48,
+    text: "You join a group of ascetics who believe the body itself is the obstacle: starve it, punish it, and the truth will emerge. For six years you eat almost nothing. Your ribs show through your skin. You are close to death, and no closer to an answer.",
+    choices: [{ label: "Continue", next: "balance_game" }]
+  },
+  balance_game: {
+    type: "balance_game", progress: 0.52, successNext: "middle_way", failNext: "end_starved"
+  },
+  end_starved: {
+    type: "exit", progress: 0.52, tag: "offramp", tagLabel: "Where The Story Ends",
+    headline: "You collapse.",
+    text: "Your body gives out before your mind finds anything. This nearly happened to the historical Siddhartha too, he came right up to the edge of death on this path before changing course. Punishing the body turns out to be its own kind of trap, not so different from the indulgence you left the palace to escape. Extremes, in either direction, end here."
+  },
+  middle_way: {
+    type: "info", progress: 0.60,
+    text: "The food restores you. The other ascetics, seeing you eat, decide you've given up, and leave in disgust. But you've noticed something: neither starving yourself nor indulging yourself got you anywhere. There might be a path between the two extremes, neither denial nor excess. Later, this gets a name: the Middle Way.",
+    choices: [{ label: "Continue", next: "reflect_middle_way" }]
+  },
+  reflect_middle_way: {
+    type: "question", progress: 0.64,
+    text: "Before you return to meditation, do you take a moment to really understand why six years of starving got you nowhere, or hurry back to the cushion right away?",
+    choices: [
+      { label: "Sit with it", next: "bodhi_tree_setup", clarity: 1 },
+      { label: "Hurry back", next: "bodhi_tree_setup" }
+    ]
+  },
+  bodhi_tree_setup: {
+    type: "info", progress: 0.68,
+    text: "You sit beneath a fig tree, what will later be called the Bodhi tree, and resolve not to move until you understand. As you settle into meditation, Mara, a figure representing fear, desire, and doubt, arrives to stop you.",
+    choices: [{ label: "Continue", next: "mara_test" }]
+  },
+  mara_test: {
+    type: "minigame", progress: 0.74
+  },
+  end_overwhelmed: {
+    type: "exit", progress: 0.74, tag: "offramp", tagLabel: "Where The Story Ends",
+    headline: "You meant to stay.",
+    text: "You tell yourself you'll stay seated, but when the fear and the desire and the doubt actually arrive, something in you gives way anyway. Meaning to stay isn't the same as being able to. Clarity gets built in small moments, the ones easy to glance past and keep riding, not chosen all at once under pressure. Check your path below and see where the practice built up, and where it didn't."
+  },
+  end_fled: {
+    type: "exit", progress: 0.74, tag: "offramp", tagLabel: "Where The Story Ends",
+    headline: "You rise and walk away.",
+    text: "The fear passes because you're no longer sitting with it. There's no shame in this, plenty of serious seekers turn back at exactly this point, when the resolve is tested directly rather than in the abstract. But the story of the Buddha's enlightenment doesn't happen for you here."
+  },
+  earth_touching: {
+    type: "info", progress: 0.85,
+    text: "You stay seated. When Mara demands to know who will witness your right to be here, you reach down and touch the ground with your right hand. The earth itself answers for you. Mara withdraws. Through the night your mind grows still and clear, and just before dawn, you understand what you came for: why suffering happens, and how it ends. You are awake. From now on, you're known as the Buddha, the Awakened One.",
+    choices: [{ label: "Continue", next: "three_marks_game" }]
+  },
+  three_marks_game: {
+    type: "impermanence_game", progress: 0.87, next: "three_marks_insight"
+  },
+  three_marks_insight: {
+    type: "info", progress: 0.89,
+    text: "These three marks aren't separate from what you understood under the tree. They're the shape of it: anicca, that everything changes; dukkha, that clinging to change is where dissatisfaction comes from; anatman, that there's no fixed self doing the clinging. Now you need words simple enough to hand to someone else.",
+    choices: [{ label: "Continue", next: "teaching_sequence" }]
+  },
+  teaching_sequence: {
+    type: "sequence_game", progress: 0.90, successNext: "sarnath_true_ending", failNext: "end_silent"
+  },
+  end_silent: {
+    type: "exit", progress: 0.90, tag: "offramp", tagLabel: "Where The Story Ends",
+    headline: "You keep it to yourself.",
+    text: "The insight stays yours alone. Tradition holds this was a real temptation the Buddha faced and set aside, the fear that the truth was too subtle to pass on. Had he chosen differently, there's no Four Noble Truths taught at Sarnath, no tradition handed down, nothing here to have walked through in the first place."
+  },
+  sarnath_true_ending: {
+    type: "exit", progress: 1.0, tag: "true", tagLabel: "The Path Completes",
+    headline: "You teach.",
+    text: "You travel to a deer park near Sarnath and find the five ascetics who once practiced alongside you. You teach them what you found, now remembered as the Four Noble Truths: that suffering is a basic fact of life, that it has a cause (craving, the constant reaching for things to be other than they are), that the cause can end, and that there's a path to end it, a set of practices later called the Eightfold Path. This first teaching is traditionally called setting the Wheel of Dharma in motion. Everything that follows, monasteries, texts, the unit you're sitting in right now, traces back to this decision to teach rather than stay silent.",
+    epilogueNext: "three_poisons_game",
+    epilogueLabel: "Go deeper: the Three Poisons"
+  },
+  three_poisons_game: {
+    type: "poisons_game", progress: 1.0, next: "three_poisons_epilogue"
+  },
+  three_poisons_epilogue: {
+    type: "exit", progress: 1.0, tag: "true", tagLabel: "Deeper Still",
+    headline: "The roots of the fire.",
+    text: "Generosity loosens greed's grip. Loving-kindness dissolves hatred's heat. Wisdom clears away delusion's fog. None of these poisons get defeated by force. They get outgrown by deliberately practicing their opposite, again and again, the same way the Middle Way itself gets found: not by denying the pull, but by practicing something steadier instead."
+  }
+};
+
+let state = { node: "intro", history: [], recapOpen: false, clarity: 0 };
+const CLARITY_MAX = 6;
+
+function getNode(id) { return graph[id]; }
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function colorAt(p) {
+  const cool = [22, 27, 38];
+  const dawn = [80, 55, 60];
+  const gold = [196, 122, 61];
+  let c;
+  if (p < 0.5) {
+    const t = p / 0.5;
+    c = cool.map((v, i) => lerp(v, dawn[i], t));
+  } else {
+    const t = (p - 0.5) / 0.5;
+    c = dawn.map((v, i) => lerp(v, gold[i], t));
+  }
+  return c.map(v => Math.round(v));
+}
+
+function shade(c, factor) {
+  return c.map(v => Math.max(0, Math.min(255, Math.round(v * factor))));
+}
+
+function rgbStr(c) { return `rgb(${c[0]}, ${c[1]}, ${c[2]})`; }
+
+function applyAtmosphere(progress) {
+  const base = colorAt(progress);
+  const light = shade(base, 1.5);
+  const dark = shade(base, 0.55);
+  document.getElementById("stage").style.background =
+    `radial-gradient(ellipse at 50% -10%, ${rgbStr(light)} 0%, ${rgbStr(base)} 55%, ${rgbStr(dark)} 100%)`;
+
+  const circumference = 2 * Math.PI * 16;
+  const wheel = document.getElementById("wheelProgress");
+  wheel.style.strokeDasharray = `${circumference}`;
+  wheel.style.strokeDashoffset = `${circumference * (1 - progress)}`;
+  wheel.style.stroke = rgbStr(shade(base, 2.1));
+}
+
+function goto(nextId) {
+  state.node = nextId;
+  render();
+}
+
+function choose(choice) {
+  const node = getNode(state.node);
+  state.history.push({ q: node.text, a: choice.label });
+  if (choice.clarity) {
+    state.clarity = Math.min(CLARITY_MAX, state.clarity + choice.clarity);
+  }
+  goto(choice.next);
+}
+
+function restart() {
+  state = { node: "intro", history: [], recapOpen: false, clarity: 0 };
+  render();
+}
+
+function toggleRecap() {
+  state.recapOpen = !state.recapOpen;
+  render();
+}
+
+function updateClarityMeter() {
+  const el = document.getElementById("clarityMeter");
+  el.innerHTML = "";
+  for (let i = 0; i < CLARITY_MAX; i++) {
+    const dot = document.createElement("div");
+    dot.className = "clarity-dot" + (i < state.clarity ? " filled" : "");
+    el.appendChild(dot);
+  }
+}
+
+let maraRunning = false;
+let maraRAF = null;
+
+function initMaraTest() {
+  maraRunning = true;
+  maraRAF = null;
+
+  const zone = document.getElementById("maraZone");
+  const ringProgress = document.getElementById("maraRingProgress");
+  const caption = document.getElementById("maraCaption");
+  const fleeBtn = document.getElementById("maraFleeBtn");
+  const stageEl = zone.parentElement;
+
+  const baseRadius = 22 + state.clarity * 4;
+  const timeCap = 29000;
+  const fillDuration = 8000;
+  const decayDuration = 4500;
+  const pulses = [
+    { at: 2600, dur: 1200, kind: "fear", label: "Fear rises." },
+    { at: 5200, dur: 1900, kind: "desire", label: "Desire rises." },
+    { at: 8000, dur: 1500, kind: "doubt", label: "Doubt rises." },
+    { at: 10600, dur: 1200, kind: "fear", label: "Fear surges." },
+    { at: 13200, dur: 1500, kind: "doubt", label: "Doubt returns." },
+    { at: 15800, dur: 1200, kind: "fear", label: "Fear surges." },
+    { at: 18200, dur: 1900, kind: "desire", label: "Desire surges." },
+    { at: 21000, dur: 1500, kind: "doubt", label: "Doubt lingers." },
+    { at: 23400, dur: 1200, kind: "fear", label: "Fear breaks loose." },
+    { at: 25800, dur: 1500, kind: "doubt", label: "One last doubt." }
+  ];
+
+  let progress = 0;
+  let elapsed = 0;
+  let lastTs = null;
+  let currentRadius = baseRadius;
+  let zoneOffsetX = 0, zoneOffsetY = 0;
+  let pointerHolding = false;
+  let keyboardHolding = false;
+  let lastX = null, lastY = null;
+  let pulseIndex = 0;
+  let pulseActive = false;
+
+  const circumference = 2 * Math.PI * 90;
+  ringProgress.style.strokeDasharray = `${circumference}`;
+  ringProgress.style.strokeDashoffset = `${circumference}`;
+
+  function pointerInZone(x, y) {
+    if (x === null || y === null) return false;
+    const rect = stageEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 + zoneOffsetX;
+    const cy = rect.top + rect.height / 2 + zoneOffsetY;
+    const dx = x - cx, dy = y - cy;
+    return Math.sqrt(dx * dx + dy * dy) <= currentRadius;
+  }
+
+  function onPointerDown(e) {
+    e.preventDefault();
+    pointerHolding = true;
+    lastX = e.clientX; lastY = e.clientY;
+    zone.classList.add("holding");
+  }
+  function onPointerUp() {
+    pointerHolding = false;
+    zone.classList.remove("holding", "warn");
+  }
+  function onPointerMove(e) {
+    if (!pointerHolding) return;
+    lastX = e.clientX; lastY = e.clientY;
+  }
+  function onKeyDown(e) {
+    if (e.code === "Space" || e.code === "Enter") {
+      e.preventDefault();
+      keyboardHolding = true;
+      zone.classList.add("holding");
+    }
+  }
+  function onKeyUp(e) {
+    if (e.code === "Space" || e.code === "Enter") {
+      keyboardHolding = false;
+      if (!pointerHolding) zone.classList.remove("holding");
+    }
+  }
+
+  zone.addEventListener("pointerdown", onPointerDown);
+  window.addEventListener("pointerup", onPointerUp);
+  window.addEventListener("pointercancel", onPointerUp);
+  window.addEventListener("pointermove", onPointerMove);
+  window.addEventListener("keydown", onKeyDown);
+  window.addEventListener("keyup", onKeyUp);
+
+  function cleanup() {
+    maraRunning = false;
+    zone.removeEventListener("pointerdown", onPointerDown);
+    window.removeEventListener("pointerup", onPointerUp);
+    window.removeEventListener("pointercancel", onPointerUp);
+    window.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("keydown", onKeyDown);
+    window.removeEventListener("keyup", onKeyUp);
+    fleeBtn.removeEventListener("click", onFlee);
+    if (maraRAF) cancelAnimationFrame(maraRAF);
+  }
+
+  function onFlee() {
+    cleanup();
+    state.history.push({ q: "Mara's test", a: "Rose and walked away" });
+    goto("end_fled");
+  }
+  fleeBtn.addEventListener("click", onFlee);
+
+  function frame(ts) {
+    if (!maraRunning) return;
+    if (lastTs === null) lastTs = ts;
+    const dt = ts - lastTs;
+    lastTs = ts;
+    elapsed += dt;
+
+    // Difficulty ramps down the whole attempt, independent of pulses
+    const ramp = 1 - 0.3 * Math.min(1, elapsed / timeCap);
+    let radius = baseRadius * ramp;
+    const driftX = Math.sin(elapsed / 1900) * 20;
+    const driftY = Math.cos(elapsed / 2300) * 20;
+    zoneOffsetX = driftX; zoneOffsetY = driftY;
+    let opacity = 1;
+
+    if (pulseIndex < pulses.length) {
+      const p = pulses[pulseIndex];
+      const inPulse = elapsed >= p.at && elapsed < p.at + p.dur;
+      if (inPulse) {
+        if (!pulseActive) {
+          pulseActive = true;
+          caption.textContent = p.label;
+          caption.classList.add("show");
+          if (p.kind === "fear") {
+            const stageRect = stageEl.getBoundingClientRect();
+            const maxOffset = Math.min(stageRect.width, stageRect.height) / 2 - radius - 10;
+            zone._fearOffsetX = (Math.random() * 2 - 1) * maxOffset;
+            zone._fearOffsetY = (Math.random() * 2 - 1) * maxOffset;
+            stageEl.classList.add("shake");
+            setTimeout(() => stageEl.classList.remove("shake"), 400);
+          }
+        }
+        if (p.kind === "fear") {
+          radius = radius * 0.7;
+          zoneOffsetX = zone._fearOffsetX;
+          zoneOffsetY = zone._fearOffsetY;
+        } else if (p.kind === "desire") {
+          const t = (elapsed - p.at) / p.dur;
+          const wave = Math.sin(t * Math.PI * 5);
+          radius = radius * (0.65 + 0.35 * (wave * 0.5 + 0.5));
+          const orbitAngle = t * Math.PI * 2 * 1.5;
+          const orbitR = 26;
+          zoneOffsetX = driftX + Math.cos(orbitAngle) * orbitR;
+          zoneOffsetY = driftY + Math.sin(orbitAngle) * orbitR;
+        } else if (p.kind === "doubt") {
+          radius = radius * 0.85;
+          opacity = 0.06;
+        }
+      } else if (elapsed >= p.at + p.dur) {
+        pulseActive = false;
+        caption.classList.remove("show");
+        pulseIndex++;
+      }
+    }
+
+    currentRadius = Math.max(14, radius);
+    zone.style.width = zone.style.height = (currentRadius * 2) + "px";
+    zone.style.transform = `translate(${zoneOffsetX}px, ${zoneOffsetY}px)`;
+    zone.style.opacity = `${opacity}`;
+
+    const inZone = pointerInZone(lastX, lastY);
+    const isProgressing = keyboardHolding || (pointerHolding && inZone);
+
+    if (pointerHolding) {
+      zone.classList.toggle("warn", !inZone);
+    }
+
+    progress += isProgressing ? dt / fillDuration : -dt / decayDuration;
+    progress = Math.max(0, Math.min(1, progress));
+
+    ringProgress.style.strokeDashoffset = `${circumference * (1 - progress)}`;
+
+    if (progress >= 1) {
+      cleanup();
+      state.history.push({ q: "Mara's test", a: "Stayed seated through it" });
+      goto("earth_touching");
+      return;
+    }
+    if (elapsed >= timeCap) {
+      cleanup();
+      state.history.push({ q: "Mara's test", a: "Tried to stay, couldn't hold" });
+      goto("end_overwhelmed");
+      return;
+    }
+
+    maraRAF = requestAnimationFrame(frame);
+  }
+
+  maraRAF = requestAnimationFrame(frame);
+}
+
+let sightsRunning = false;
+let sightsRAF = null;
+
+function initSightsScene(node) {
+  sightsRunning = true;
+  sightsRAF = null;
+
+  const stageEl = document.getElementById("sightsStage");
+  const counterEl = document.getElementById("sightsCounter");
+  const timerFill = document.getElementById("sightsTimerFill");
+
+  const sights = [
+    { label: "Old Man" },
+    { label: "Sick Woman" },
+    { label: "Funeral" },
+    { label: "Ascetic" }
+  ];
+  const distractions = [
+    { label: "A Dancer" },
+    { label: "A Feast Bell" },
+    { label: "A Jeweled Mirror" },
+    { label: "A Court Musician" }
+  ];
+
+  const targetW = 68, targetH = 32;
+  const rect = stageEl.getBoundingClientRect();
+  const w = Math.max(targetW + 10, rect.width);
+  const h = Math.max(targetH + 10, rect.height);
+
+  function randomTrack() {
+    return {
+      x: Math.random() * (w - targetW),
+      y: Math.random() * (h - targetH),
+      vx: (Math.random() < 0.5 ? -1 : 1) * (0.03 + Math.random() * 0.025),
+      vy: (Math.random() < 0.5 ? -1 : 1) * (0.015 + Math.random() * 0.015)
+    };
+  }
+
+  function place(t) {
+    t.el.style.left = `${t.pos.x}px`;
+    t.el.style.top = `${t.pos.y}px`;
+  }
+
+  const allTargets = [];
+  sights.forEach(s => {
+    const el = document.createElement("div");
+    el.className = "sight-target";
+    el.textContent = s.label;
+    stageEl.appendChild(el);
+    const t = { el, kind: "sight", pos: randomTrack(), found: false };
+    allTargets.push(t);
+  });
+  distractions.forEach(d => {
+    const el = document.createElement("div");
+    el.className = "sight-target distraction";
+    el.textContent = d.label;
+    stageEl.appendChild(el);
+    const t = { el, kind: "distraction", pos: randomTrack(), found: false };
+    allTargets.push(t);
+  });
+  allTargets.forEach(place);
+
+  const totalDuration = 9500;
+  const distractionPenalty = 1300;
+  let timeLeft = totalDuration;
+  let lastTs = null;
+  let foundCount = 0;
+  let resolved = false;
+
+  function updateCounter() {
+    counterEl.textContent = `${foundCount} of 4 spotted`;
+  }
+  updateCounter();
+
+  function cleanupDom() {
+    allTargets.forEach(t => {
+      t.el.removeEventListener("pointerdown", t._handler);
+      if (t.el.parentNode) t.el.parentNode.removeChild(t.el);
+    });
+  }
+
+  function finish() {
+    if (resolved) return;
+    resolved = true;
+    sightsRunning = false;
+    if (sightsRAF) cancelAnimationFrame(sightsRAF);
+    state.sightsFound = foundCount;
+    state.history.push({ q: "The road into town", a: `Spotted ${foundCount} of 4 sights` });
+    setTimeout(() => { cleanupDom(); goto(node.next); }, 500);
+  }
+
+  allTargets.forEach(t => {
+    t._handler = function (e) {
+      e.preventDefault();
+      if (resolved || t.found) return;
+      if (t.kind === "sight") {
+        t.found = true;
+        foundCount++;
+        t.el.classList.add("found");
+        state.clarity = Math.min(CLARITY_MAX, state.clarity + 1);
+        updateCounter();
+        if (foundCount >= 4) finish();
+      } else {
+        timeLeft = Math.max(0, timeLeft - distractionPenalty);
+        t.el.classList.add("penalty-flash");
+        stageEl.classList.add("shake");
+        setTimeout(() => {
+          t.el.classList.remove("penalty-flash");
+          stageEl.classList.remove("shake");
+        }, 320);
+      }
+    };
+    t.el.addEventListener("pointerdown", t._handler);
+  });
+
+  function frame(ts) {
+    if (!sightsRunning) return;
+    if (lastTs === null) lastTs = ts;
+    const dt = ts - lastTs;
+    lastTs = ts;
+    timeLeft -= dt;
+
+    allTargets.forEach(t => {
+      if (t.found) return;
+      t.pos.x += t.pos.vx * dt;
+      t.pos.y += t.pos.vy * dt;
+      if (t.pos.x <= 0 || t.pos.x >= w - targetW) {
+        t.pos.vx *= -1;
+        t.pos.x = Math.max(0, Math.min(w - targetW, t.pos.x));
+      }
+      if (t.pos.y <= 0 || t.pos.y >= h - targetH) {
+        t.pos.vy *= -1;
+        t.pos.y = Math.max(0, Math.min(h - targetH, t.pos.y));
+      }
+      place(t);
+    });
+
+    if (timerFill) timerFill.style.width = `${Math.max(0, (timeLeft / totalDuration) * 100)}%`;
+
+    if (timeLeft <= 0) {
+      finish();
+      return;
+    }
+
+    sightsRAF = requestAnimationFrame(frame);
+  }
+
+  sightsRAF = requestAnimationFrame(frame);
+}
+
+let balanceRunning = false;
+let balanceRAF = null;
+
+function initBalanceGame(node) {
+  balanceRunning = true;
+  balanceRAF = null;
+
+  const track = document.getElementById("balanceTrack");
+  const marker = document.getElementById("balanceMarker");
+  const progressFill = document.getElementById("balanceProgressFill");
+  const giveUpBtn = document.getElementById("balanceGiveUpBtn");
+  const caption = document.getElementById("balanceCaption");
+
+  let position = 0.06;
+  let dragging = false;
+  let leftHeld = false, rightHeld = false;
+  let progress = 0;
+  let elapsed = 0;
+  let lastTs = null;
+  let gustIndex = 0;
+  let captionTimer = null;
+  const timeCap = 26000;
+  const fillDuration = 8500;
+  const decayDuration = 3200;
+  const sweetMin = 0.42, sweetMax = 0.58;
+
+  const gusts = [
+    { at: 2000, dir: -1, mag: 0.30, label: "Old habit pulls you back toward denial." },
+    { at: 4800, dir: 1, mag: 0.28, label: "Hunger tempts you toward comfort." },
+    { at: 7400, dir: -1, mag: 0.28, label: "The other ascetics are watching." },
+    { at: 9800, dir: 1, mag: 0.30, label: "Sujata offers more." },
+    { at: 12000, dir: -1, mag: 0.30, label: "Six years of discipline, wasted?" },
+    { at: 14000, dir: 1, mag: 0.28, label: "Just a little more would feel so good." },
+    { at: 15800, dir: -1, mag: 0.30, label: "The cold ground bites at your knees." },
+    { at: 17500, dir: 1, mag: 0.28, label: "One warm meal wouldn't hurt." },
+    { at: 19000, dir: -1, mag: 0.32, label: "One last pull toward denial." }
+  ];
+
+  function setPosition(p) {
+    position = Math.max(0, Math.min(1, p));
+    marker.style.left = `${position * 100}%`;
+  }
+  setPosition(position);
+
+  function xToPosition(clientX) {
+    const rect = track.getBoundingClientRect();
+    return (clientX - rect.left) / rect.width;
+  }
+
+  function onPointerDown(e) {
+    e.preventDefault();
+    dragging = true;
+    marker.classList.add("dragging");
+    setPosition(xToPosition(e.clientX));
+  }
+  function onPointerMove(e) {
+    if (!dragging) return;
+    setPosition(xToPosition(e.clientX));
+  }
+  function onPointerUp() {
+    dragging = false;
+    marker.classList.remove("dragging");
+  }
+  function onKeyDown(e) {
+    if (e.code === "ArrowLeft") { e.preventDefault(); leftHeld = true; }
+    if (e.code === "ArrowRight") { e.preventDefault(); rightHeld = true; }
+  }
+  function onKeyUp(e) {
+    if (e.code === "ArrowLeft") leftHeld = false;
+    if (e.code === "ArrowRight") rightHeld = false;
+  }
+
+  marker.addEventListener("pointerdown", onPointerDown);
+  track.addEventListener("pointerdown", onPointerDown);
+  window.addEventListener("pointermove", onPointerMove);
+  window.addEventListener("pointerup", onPointerUp);
+  window.addEventListener("pointercancel", onPointerUp);
+  window.addEventListener("keydown", onKeyDown);
+  window.addEventListener("keyup", onKeyUp);
+
+  function cleanup() {
+    balanceRunning = false;
+    marker.removeEventListener("pointerdown", onPointerDown);
+    track.removeEventListener("pointerdown", onPointerDown);
+    window.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("pointerup", onPointerUp);
+    window.removeEventListener("pointercancel", onPointerUp);
+    window.removeEventListener("keydown", onKeyDown);
+    window.removeEventListener("keyup", onKeyUp);
+    giveUpBtn.removeEventListener("click", onGiveUp);
+    if (balanceRAF) cancelAnimationFrame(balanceRAF);
+  }
+
+  function onGiveUp() {
+    cleanup();
+    state.history.push({ q: "The Middle Way", a: "Gave up the struggle" });
+    goto(node.failNext);
+  }
+  giveUpBtn.addEventListener("click", onGiveUp);
+
+  function frame(ts) {
+    if (!balanceRunning) return;
+    if (lastTs === null) lastTs = ts;
+    const dt = ts - lastTs;
+    lastTs = ts;
+    elapsed += dt;
+
+    if (!dragging) {
+      if (leftHeld) setPosition(position - 0.00035 * dt);
+      else if (rightHeld) setPosition(position + 0.00035 * dt);
+    }
+
+    if (gustIndex < gusts.length && elapsed >= gusts[gustIndex].at) {
+      const g = gusts[gustIndex];
+      setPosition(position + g.dir * g.mag);
+      caption.textContent = g.label;
+      caption.classList.add("show");
+      track.classList.add("shake");
+      setTimeout(() => track.classList.remove("shake"), 350);
+      clearTimeout(captionTimer);
+      captionTimer = setTimeout(() => caption.classList.remove("show"), 1600);
+      gustIndex++;
+    }
+
+    const inSweet = position >= sweetMin && position <= sweetMax;
+    progress += inSweet ? dt / fillDuration : -dt / decayDuration;
+    progress = Math.max(0, Math.min(1, progress));
+    progressFill.style.width = `${progress * 100}%`;
+
+    if (progress >= 1) {
+      cleanup();
+      state.history.push({ q: "The Middle Way", a: "Held steady between the extremes" });
+      setTimeout(() => goto(node.successNext), 300);
+      return;
+    }
+    if (elapsed >= timeCap) {
+      cleanup();
+      state.history.push({ q: "The Middle Way", a: "Couldn't hold the center in time" });
+      setTimeout(() => goto(node.failNext), 300);
+      return;
+    }
+
+    balanceRAF = requestAnimationFrame(frame);
+  }
+
+  balanceRAF = requestAnimationFrame(frame);
+}
+
+let sequenceRunning = false;
+let sequenceRAF = null;
+
+function initSequenceGame(node) {
+  sequenceRunning = true;
+  sequenceRAF = null;
+
+  const fragments = [
+    "Suffering is real.",
+    "It comes from craving.",
+    "Craving can end.",
+    "There's a path to end it."
+  ];
+  let order = [0, 1, 2, 3];
+  do {
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = order[i]; order[i] = order[j]; order[j] = tmp;
+    }
+  } while (order.every((v, i) => v === i));
+
+  let selected = null;
+  let resolved = false;
+  let elapsed = 0;
+  let lastTs = null;
+  const totalDuration = 20000;
+
+  const listEl = document.getElementById("seqList");
+  const slotEls = [0, 1, 2, 3].map(i => document.getElementById(`seqSlot${i}`));
+  const timerFill = document.getElementById("sequenceTimerFill");
+
+  let dragging = null;
+  let dragOffsetY = 0;
+
+  function paint() {
+    slotEls.forEach((el, i) => {
+      el.textContent = fragments[order[i]];
+      el.classList.toggle("selected", selected === i);
+    });
+  }
+  paint();
+
+  function checkSolved() {
+    return order.every((v, i) => v === i);
+  }
+
+  function swap(i, j) {
+    const tmp = order[i]; order[i] = order[j]; order[j] = tmp;
+    paint();
+    if (checkSolved()) finish("success");
+  }
+
+  function slotIndexAt(clientY) {
+    let closestIdx = 0, closestDist = Infinity;
+    slotEls.forEach((el, i) => {
+      if (dragging && i === dragging.fromIndex) return;
+      const r = el.getBoundingClientRect();
+      const cy = r.top + r.height / 2;
+      const dist = Math.abs(clientY - cy);
+      if (dist < closestDist) { closestDist = dist; closestIdx = i; }
+    });
+    return closestIdx;
+  }
+
+  function returnSlotHome(el, index) {
+    el.style.position = "";
+    el.style.left = ""; el.style.top = ""; el.style.width = ""; el.style.zIndex = "";
+    el.classList.remove("dragging");
+    listEl.insertBefore(el, listEl.children[index] || null);
+  }
+
+  function cleanup() {
+    sequenceRunning = false;
+    slotEls.forEach(el => el.removeEventListener("pointerdown", el._down));
+    window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("pointerup", onUp);
+    window.removeEventListener("pointercancel", onUp);
+    if (sequenceRAF) cancelAnimationFrame(sequenceRAF);
+  }
+
+  function finish(outcome) {
+    if (resolved) return;
+    resolved = true;
+    cleanup();
+    state.history.push({
+      q: "Assembling the teaching",
+      a: outcome === "success" ? "Put it in order in time" : "Couldn't gather it in time"
+    });
+    setTimeout(() => goto(outcome === "success" ? node.successNext : node.failNext), 500);
+  }
+
+  slotEls.forEach((el, i) => {
+    el._down = function (e) {
+      if (resolved) return;
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      dragging = { el, fromIndex: i, startX: e.clientX, startY: e.clientY, moved: false };
+      dragOffsetY = e.clientY - rect.top;
+      document.body.appendChild(el);
+      el.style.position = "fixed";
+      el.style.left = `${rect.left}px`;
+      el.style.top = `${rect.top}px`;
+      el.style.width = `${rect.width}px`;
+      el.style.zIndex = "9999";
+      el.classList.add("dragging");
+    };
+    el.addEventListener("pointerdown", el._down);
+  });
+
+  function onMove(e) {
+    if (!dragging) return;
+    const dx = e.clientX - dragging.startX, dy = e.clientY - dragging.startY;
+    if (Math.abs(dx) + Math.abs(dy) > 6) dragging.moved = true;
+    dragging.el.style.top = `${e.clientY - dragOffsetY}px`;
+  }
+
+  function onUp(e) {
+    if (!dragging || resolved) return;
+    const d = dragging;
+    dragging = null;
+
+    if (!d.moved) {
+      returnSlotHome(d.el, d.fromIndex);
+      if (selected === d.fromIndex) { selected = null; paint(); return; }
+      if (selected === null) { selected = d.fromIndex; paint(); return; }
+      const other = selected;
+      selected = null;
+      swap(other, d.fromIndex);
+      return;
+    }
+
+    const targetIndex = slotIndexAt(e.clientY);
+    returnSlotHome(d.el, d.fromIndex);
+    if (targetIndex !== d.fromIndex) swap(d.fromIndex, targetIndex);
+  }
+
+  window.addEventListener("pointermove", onMove);
+  window.addEventListener("pointerup", onUp);
+  window.addEventListener("pointercancel", onUp);
+
+  function frame(ts) {
+    if (!sequenceRunning) return;
+    if (lastTs === null) lastTs = ts;
+    const dt = ts - lastTs;
+    lastTs = ts;
+    elapsed += dt;
+    if (timerFill) timerFill.style.width = `${Math.max(0, 100 - (elapsed / totalDuration) * 100)}%`;
+    if (elapsed >= totalDuration) { finish("fail"); return; }
+    sequenceRAF = requestAnimationFrame(frame);
+  }
+
+  sequenceRAF = requestAnimationFrame(frame);
+}
+
+let impermanenceRunning = false;
+let impermanenceRAF = null;
+
+function initImpermanenceGame(node) {
+  impermanenceRunning = true;
+  impermanenceRAF = null;
+
+  const instruction = document.getElementById("impermanenceInstruction");
+  const noteEl = document.getElementById("impermanenceNote");
+  const stage = document.getElementById("impermanenceStage");
+  const caption = document.getElementById("impermanenceCaption");
+  const continueBtn = document.getElementById("impermanenceContinue");
+
+  let phase = 1;
+  let cleanupPhase = () => {};
+
+  function showCaption(term, text) {
+    caption.innerHTML = `<span class="impermanence-term">${term}</span> &mdash; ${text}`;
+    caption.classList.add("show");
+    continueBtn.classList.add("show");
+  }
+
+  function onContinueClick() {
+    caption.classList.remove("show");
+    continueBtn.classList.remove("show");
+    cleanupPhase();
+    if (phase >= 3) {
+      impermanenceRunning = false;
+      continueBtn.removeEventListener("click", onContinueClick);
+      if (impermanenceRAF) cancelAnimationFrame(impermanenceRAF);
+      goto(node.next);
+      return;
+    }
+    phase += 1;
+    startPhase(phase);
+  }
+  continueBtn.addEventListener("click", onContinueClick);
+
+  function startPhase(p) {
+    if (p === 1) startSandcastle();
+    else if (p === 2) startCup();
+    else if (p === 3) startBox();
+  }
+
+  function startSandcastle() {
+    instruction.textContent = "Build something.";
+    noteEl.textContent = "Tap to pile on more sand.";
+    stage.innerHTML = `
+      <div class="sandcastle-stage">
+        <svg viewBox="0 0 140 100" class="sandcastle-svg" preserveAspectRatio="none">
+          <defs><clipPath id="castleClip">
+            <polygon points="20,90 120,90 95,50 45,50"></polygon>
+            <polygon points="45,50 55,50 50,35"></polygon>
+            <polygon points="62,50 78,50 70,25"></polygon>
+            <polygon points="85,50 95,50 90,35"></polygon>
+          </clipPath></defs>
+          <rect class="sandcastle-fill" id="sandcastleFill" x="0" y="100" width="140" height="0" clip-path="url(#castleClip)"></rect>
+        </svg>
+        <div class="wave-overlay" id="waveOverlay"></div>
+      </div>
+      <button class="choice" id="sandcastleTapBtn">Pile on more sand</button>
+    `;
+    const fillEl = document.getElementById("sandcastleFill");
+    const waveEl = document.getElementById("waveOverlay");
+    const tapBtn = document.getElementById("sandcastleTapBtn");
+    const TAPS_NEEDED = 5;
+    let taps = 0;
+    let waveTriggered = false;
+
+    function updateFill() {
+      const pct = taps / TAPS_NEEDED;
+      fillEl.setAttribute("y", `${100 - pct * 100}`);
+      fillEl.setAttribute("height", `${pct * 100}`);
+    }
+
+    function onTap() {
+      if (waveTriggered) return;
+      taps = Math.min(TAPS_NEEDED, taps + 1);
+      updateFill();
+      if (taps >= TAPS_NEEDED) {
+        tapBtn.disabled = true;
+        tapBtn.textContent = "It's finished.";
+        setTimeout(triggerWave, 700);
+      }
+    }
+    tapBtn.addEventListener("click", onTap);
+
+    function triggerWave() {
+      waveTriggered = true;
+      waveEl.classList.add("active");
+      setTimeout(() => { taps = 0; updateFill(); }, 500);
+      setTimeout(() => {
+        showCaption("Anicca", "Everything you build starts changing the moment you finish it.");
+      }, 1400);
+    }
+
+    cleanupPhase = () => { tapBtn.removeEventListener("click", onTap); };
+  }
+
+  function startCup() {
+    instruction.textContent = "Keep it full.";
+    noteEl.textContent = "Tap to pour. Watch what happens anyway.";
+    stage.innerHTML = `
+      <div class="cup-stage">
+        <svg viewBox="0 0 80 100" class="cup-svg" preserveAspectRatio="none">
+          <defs><clipPath id="cupClip"><polygon points="15,15 65,15 58,95 22,95"></polygon></clipPath></defs>
+          <rect class="cup-fill" id="cupFill" x="0" y="100" width="80" height="0" clip-path="url(#cupClip)"></rect>
+          <polygon points="15,15 65,15 58,95 22,95" class="cup-outline"></polygon>
+        </svg>
+      </div>
+      <button class="choice" id="cupPourBtn">Pour</button>
+    `;
+    const fillEl = document.getElementById("cupFill");
+    const pourBtn = document.getElementById("cupPourBtn");
+
+    let level = 0;
+    let elapsed = 0;
+    let localLastTs = null;
+    let phaseActive = true;
+    const DURATION = 8000;
+    const DECAY_PER_MS = 0.012;
+
+    function updateFill() {
+      const c = Math.max(0, Math.min(100, level));
+      fillEl.setAttribute("y", `${95 - c * 0.8}`);
+      fillEl.setAttribute("height", `${c * 0.8}`);
+    }
+
+    function onPour() {
+      level = Math.min(100, level + 18);
+      updateFill();
+    }
+    pourBtn.addEventListener("click", onPour);
+
+    function frame(ts) {
+      if (!phaseActive) return;
+      if (localLastTs === null) localLastTs = ts;
+      const dt = ts - localLastTs;
+      localLastTs = ts;
+      elapsed += dt;
+      level = Math.max(0, level - DECAY_PER_MS * dt);
+      updateFill();
+      if (elapsed >= DURATION) {
+        phaseActive = false;
+        showCaption("Dukkha", "Even full, it doesn't stay full. Wanting it to is the ache.");
+        return;
+      }
+      impermanenceRAF = requestAnimationFrame(frame);
+    }
+    impermanenceRAF = requestAnimationFrame(frame);
+
+    cleanupPhase = () => {
+      phaseActive = false;
+      pourBtn.removeEventListener("click", onPour);
+      if (impermanenceRAF) cancelAnimationFrame(impermanenceRAF);
+    };
+  }
+
+  function startBox() {
+    instruction.textContent = "Find yourself.";
+    noteEl.textContent = "Tap the box.";
+    stage.innerHTML = `<div class="box-stage" id="boxStage"><button class="you-box" id="youBox">You</button></div>`;
+    const boxStage = document.getElementById("boxStage");
+    const youBox = document.getElementById("youBox");
+
+    function onOpen() {
+      youBox.removeEventListener("click", onOpen);
+      noteEl.textContent = "Now find the one that's really you.";
+      const parts = ["Body", "Feelings", "Thoughts", "Habits", "Awareness"];
+      boxStage.innerHTML = "";
+      const partEls = [];
+      parts.forEach(p => {
+        const el = document.createElement("button");
+        el.className = "part-box";
+        el.textContent = p;
+        el._shake = () => { el.classList.add("shake"); setTimeout(() => el.classList.remove("shake"), 300); };
+        el.addEventListener("click", el._shake);
+        boxStage.appendChild(el);
+        partEls.push(el);
+      });
+      setTimeout(() => {
+        showCaption("Anatman", "Look through all of it, and there's no extra piece left over called &ldquo;you.&rdquo; Just these, arising together.");
+      }, 2200);
+      cleanupPhase = () => { partEls.forEach(el => el.removeEventListener("click", el._shake)); };
+    }
+    youBox.addEventListener("click", onOpen);
+    cleanupPhase = () => { youBox.removeEventListener("click", onOpen); };
+  }
+
+  startPhase(1);
+}
+
+let poisonsRunning = false;
+let poisonsRAF = null;
+
+function initPoisonsGame(node) {
+  poisonsRunning = true;
+  poisonsRAF = null;
+
+  const poisons = [
+    { key: "greed", label: "Greed", desc: "Wanting more, and still not enough.", liquid: "#9C7F2E" },
+    { key: "hatred", label: "Hatred", desc: "Pushing away anything that gets in the way.", liquid: "#8C3B2E" },
+    { key: "delusion", label: "Delusion", desc: "Certain your view is simply how things are.", liquid: "#6B5B73" }
+  ];
+  const antidotes = [
+    { key: "greed", label: "Generosity", liquid: "#E3A94F" },
+    { key: "hatred", label: "Loving-Kindness", liquid: "#D98A96" },
+    { key: "delusion", label: "Wisdom", liquid: "#9FC4CC" }
+  ];
+  const clearedColor = "#E8D9B8";
+
+  function vialSVG(clipId, liquidColor, fillPercent) {
+    const bodyX = 8, bodyY = 22, bodyW = 44, bodyH = 62;
+    const liquidH = bodyH * fillPercent;
+    const liquidY = bodyY + (bodyH - liquidH);
+    return `<svg class="vial-svg" viewBox="0 0 60 96" width="34" height="54">
+      <defs><clipPath id="${clipId}"><rect x="${bodyX}" y="${bodyY}" width="${bodyW}" height="${bodyH}" rx="18" ry="18" /></clipPath></defs>
+      <rect class="vial-liquid" data-liquid="${clipId}" x="11" y="${liquidY}" width="38" height="${liquidH}" clip-path="url(#${clipId})" fill="${liquidColor}"></rect>
+      <rect x="${bodyX}" y="${bodyY}" width="${bodyW}" height="${bodyH}" rx="18" ry="18" class="vial-glass"></rect>
+      <rect x="25" y="10" width="10" height="14" rx="2" class="vial-neck"></rect>
+      <rect x="19" y="2" width="22" height="10" rx="3" fill="#5C4A38" class="vial-cork"></rect>
+    </svg>`;
+  }
+
+  const shuffled = antidotes.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = tmp;
+  }
+
+  const zonesEl = document.getElementById("poisonZones");
+  const trayEl = document.getElementById("antidoteTray");
+  const timerFill = document.getElementById("poisonsTimerFill");
+
+  const zoneItems = [];
+  poisons.forEach(p => {
+    const el = document.createElement("div");
+    el.className = "poison-zone";
+    el.innerHTML = vialSVG(`clip-${p.key}`, p.liquid, 0.72) +
+      `<div class="poison-zone-text">
+        <div class="poison-zone-label">${p.label}</div>
+        <div class="poison-zone-desc">${p.desc}</div>
+      </div>`;
+    zonesEl.appendChild(el);
+    const liquidEl = el.querySelector(`[data-liquid="clip-${p.key}"]`);
+    zoneItems.push({ el, key: p.key, filled: false, liquidEl });
+  });
+
+  const tokenItems = [];
+  shuffled.forEach((a, i) => {
+    const el = document.createElement("div");
+    el.className = "antidote-token";
+    const clipId = `clip-token-${a.key}-${i}`;
+    el.innerHTML = vialSVG(clipId, a.liquid, 0.68) +
+      `<span class="antidote-token-label">${a.label}</span>`;
+    trayEl.appendChild(el);
+    tokenItems.push({ el, key: a.key, label: a.label, placed: false });
+  });
+
+  let matchedCount = 0;
+  let resolved = false;
+  let elapsed = 0;
+  let lastTs = null;
+  const totalDuration = 24000;
+  let dragging = null;
+  let dragOffsetX = 0, dragOffsetY = 0;
+  let selectedToken = null;
+
+  function clearSelection() {
+    if (selectedToken) selectedToken.el.classList.remove("selected");
+    selectedToken = null;
+  }
+
+  function resetTokenStyle(item) {
+    item.el.style.position = "";
+    item.el.style.left = "";
+    item.el.style.top = "";
+    item.el.style.zIndex = "";
+  }
+
+  function returnToTray(item) {
+    resetTokenStyle(item);
+    trayEl.appendChild(item.el);
+  }
+
+  function attemptPlace(item, zone) {
+    if (zone.filled || item.placed) return;
+    if (zone.key === item.key) {
+      item.placed = true;
+      zone.filled = true;
+      item.el.classList.add("matched");
+      zone.el.classList.add("filled");
+      if (zone.liquidEl) zone.liquidEl.setAttribute("fill", clearedColor);
+      const badge = document.createElement("div");
+      badge.className = "poison-zone-answer";
+      badge.textContent = item.label;
+      zone.el.querySelector(".poison-zone-text").appendChild(badge);
+      matchedCount++;
+      if (matchedCount >= 3) finish();
+    } else {
+      returnToTray(item);
+      item.el.classList.add("wrong-flash");
+      zone.el.classList.add("wrong-flash");
+      setTimeout(() => {
+        item.el.classList.remove("wrong-flash");
+        zone.el.classList.remove("wrong-flash");
+      }, 400);
+    }
+  }
+
+  function zoneAt(clientX, clientY) {
+    return zoneItems.find(z => {
+      if (z.filled) return false;
+      const r = z.el.getBoundingClientRect();
+      return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
+    });
+  }
+
+  tokenItems.forEach(item => {
+    item._down = function (e) {
+      if (item.placed || resolved) return;
+      e.preventDefault();
+      dragging = item;
+      item._startX = e.clientX; item._startY = e.clientY; item._moved = false;
+      const rect = item.el.getBoundingClientRect();
+      dragOffsetX = e.clientX - rect.left;
+      dragOffsetY = e.clientY - rect.top;
+      document.body.appendChild(item.el);
+      item.el.style.position = "fixed";
+      item.el.style.left = `${rect.left}px`;
+      item.el.style.top = `${rect.top}px`;
+      item.el.style.zIndex = "9999";
+      item.el.classList.add("dragging");
+    };
+    item.el.addEventListener("pointerdown", item._down);
+  });
+
+  function onPointerMove(e) {
+    if (!dragging) return;
+    const dx = e.clientX - dragging._startX, dy = e.clientY - dragging._startY;
+    if (Math.abs(dx) + Math.abs(dy) > 6) dragging._moved = true;
+    dragging.el.style.left = `${e.clientX - dragOffsetX}px`;
+    dragging.el.style.top = `${e.clientY - dragOffsetY}px`;
+  }
+
+  function onPointerUp(e) {
+    if (!dragging) return;
+    const item = dragging;
+    dragging = null;
+    item.el.classList.remove("dragging");
+
+    if (!item._moved) {
+      returnToTray(item);
+      if (selectedToken === item) { clearSelection(); return; }
+      clearSelection();
+      selectedToken = item;
+      item.el.classList.add("selected");
+      return;
+    }
+
+    const rect = item.el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+    const zone = zoneAt(cx, cy);
+    resetTokenStyle(item);
+    if (zone) {
+      attemptPlace(item, zone);
+    } else {
+      returnToTray(item);
+    }
+  }
+
+  zoneItems.forEach(zone => {
+    zone._click = function () {
+      if (selectedToken) {
+        const token = selectedToken;
+        clearSelection();
+        attemptPlace(token, zone);
+      }
+    };
+    zone.el.addEventListener("click", zone._click);
+  });
+
+  window.addEventListener("pointermove", onPointerMove);
+  window.addEventListener("pointerup", onPointerUp);
+  window.addEventListener("pointercancel", onPointerUp);
+
+  function cleanup() {
+    poisonsRunning = false;
+    tokenItems.forEach(it => it.el.removeEventListener("pointerdown", it._down));
+    zoneItems.forEach(z => z.el.removeEventListener("click", z._click));
+    window.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("pointerup", onPointerUp);
+    window.removeEventListener("pointercancel", onPointerUp);
+    if (poisonsRAF) cancelAnimationFrame(poisonsRAF);
+  }
+
+  function finish() {
+    if (resolved) return;
+    resolved = true;
+    cleanup();
+    state.history.push({ q: "The Three Poisons", a: `Matched ${matchedCount} of 3 antidotes` });
+    setTimeout(() => goto(node.next), 500);
+  }
+
+  function frame(ts) {
+    if (!poisonsRunning) return;
+    if (lastTs === null) lastTs = ts;
+    const dt = ts - lastTs;
+    lastTs = ts;
+    elapsed += dt;
+    if (timerFill) timerFill.style.width = `${Math.max(0, 100 - (elapsed / totalDuration) * 100)}%`;
+    if (elapsed >= totalDuration) { finish(); return; }
+    poisonsRAF = requestAnimationFrame(frame);
+  }
+
+  poisonsRAF = requestAnimationFrame(frame);
+}
+
+function render() {
+  const root = document.getElementById("root");
+  const node = getNode(state.node);
+  applyAtmosphere(node.progress);
+  updateClarityMeter();
+
+  let html = '<div class="card">';
+
+  if (node.tag) {
+    html += `<span class="exit-tag ${node.tag}">${node.tagLabel}</span>`;
+  }
+
+  if (node.type === "exit") {
+    html += `<h1>${node.headline}</h1>`;
+    html += `<p class="note">${node.text}</p>`;
+    if (node.epilogueNext) {
+      html += `<button class="choice" onclick="goto('${node.epilogueNext}')" style="margin-bottom:10px;">${node.epilogueLabel}</button>`;
+    }
+    html += `<button class="recap-toggle" onclick="toggleRecap()">${state.recapOpen ? "Hide" : "Show"} your path</button>`;
+    if (state.recapOpen) {
+      html += '<div class="recap">';
+      state.history.forEach(step => {
+        html += `<div class="step"><div class="q">${step.q}</div><div class="a">&rarr; ${step.a}</div></div>`;
+      });
+      html += '</div>';
+    }
+    html += '<button class="restart" onclick="restart()">Start over</button>';
+  } else if (node.type === "minigame") {
+    html += `<h1>Stay seated.</h1>`;
+    html += `<p class="note">Press and hold the circle. Keep steady while fear, desire, and doubt try to pull your focus off center.</p>`;
+    html += `<div class="mara-stage">
+      <svg class="mara-ring" viewBox="0 0 200 200">
+        <circle class="mara-ring-track" cx="100" cy="100" r="90"></circle>
+        <circle class="mara-ring-progress" id="maraRingProgress" cx="100" cy="100" r="90"></circle>
+      </svg>
+      <div class="mara-zone" id="maraZone">hold</div>
+      <div class="mara-caption" id="maraCaption"></div>
+    </div>`;
+    html += `<button class="mara-flee" id="maraFleeBtn">Rise and walk away</button>`;
+  } else if (node.type === "sights_scene") {
+    html += `<h1>The road into town.</h1>`;
+    html += `<p class="note">Find and tap all four sights before your escort hurries you along. Everything else is just noise.</p>`;
+    html += `<div class="sights-timer-track"><div class="sights-timer-fill" id="sightsTimerFill"></div></div>`;
+    html += `<div class="sight-stage" id="sightsStage"></div>`;
+    html += `<div class="sights-counter" id="sightsCounter">0 of 4 spotted</div>`;
+  } else if (node.type === "balance_game") {
+    html += `<h1>Find the Middle Way.</h1>`;
+    html += `<p class="note">Drag the marker to the center and hold it there. Old habits will shove it without warning, react and recenter.</p>`;
+    html += `<div class="balance-labels"><span>Total Denial</span><span>Total Indulgence</span></div>`;
+    html += `<div class="balance-track" id="balanceTrack">
+      <div class="balance-sweetspot"></div>
+      <div class="balance-marker" id="balanceMarker"></div>
+    </div>`;
+    html += `<div class="balance-caption" id="balanceCaption"></div>`;
+    html += `<div class="balance-progress-track"><div class="balance-progress-fill" id="balanceProgressFill"></div></div>`;
+    html += `<button class="mara-flee" id="balanceGiveUpBtn">Give up the struggle</button>`;
+  } else if (node.type === "sequence_game") {
+    html += `<h1>Put it into words.</h1>`;
+    html += `<p class="note">Drag lines to reorder them, or tap two to swap. Get the Four Truths in order before your nerve runs out.</p>`;
+    html += `<div class="sights-timer-track"><div class="sights-timer-fill" id="sequenceTimerFill"></div></div>`;
+    html += `<div class="sequence-list" id="seqList">
+      <button class="sequence-slot" id="seqSlot0"></button>
+      <button class="sequence-slot" id="seqSlot1"></button>
+      <button class="sequence-slot" id="seqSlot2"></button>
+      <button class="sequence-slot" id="seqSlot3"></button>
+    </div>`;
+  } else if (node.type === "impermanence_game") {
+    html += `<h1 id="impermanenceInstruction">Build something.</h1>`;
+    html += `<p class="note" id="impermanenceNote">Tap to pile on more sand.</p>`;
+    html += `<div id="impermanenceStage"></div>`;
+    html += `<div class="impermanence-caption" id="impermanenceCaption"></div>`;
+    html += `<button class="choice" id="impermanenceContinue">Continue</button>`;
+  } else if (node.type === "poisons_game") {
+    html += `<h1>Three Poisons, Three Antidotes.</h1>`;
+    html += `<p class="note">Drag each antidote onto the poison it cures. Or tap an antidote, then tap its poison.</p>`;
+    html += `<div class="sights-timer-track"><div class="sights-timer-fill" id="poisonsTimerFill"></div></div>`;
+    html += `<div class="poison-zones" id="poisonZones"></div>`;
+    html += `<div class="antidote-tray" id="antidoteTray"></div>`;
+  } else {
+    if (state.node === "four_sights_reveal") {
+      const n = state.sightsFound || 0;
+      const lead = n >= 4
+        ? "You catch every one of them."
+        : n === 0
+        ? "The noise of the road wins. By the time your escort points them out, most of it has already passed."
+        : `You catch ${n} of the four before your escort has to point out the rest.`;
+      html += `<h1>${lead}</h1>`;
+      html += `<p class="note">${node.text}</p>`;
+    } else {
+      html += `<h1>${node.text}</h1>`;
+    }
+    html += '<div class="choices">';
+    node.choices.forEach((choice, i) => {
+      html += `<button class="choice" onclick="choose(getNode('${state.node}').choices[${i}])">${choice.label}</button>`;
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  root.innerHTML = html;
+
+  if (node.type === "minigame") {
+    initMaraTest();
+  } else if (node.type === "sights_scene") {
+    initSightsScene(node);
+  } else if (node.type === "balance_game") {
+    initBalanceGame(node);
+  } else if (node.type === "sequence_game") {
+    initSequenceGame(node);
+  } else if (node.type === "impermanence_game") {
+    initImpermanenceGame(node);
+  } else if (node.type === "poisons_game") {
+    initPoisonsGame(node);
+  }
+}
+
+render();
+</script>
+</body>
+</html>
