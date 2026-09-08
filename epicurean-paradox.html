@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Epicurean Paradox</title>
+<style>
+  :root {
+    --ink: #1B1F27;
+    --ink-2: #14171E;
+    --parchment: #EDE6D6;
+    --parchment-edge: #DCD2B8;
+    --text: #2A2620;
+    --text-soft: #5B5546;
+    --yes: #4C7A5E;
+    --yes-dark: #3A5F48;
+    --no: #8C3B2E;
+    --no-dark: #712F24;
+    --neutral: #8A7A4B;
+    --neutral-dark: #6F6039;
+    --stalemate: #6B5B73;
+    --stalemate-dark: #554653;
+    --focus: #C9A227;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: radial-gradient(ellipse at 50% -10%, #262B36 0%, var(--ink) 55%, var(--ink-2) 100%);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+  }
+
+  .stage {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .masthead {
+    text-align: center;
+    margin-bottom: 22px;
+  }
+
+  .masthead h2 {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Sitka Text", Georgia, serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    letter-spacing: 0.01em;
+    color: #F1EEE4;
+    margin: 0;
+  }
+
+  .masthead p {
+    color: #9CA3AF;
+    font-size: 0.85rem;
+    margin: 4px 0 0;
+  }
+
+  .card {
+    background: var(--parchment);
+    width: 100%;
+    max-width: 480px;
+    padding: 34px 28px 28px;
+    border-top: 3px double var(--parchment-edge);
+    border-bottom: 3px double var(--parchment-edge);
+    box-shadow: 0 18px 40px rgba(15, 10, 5, 0.35);
+    opacity: 0;
+    transform: translateY(8px);
+    animation: rise 0.38s ease forwards;
+  }
+
+  @keyframes rise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Sitka Text", Georgia, serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    line-height: 1.32;
+    margin: 0 0 10px;
+  }
+
+  .card .note {
+    font-size: 0.92rem;
+    color: var(--text-soft);
+    line-height: 1.5;
+    margin: 0 0 22px;
+  }
+
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  button.choice {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 13px 18px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    color: #F5F1E6;
+    background: var(--neutral);
+    text-align: left;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+
+  button.choice:hover { transform: translateY(-1px); }
+  button.choice:active { transform: translateY(0); }
+
+  button.choice:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  button.choice.tone-yes { background: var(--yes); }
+  button.choice.tone-yes:hover { background: var(--yes-dark); }
+  button.choice.tone-no { background: var(--no); }
+  button.choice.tone-no:hover { background: var(--no-dark); }
+  button.choice.tone-neutral:hover { background: var(--neutral-dark); }
+
+  .exit-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #F5F1E6;
+    padding: 3px 9px;
+    border-radius: 2px;
+    margin-bottom: 12px;
+  }
+  .exit-tag.no { background: var(--no); }
+  .exit-tag.stalemate { background: var(--stalemate); }
+
+  .recap-toggle {
+    margin-top: 20px;
+    background: none;
+    border: none;
+    color: var(--text-soft);
+    text-decoration: underline;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  .recap {
+    margin-top: 14px;
+    border-top: 1px solid var(--parchment-edge);
+    padding-top: 14px;
+    max-height: 260px;
+    overflow-y: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--text-soft);
+  }
+
+  .recap .step {
+    margin-bottom: 10px;
+  }
+
+  .recap .step .q {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .recap .step .a {
+    color: var(--yes-dark);
+  }
+
+  button.restart {
+    margin-top: 22px;
+    width: 100%;
+    background: var(--ink);
+    color: #F1EEE4;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 12px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  button.restart:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="masthead">
+    <h2>The Epicurean Paradox</h2>
+    <p>PHI 110 &middot; a reasoning game</p>
+  </div>
+  <div id="root"></div>
+</div>
+
+<script>
+const REASON_LABELS = {
+  test: "To test us",
+  satan: "Because of Satan",
+  necessary: "It's necessary for the universe to exist",
+  other: "Some other reason"
+};
+
+const graph = {
+  intro: {
+    type: "info",
+    text: "Evil exists in the world: suffering, cruelty, disease, disaster. If God is all-powerful, all-knowing, and all-loving, why does evil exist at all? Click through the reasoning and see where it takes you.",
+    choices: [{ label: "Begin", tone: "neutral", next: "can_prevent" }]
+  },
+  can_prevent: {
+    type: "question",
+    text: "Can God prevent evil?",
+    choices: [
+      { label: "Yes", tone: "yes", next: "does_know" },
+      { label: "No", tone: "no", next: "exit_not_powerful" }
+    ]
+  },
+  does_know: {
+    type: "question",
+    text: "Does God know about all the evil in the world?",
+    choices: [
+      { label: "Yes", tone: "yes", next: "wants_prevent" },
+      { label: "No", tone: "no", next: "exit_not_knowing" }
+    ]
+  },
+  wants_prevent: {
+    type: "question",
+    text: "Does God want to prevent evil?",
+    choices: [
+      { label: "Yes", tone: "yes", next: "why_evil" },
+      { label: "No", tone: "no", next: "exit_not_good" }
+    ]
+  },
+  why_evil: {
+    type: "branch",
+    text: "Then why is there evil?",
+    dynamic: "why_evil"
+  },
+  rebuttal_test: {
+    type: "info",
+    text: "But if God is all-knowing, he already knows what we would do if we were tested. There would be no need to test us.",
+    choices: [{ label: "Continue", tone: "neutral", next: "rebuttal_satan_chained" }]
+  },
+  rebuttal_satan_chained: {
+    type: "info",
+    text: "So perhaps the evil comes from Satan instead. But an all-powerful, all-knowing, all-good God could destroy Satan, and would.",
+    choices: [{ label: "Continue", tone: "neutral", next: "then_why_didnt_he" }]
+  },
+  rebuttal_satan_direct: {
+    type: "info",
+    text: "An all-powerful, all-knowing, all-good God could destroy Satan, and would.",
+    choices: [{ label: "Continue", tone: "neutral", next: "then_why_didnt_he" }]
+  },
+  could_create_without: {
+    type: "question",
+    text: "Could God have created a universe without these evils?",
+    choices: [
+      { label: "Yes", tone: "yes", next: "then_why_didnt_he" },
+      { label: "No", tone: "no", next: "exit_not_powerful" }
+    ]
+  },
+  then_why_didnt_he: {
+    type: "info",
+    text: "Then why didn't he? The most common answer: free will.",
+    choices: [{ label: "Continue", tone: "neutral", next: "could_create_with_freewill" }]
+  },
+  could_create_with_freewill: {
+    type: "question",
+    text: "Could God have created a universe with free will, but without evil?",
+    choices: [
+      { label: "Yes", tone: "yes", next: "why_evil_loop" },
+      { label: "No", tone: "no", next: "exit_not_powerful" }
+    ]
+  },
+  why_evil_loop: {
+    type: "branch",
+    text: "So the reasoning is back where it started: why is there evil?",
+    note: "The reason picked before didn't hold up. If any reasons are left, pick one of those.",
+    dynamic: "why_evil_loop"
+  },
+  exit_not_powerful: {
+    type: "exit",
+    tag: "no",
+    headline: "God is not all-powerful.",
+    text: "Every path that tried to explain evil without giving up omnipotence eventually ran into something God could have prevented and didn't. That's one horn of the trilemma: if evil exists and God doesn't stop it, either he can't, or he doesn't fully know, or he doesn't fully want to. This path lands on \u201ccan't.\u201d"
+  },
+  exit_not_knowing: {
+    type: "exit",
+    tag: "no",
+    headline: "God is not all-knowing.",
+    text: "This path lands on the second horn: if God doesn't know about all the evil in the world, his knowledge is limited. Omniscience and the existence of unaddressed evil don't sit together easily."
+  },
+  exit_not_good: {
+    type: "exit",
+    tag: "no",
+    headline: "God is not all-loving.",
+    text: "This path lands on the third horn: a being who can prevent evil, knows about it, and still doesn't want to stop it isn't what we usually mean by all-good."
+  },
+  exit_stalemate: {
+    type: "exit",
+    tag: "stalemate",
+    headline: "The reasoning has run out of exits, for now.",
+    text: "All four reasons offered for evil got rebutted in turn, and free will didn't close the gap either. This is the trilemma at its sharpest: within this flowchart, no answer survives. Escaping it takes a premise from outside the flowchart entirely, something like a greater-good theodicy, skeptical theism, or simply accepting one of the three horns above."
+  }
+};
+
+let state = { node: "intro", history: [], usedReasons: [], recapOpen: false };
+
+function remainingReasons() {
+  return Object.keys(REASON_LABELS).filter(k => !state.usedReasons.includes(k));
+}
+
+function buildReasonChoices(nextForEach) {
+  return remainingReasons().map(key => ({
+    label: REASON_LABELS[key],
+    tone: "neutral",
+    reasonKey: key,
+    next: nextForEach(key)
+  }));
+}
+
+function getNode(id) {
+  const raw = graph[id];
+  if (!raw.dynamic) return raw;
+
+  if (raw.dynamic === "why_evil") {
+    return {
+      ...raw,
+      choices: buildReasonChoices(key => key === "test" ? "rebuttal_test" : key === "satan" ? "rebuttal_satan_direct" : "could_create_without")
+    };
+  }
+
+  if (raw.dynamic === "why_evil_loop") {
+    if (remainingReasons().length === 0) {
+      return { type: "redirect", next: "exit_stalemate" };
+    }
+    return {
+      ...raw,
+      choices: buildReasonChoices(key => key === "test" ? "rebuttal_test" : key === "satan" ? "rebuttal_satan_direct" : "could_create_without")
+    };
+  }
+}
+
+function goto(nextId) {
+  const resolved = getNode(nextId);
+  if (resolved.type === "redirect") {
+    state.node = resolved.next;
+  } else {
+    state.node = nextId;
+  }
+  render();
+}
+
+function restart() {
+  state = { node: "intro", history: [], usedReasons: [], recapOpen: false };
+  render();
+}
+
+function toggleRecap() {
+  state.recapOpen = !state.recapOpen;
+  render();
+}
+
+function render() {
+  const root = document.getElementById("root");
+  const node = getNode(state.node);
+
+  if (node.type === "redirect") {
+    state.node = node.next;
+    return render();
+  }
+
+  let html = '<div class="card">';
+
+  if (node.type === "exit") {
+    html += `<span class="exit-tag ${node.tag}">Conclusion</span>`;
+    html += `<h1>${node.headline}</h1>`;
+    html += `<p class="note">${node.text}</p>`;
+    html += `<button class="recap-toggle" onclick="toggleRecap()">${state.recapOpen ? "Hide" : "Show"} your reasoning path</button>`;
+    if (state.recapOpen) {
+      html += '<div class="recap">';
+      state.history.forEach(step => {
+        html += `<div class="step"><div class="q">${step.q}</div><div class="a">&rarr; ${step.a}</div></div>`;
+      });
+      html += '</div>';
+    }
+    html += '<button class="restart" onclick="restart()">Start over</button>';
+  } else {
+    html += `<h1>${node.text}</h1>`;
+    if (node.note) html += `<p class="note">${node.note}</p>`;
+    html += '<div class="choices">';
+    node.choices.forEach((choice, i) => {
+      html += `<button class="choice tone-${choice.tone}" onclick="choose(getNode('${state.node}').choices[${i}])">${choice.label}</button>`;
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  root.innerHTML = html;
+}
+
+function choose(choice) {
+  const node = getNode(state.node);
+  state.history.push({ q: node.text, a: choice.label });
+  if (choice.reasonKey) state.usedReasons.push(choice.reasonKey);
+  goto(choice.next);
+}
+
+render();
+</script>
+</body>
+</html>
