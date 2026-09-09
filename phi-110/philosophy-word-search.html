@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Philosophy Word Search</title>
+<style>
+  :root {
+    --paper: #F7F5EF;
+    --paper-edge: #DFD8C4;
+    --ink: #24211B;
+    --ink-soft: #6B6455;
+    --grid-line: #C9C0A6;
+    --select: #B23A2E;
+    --found: #4C7A5E;
+    --found-bg: rgba(76,122,94,0.14);
+    --focus: #C9A227;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: #1E1B16;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+  }
+
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 28px 16px 60px;
+  }
+
+  .masthead { text-align: center; margin-bottom: 18px; }
+
+  .back-link {
+    display: inline-block;
+    color: rgba(247,245,239,0.55);
+    font-size: 0.8rem;
+    text-decoration: none;
+    margin-bottom: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.15s ease;
+  }
+  .back-link:hover { color: #F7F5EF; }
+
+  .stamp {
+    display: inline-block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #1E1B16;
+    background: var(--select);
+    padding: 3px 9px;
+    border-radius: 3px;
+    transform: rotate(-2deg);
+    margin-bottom: 10px;
+  }
+
+  .masthead h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Sitka Text", Georgia, serif;
+    font-weight: 600;
+    font-size: 1.6rem;
+    color: #F7F5EF;
+    margin: 0 0 4px;
+  }
+
+  .masthead p {
+    color: rgba(247,245,239,0.6);
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  .panel {
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 16px 36px rgba(0,0,0,0.3);
+    margin-bottom: 16px;
+  }
+
+  .unit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .unit-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 2px solid var(--paper-edge);
+    background: #FBF9F3;
+    cursor: pointer;
+  }
+
+  .unit-btn .unit-label {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+
+  .unit-btn .unit-meta {
+    display: block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-top: 3px;
+  }
+
+  .unit-btn:not(:disabled):hover { border-color: var(--select); }
+
+  .unit-btn:disabled {
+    cursor: default;
+    opacity: 0.55;
+  }
+  .unit-btn:disabled .unit-meta { color: var(--select); }
+
+  .status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.74rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+
+  .status-row button {
+    font-family: inherit;
+    font-size: 0.74rem;
+    background: none;
+    border: 1px solid var(--paper-edge);
+    border-radius: 6px;
+    padding: 4px 9px;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+
+  #grid {
+    display: grid;
+    gap: 0;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: var(--grid-line);
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--paper);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-weight: 700;
+    color: var(--ink);
+    cursor: pointer;
+    font-size: 0.62rem;
+  }
+
+  .cell.selecting { background: rgba(178,58,46,0.22); color: var(--select); }
+  .cell.found { background: var(--found-bg); color: var(--found); }
+  .cell.wrong { background: rgba(178,58,46,0.35); }
+
+  .word-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .word-item {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(36,33,27,0.03);
+    transition: opacity 0.3s ease, background 0.3s ease;
+  }
+
+  .word-item .clue {
+    font-size: 0.78rem;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+
+  .word-item .term-reveal {
+    display: block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-weight: 700;
+    font-size: 0.76rem;
+    color: var(--found);
+    margin-top: 3px;
+  }
+
+  .word-item.found {
+    background: var(--found-bg);
+  }
+  .word-item.found .clue {
+    color: var(--ink-soft);
+  }
+
+  .complete-banner {
+    display: none;
+    text-align: center;
+    padding: 14px;
+    border-radius: 10px;
+    background: var(--found-bg);
+    color: var(--found);
+    font-weight: 700;
+    font-size: 0.92rem;
+    margin-bottom: 16px;
+  }
+  .complete-banner.show { display: block; }
+
+  #selectorScreen, #puzzleScreen { display: none; }
+  #selectorScreen.active, #puzzleScreen.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div id="selectorScreen">
+    <div class="masthead">
+      <a href="../index.html" class="back-link">&larr; Course Activities</a>
+      <div><span class="stamp">Word Search</span></div>
+      <h1>Choose a Unit</h1>
+      <p>PHI 110</p>
+    </div>
+    <div class="panel">
+      <div class="unit-list" id="unitList"></div>
+    </div>
+  </div>
+
+  <div id="puzzleScreen">
+    <div class="masthead">
+      <button type="button" class="back-link" id="backToUnits">&larr; Units</button>
+      <div><span class="stamp">Word Search</span></div>
+      <h1 id="puzzleTitle"></h1>
+      <p id="puzzleSubtitle"></p>
+    </div>
+
+    <div class="panel">
+      <div class="complete-banner" id="completeBanner"></div>
+      <div class="status-row">
+        <span id="foundCount"></span>
+        <span id="timerDisplay">0:00</span>
+        <button id="resetBtn" type="button">New grid</button>
+      </div>
+      <div id="grid"></div>
+    </div>
+
+    <div class="panel">
+      <div class="word-list" id="wordList"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ---- CONFIG: each unit is a self-contained word list. Add a new unit by adding
+// another entry here and flipping available to true. ----
+const UNITS = [
+  {
+    id: "metaphysics",
+    label: "Metaphysics",
+    tag: "PHI 110",
+    available: true,
+    title: "Metaphysics: Pre-Socratics to the Moderns",
+    words: [
+      { term: "THALES", display: "Thales", clue: "This philosopher argued that everything in the world is ultimately made of water." },
+      { term: "HERACLITUS", display: "Heraclitus", clue: "This philosopher argued that everything is in constant flux, and you can never step in the same river twice." },
+      { term: "PARMENIDES", display: "Parmenides", clue: "This philosopher argued that true reality never changes, and all change is an illusion." },
+      { term: "DEMOCRITUS", display: "Democritus", clue: "This philosopher argued that reality is made of indivisible atoms moving through empty void." },
+      { term: "PYTHAGORAS", display: "Pythagoras", clue: "This philosopher argued that reality is fundamentally mathematical, and numbers explain everything that exists." },
+      { term: "PLATO", display: "Plato", clue: "This philosopher argued that the physical world is only a shadow of a higher world of perfect Forms." },
+      { term: "ARISTOTLE", display: "Aristotle", clue: "This philosopher argued that every substance is a combination of form and matter." },
+      { term: "DESCARTES", display: "Descartes", clue: "This philosopher argued that the mind and the body are two completely different kinds of substance." },
+      { term: "SPINOZA", display: "Spinoza", clue: "This philosopher argued that there is only one substance in existence, and it is God, or nature itself." },
+      { term: "LEIBNIZ", display: "Leibniz", clue: "This philosopher argued that reality is built from infinite simple substances called monads." },
+      { term: "SOPHISTS", display: "Sophists", clue: "This group of traveling teachers in ancient Greece argued that truth and morality were relative, not fixed." },
+      { term: "LOGOS", display: "Logos", clue: "Heraclitus's term for the rational structure underlying constant change." },
+      { term: "ATOMISM", display: "Atomism", clue: "The view that reality is built from indivisible, indestructible particles." },
+      { term: "MONISM", display: "Monism", clue: "The view that there is only one fundamental kind of substance in reality." },
+      { term: "DUALISM", display: "Dualism", clue: "The view that mind and body are two fundamentally different kinds of substance." },
+      { term: "PLURALISM", display: "Pluralism", clue: "The view that reality is made of many fundamentally different kinds of substance, not just one." },
+      { term: "IDEALISM", display: "Idealism", clue: "The view that reality is fundamentally mental, or made of ideas, rather than physical matter." },
+      { term: "PANTHEISM", display: "Pantheism", clue: "The view that God and the natural universe are one and the same thing." },
+      { term: "SUBSTANCE", display: "Substance", clue: "What a thing fundamentally is, independent of its properties or how it appears." },
+      { term: "ESSENCE", display: "Essence", clue: "What makes a thing the particular kind of thing that it is." },
+      { term: "FORMS", display: "Forms", clue: "Plato's perfect, unchanging templates that physical things only imperfectly copy." },
+      { term: "MONAD", display: "Monad", clue: "An immaterial, simple substance that Leibniz argued is the basic building block of reality." },
+      { term: "METAPHYSICS", display: "Metaphysics", clue: "The branch of philosophy that asks what is ultimately real." },
+      { term: "CAUSASUI", display: "Causa Sui", clue: "Latin for &ldquo;cause of itself&rdquo;; Spinoza used this term for a being that depends on nothing else to exist." },
+      { term: "DETERMINISM", display: "Determinism", clue: "The view that every event is fully caused by prior events, leaving no room for real chance." },
+      { term: "TELEOLOGY", display: "Teleology", clue: "The idea that things can be explained by their purpose or the end they are directed toward." },
+      { term: "APEIRON", display: "Apeiron", clue: "Anaximander's term for the boundless, indefinite source that everything else comes from." },
+      { term: "HYLOMORPHISM", display: "Hylomorphism", clue: "Aristotle's theory that every physical thing is a union of matter and form." },
+      { term: "BRAHMAN", display: "Brahman", clue: "In Hindu philosophy, the single, ultimate reality underlying and connecting everything that exists." },
+      { term: "DAO", display: "Dao", clue: "In Chinese philosophy, the underlying way or path that structures the natural universe." },
+      { term: "WUWEI", display: "Wu Wei", clue: "A Daoist concept: effortless action that flows with the natural way rather than forcing outcomes." },
+      { term: "VEDANTA", display: "Vedanta", clue: "A major school of Hindu philosophy focused on the nature of Brahman and the self." },
+      { term: "SAMKHYA", display: "Samkhya", clue: "An ancient Hindu school of philosophy built on a strict dualism between consciousness and matter." },
+      { term: "MAYA", display: "Maya", clue: "In Hindu philosophy, the appearance or illusion that veils the true nature of reality." }
+    ]
+  },
+  { id: "introduction", label: "Introduction", tag: "PHI 110", available: false },
+  { id: "epistemology", label: "Epistemology", tag: "PHI 110", available: false },
+  { id: "questions-of-god", label: "Questions of God", tag: "PHI 110", available: false },
+  { id: "the-self", label: "The Self", tag: "PHI 110", available: false }
+];
+// ---- END CONFIG ----
+
+const GRID_SIZE = 20;
+const DIRECTIONS = [
+  [0, 1], [1, 0]
+];
+
+function rangeFor(delta, size, len) {
+  if (delta === 1) return [0, size - len];
+  if (delta === -1) return [len - 1, size - 1];
+  return [0, size - 1];
+}
+
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function buildGrid(words, size) {
+  const grid = Array.from({ length: size }, () => Array(size).fill(null));
+  const placements = [];
+  const sorted = [...words].sort((a, b) => b.term.length - a.term.length);
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  sorted.forEach(w => {
+    const letters = w.term.split("");
+    let placedOk = false;
+    let attempts = 0;
+    while (!placedOk && attempts < 600) {
+      attempts++;
+      const [dr, dc] = DIRECTIONS[randomInt(0, DIRECTIONS.length - 1)];
+      const [rMin, rMax] = rangeFor(dr, size, letters.length);
+      const [cMin, cMax] = rangeFor(dc, size, letters.length);
+      if (rMin > rMax || cMin > cMax) continue;
+      const startR = randomInt(rMin, rMax);
+      const startC = randomInt(cMin, cMax);
+      const cells = [];
+      let ok = true;
+      for (let i = 0; i < letters.length; i++) {
+        const r = startR + dr * i;
+        const c = startC + dc * i;
+        const existing = grid[r][c];
+        if (existing !== null && existing !== letters[i]) { ok = false; break; }
+        cells.push({ r, c });
+      }
+      if (ok) {
+        cells.forEach((cell, i) => { grid[cell.r][cell.c] = letters[i]; });
+        placements.push({ term: w.term, cells });
+        placedOk = true;
+      }
+    }
+  });
+
+  for (let r = 0; r < size; r++) {
+    for (let c = 0; c < size; c++) {
+      if (grid[r][c] === null) grid[r][c] = alphabet[randomInt(0, 25)];
+    }
+  }
+  return { grid, placements };
+}
+
+let currentUnit = null;
+let puzzle = null;
+let cellEls = [];
+let foundTerms = new Set();
+let selecting = false;
+let startCell = null;
+let tapPending = null;
+let elapsedMs = 0;
+let timerInterval = null;
+
+function cellKey(r, c) { return `${r},${c}`; }
+
+function renderUnitSelector() {
+  const listEl = document.getElementById("unitList");
+  listEl.innerHTML = "";
+  UNITS.forEach(u => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "unit-btn";
+    btn.disabled = !u.available;
+    btn.innerHTML = `<span class="unit-label">${u.label}</span><span class="unit-meta">${u.available ? u.tag : "Coming soon"}</span>`;
+    if (u.available) btn.addEventListener("click", () => loadUnit(u.id));
+    listEl.appendChild(btn);
+  });
+}
+
+function showSelector() {
+  document.getElementById("selectorScreen").classList.add("active");
+  document.getElementById("puzzleScreen").classList.remove("active");
+  stopTimer();
+}
+
+function showPuzzle() {
+  document.getElementById("selectorScreen").classList.remove("active");
+  document.getElementById("puzzleScreen").classList.add("active");
+}
+
+function loadUnit(id) {
+  const unit = UNITS.find(u => u.id === id && u.available);
+  if (!unit) return;
+  currentUnit = unit;
+  document.getElementById("puzzleTitle").textContent = unit.title;
+  document.getElementById("puzzleSubtitle").textContent = unit.tag;
+  document.getElementById("completeBanner").textContent = `All ${unit.words.length} found. Nice work.`;
+  showPuzzle();
+  newPuzzle();
+}
+
+function renderGrid() {
+  const gridEl = document.getElementById("grid");
+  gridEl.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 1fr)`;
+  gridEl.innerHTML = "";
+  cellEls = [];
+  for (let r = 0; r < GRID_SIZE; r++) {
+    const row = [];
+    for (let c = 0; c < GRID_SIZE; c++) {
+      const div = document.createElement("div");
+      div.className = "cell";
+      div.textContent = puzzle.grid[r][c];
+      div.dataset.r = r;
+      div.dataset.c = c;
+      gridEl.appendChild(div);
+      row.push(div);
+    }
+    cellEls.push(row);
+  }
+}
+
+function renderWordList() {
+  const listEl = document.getElementById("wordList");
+  listEl.innerHTML = "";
+  currentUnit.words.forEach(w => {
+    const item = document.createElement("div");
+    item.className = "word-item" + (foundTerms.has(w.term) ? " found" : "");
+    item.id = `wordItem-${w.term}`;
+    item.innerHTML = `<span class="clue">${w.clue}</span><span class="term-reveal">${foundTerms.has(w.term) ? "&mdash; " + w.display : ""}</span>`;
+    listEl.appendChild(item);
+  });
+}
+
+function clearSelectionStyles() {
+  cellEls.forEach(row => row.forEach(el => el.classList.remove("selecting")));
+}
+
+function snappedLine(r0, c0, r1, c1) {
+  const dr = r1 - r0, dc = c1 - c0;
+  if (dr === 0 && dc === 0) return [{ r: r0, c: c0 }];
+  const angle = Math.atan2(dr, dc);
+  const snapped = Math.round(angle / (Math.PI / 4)) * (Math.PI / 4);
+  const stepR = Math.round(Math.sin(snapped));
+  const stepC = Math.round(Math.cos(snapped));
+  const length = Math.max(Math.abs(dr), Math.abs(dc));
+  const cells = [];
+  for (let i = 0; i <= length; i++) {
+    const r = r0 + stepR * i, c = c0 + stepC * i;
+    if (r < 0 || r >= GRID_SIZE || c < 0 || c >= GRID_SIZE) break;
+    cells.push({ r, c });
+  }
+  return cells;
+}
+
+function highlightPath(cells) {
+  clearSelectionStyles();
+  cells.forEach(({ r, c }) => cellEls[r][c].classList.add("selecting"));
+}
+
+function updateStatus() {
+  document.getElementById("foundCount").textContent = `${foundTerms.size} of ${currentUnit.words.length} found`;
+  if (foundTerms.size >= currentUnit.words.length) {
+    document.getElementById("completeBanner").classList.add("show");
+    stopTimer();
+  }
+}
+
+function displayFor(term) {
+  const w = currentUnit.words.find(x => x.term === term);
+  return w ? w.display : term;
+}
+
+function markFound(cells, term) {
+  cells.forEach(({ r, c }) => {
+    cellEls[r][c].classList.remove("selecting");
+    cellEls[r][c].classList.add("found");
+  });
+  foundTerms.add(term);
+  const item = document.getElementById(`wordItem-${term}`);
+  if (item) {
+    item.classList.add("found");
+    const reveal = item.querySelector(".term-reveal");
+    if (reveal) reveal.textContent = `\u2014 ${displayFor(term)}`;
+  }
+  updateStatus();
+}
+
+function flashWrong(cells) {
+  cells.forEach(({ r, c }) => cellEls[r][c].classList.add("wrong"));
+  setTimeout(() => {
+    cells.forEach(({ r, c }) => cellEls[r][c].classList.remove("wrong", "selecting"));
+  }, 260);
+}
+
+function sameCellSet(a, b) {
+  if (a.length !== b.length) return false;
+  const aSet = new Set(a.map(x => cellKey(x.r, x.c)));
+  return b.every(x => aSet.has(cellKey(x.r, x.c)));
+}
+
+function matchWord(cells) {
+  const forward = cells.map(({ r, c }) => puzzle.grid[r][c]).join("");
+  const backward = forward.split("").reverse().join("");
+  return puzzle.placements.find(p =>
+    !foundTerms.has(p.term) && (p.term === forward || p.term === backward) &&
+    p.cells.length === cells.length &&
+    sameCellSet(p.cells, cells)
+  );
+}
+
+function resolveSelection(cells) {
+  if (cells.length < 2) { clearSelectionStyles(); return; }
+  const match = matchWord(cells);
+  if (match) {
+    markFound(match.cells, match.term);
+  } else {
+    flashWrong(cells);
+  }
+}
+
+function cellFromPoint(x, y) {
+  const el = document.elementFromPoint(x, y);
+  if (!el || !el.classList || !el.classList.contains("cell")) return null;
+  return { r: parseInt(el.dataset.r, 10), c: parseInt(el.dataset.c, 10) };
+}
+
+function onGridPointerDown(e) {
+  e.preventDefault();
+  const cell = cellFromPoint(e.clientX, e.clientY);
+  if (!cell) return;
+
+  if (tapPending) {
+    const path = snappedLine(tapPending.r, tapPending.c, cell.r, cell.c);
+    resolveSelection(path);
+    tapPending = null;
+    selecting = false;
+    return;
+  }
+
+  selecting = true;
+  startCell = cell;
+  highlightPath([cell]);
+}
+
+function onGridPointerMove(e) {
+  if (!selecting || !startCell) return;
+  const cell = cellFromPoint(e.clientX, e.clientY);
+  if (!cell) return;
+  highlightPath(snappedLine(startCell.r, startCell.c, cell.r, cell.c));
+}
+
+function onGridPointerUp(e) {
+  if (!selecting || !startCell) return;
+  const cell = cellFromPoint(e.clientX, e.clientY);
+  const end = cell || startCell;
+  const path = snappedLine(startCell.r, startCell.c, end.r, end.c);
+  selecting = false;
+
+  if (path.length <= 1) {
+    tapPending = startCell;
+    highlightPath([startCell]);
+    startCell = null;
+    return;
+  }
+  startCell = null;
+  resolveSelection(path);
+}
+
+function formatTime(ms) {
+  const totalSec = Math.floor(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${m}:${s < 10 ? "0" : ""}${s}`;
+}
+
+function startTimer() {
+  stopTimer();
+  const start = Date.now();
+  timerInterval = setInterval(() => {
+    elapsedMs = Date.now() - start;
+    document.getElementById("timerDisplay").textContent = formatTime(elapsedMs);
+  }, 500);
+}
+
+function stopTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function newPuzzle() {
+  puzzle = buildGrid(currentUnit.words, GRID_SIZE);
+  foundTerms = new Set();
+  tapPending = null;
+  selecting = false;
+  startCell = null;
+  document.getElementById("completeBanner").classList.remove("show");
+  renderGrid();
+  renderWordList();
+  updateStatus();
+  elapsedMs = 0;
+  startTimer();
+}
+
+document.getElementById("grid").addEventListener("pointerdown", onGridPointerDown);
+window.addEventListener("pointermove", onGridPointerMove);
+window.addEventListener("pointerup", onGridPointerUp);
+document.getElementById("resetBtn").addEventListener("click", newPuzzle);
+document.getElementById("backToUnits").addEventListener("click", showSelector);
+
+renderUnitSelector();
+showSelector();
+</script>
+</body>
+</html>
