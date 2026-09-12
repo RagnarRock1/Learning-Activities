@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metaphysics Hangman</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    --paper: #F7F5EF;
+    --paper-edge: #DFD8C4;
+    --ink: #24211B;
+    --ink-soft: #6B6455;
+    --accent: #B23A2E;
+    --accent-dark: #8C2E24;
+    --good: #4C7A5E;
+    --good-bg: rgba(76,122,94,0.14);
+    --bad: #8C3B2E;
+    --focus: #C9A227;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background: #1E1B16;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+  }
+
+  .wrap { max-width: 560px; margin: 0 auto; padding: 28px 16px 60px; }
+
+  .masthead { text-align: center; margin-bottom: 18px; }
+  .back-link {
+    display: inline-block;
+    color: rgba(247,245,239,0.55);
+    font-size: 0.8rem;
+    text-decoration: none;
+    margin-bottom: 10px;
+  }
+  .back-link:hover { color: #F7F5EF; }
+  .stamp {
+    display: inline-block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #1E1B16;
+    background: var(--accent);
+    padding: 3px 9px;
+    border-radius: 3px;
+    transform: rotate(-2deg);
+    margin-bottom: 10px;
+  }
+  .masthead h1 {
+    font-family: "Iowan Old Style", "Palatino Linotype", "Sitka Text", Georgia, serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: #F7F5EF;
+    margin: 0 0 4px;
+  }
+  .masthead p { color: rgba(247,245,239,0.6); font-size: 0.85rem; margin: 0; }
+
+  .panel {
+    background: var(--paper);
+    border: 1px solid var(--paper-edge);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 16px 36px rgba(0,0,0,0.3);
+    margin-bottom: 16px;
+  }
+
+  label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--ink-soft); margin-bottom: 6px; letter-spacing: 0.02em; text-transform: uppercase; }
+  input[type="text"] {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 11px 13px;
+    border-radius: 8px;
+    border: 2px solid var(--paper-edge);
+    background: #FBF9F3;
+    margin-bottom: 14px;
+  }
+  input[type="text"]:focus { outline: none; border-color: var(--accent); }
+  input[type="text"].code-input { text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; text-align: center; }
+
+  button {
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 12px 18px;
+    border-radius: 26px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+  }
+  button.primary { background: var(--accent); color: #FBF9F3; margin-bottom: 10px; }
+  button.primary:hover { background: var(--accent-dark); }
+  button.primary:disabled { opacity: 0.45; cursor: default; }
+  button.secondary { background: #EFE9D8; color: var(--ink); }
+
+  .divider { text-align: center; color: var(--ink-soft); font-size: 0.8rem; margin: 6px 0 14px; }
+
+  .error-box {
+    background: rgba(140,59,46,0.12);
+    color: var(--bad);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 14px;
+    display: none;
+  }
+  .error-box.show { display: block; }
+
+  .room-code-display {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .room-code-display .code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 2.1rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+  }
+  .room-code-display .hint { font-size: 0.78rem; color: var(--ink-soft); margin-top: 4px; }
+
+  .player-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+  .player-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 13px;
+    border-radius: 8px;
+    background: rgba(36,33,27,0.04);
+    font-size: 0.9rem;
+  }
+  .player-row.turn { background: rgba(178,58,46,0.12); border: 1px solid var(--accent); }
+  .player-row.eliminated { opacity: 0.5; }
+  .player-row .name { font-weight: 700; }
+  .player-row .score { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--ink-soft); }
+  .player-row .badge {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #FBF9F3;
+    margin-left: 8px;
+  }
+  .player-row .badge.out { background: var(--bad); }
+
+  .clue-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .clue-tag {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: #EFE9D8;
+    color: var(--ink);
+    padding: 5px 11px;
+    border-radius: 12px;
+  }
+
+  .masked-word {
+    text-align: center;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 20px 10px;
+    background: rgba(36,33,27,0.04);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    word-break: break-all;
+  }
+
+  .turn-banner {
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    background: var(--good-bg);
+    color: var(--good);
+  }
+  .turn-banner.waiting { background: rgba(36,33,27,0.05); color: var(--ink-soft); }
+  .turn-banner.eliminated { background: rgba(140,59,46,0.1); color: var(--bad); }
+
+  .keyboard {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .key {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 10px 0;
+    border-radius: 6px;
+    border: 2px solid var(--paper-edge);
+    background: #FBF9F3;
+    color: var(--ink);
+    cursor: pointer;
+    width: auto;
+  }
+  .key:hover:not(:disabled) { border-color: var(--accent); }
+  .key:disabled { opacity: 0.3; cursor: default; }
+  .key.used-right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+  .key.used-wrong { background: rgba(140,59,46,0.1); border-color: var(--bad); color: var(--bad); }
+
+  .solve-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .solve-row input { margin-bottom: 0; flex: 1; }
+  .solve-row button { width: auto; padding: 11px 16px; }
+
+  .round-over-banner {
+    text-align: center;
+    padding: 16px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+  .round-over-banner.solved { background: var(--good-bg); }
+  .round-over-banner.unsolved { background: rgba(140,59,46,0.1); }
+  .round-over-banner .headline { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
+  .round-over-banner .answer { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 1.2rem; font-weight: 700; }
+
+  #screenLobby, #screenWaiting, #screenGame { display: none; }
+  #screenLobby.active, #screenWaiting.active, #screenGame.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="masthead">
+    <a href="../index.html" class="back-link">&larr; Course Activities</a>
+    <div><span class="stamp">Multiplayer</span></div>
+    <h1>Metaphysics Hangman</h1>
+    <p>PHI 110 &middot; play with a friend, anywhere</p>
+  </div>
+
+  <div id="screenLobby">
+    <div class="panel">
+      <div class="error-box" id="lobbyError"></div>
+      <label for="nameInput">Your name</label>
+      <input type="text" id="nameInput" maxlength="20" placeholder="e.g. Jordan">
+      <button class="primary" id="createBtn">Create a New Game</button>
+      <div class="divider">or</div>
+      <label for="codeInput">Game code</label>
+      <input type="text" id="codeInput" class="code-input" maxlength="5" placeholder="ABCDE">
+      <button class="secondary" id="joinBtn">Join Game</button>
+    </div>
+  </div>
+
+  <div id="screenWaiting">
+    <div class="panel">
+      <div class="room-code-display">
+        <div class="code" id="waitingCode"></div>
+        <div class="hint">Share this code, or send the link, with whoever you're playing with.</div>
+      </div>
+      <div class="player-list" id="waitingPlayerList"></div>
+    </div>
+    <button class="primary" id="startGameBtn">Start Game</button>
+  </div>
+
+  <div id="screenGame">
+    <div class="panel" id="roundOverPanel" style="display:none;">
+      <div class="round-over-banner" id="roundOverBanner">
+        <div class="headline" id="roundOverHeadline"></div>
+        <div class="answer" id="roundOverAnswer"></div>
+      </div>
+      <button class="primary" id="nextRoundBtn">Next Word</button>
+    </div>
+
+    <div class="panel" id="playPanel">
+      <div class="clue-row">
+        <span class="clue-tag" id="clueEra"></span>
+        <span class="clue-tag" id="clueKind"></span>
+      </div>
+      <div class="masked-word" id="maskedWordDisplay"></div>
+      <div class="turn-banner" id="turnBanner"></div>
+      <div class="keyboard" id="keyboard"></div>
+      <div class="solve-row">
+        <input type="text" id="solveInput" placeholder="Type the whole word...">
+        <button class="primary" id="solveBtn" style="width:auto;">Solve</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="player-list" id="gamePlayerList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://psktfkynkbhxcvoewktk.supabase.co";
+const SUPABASE_KEY = "sb_publishable_XNghtb8kNChIdG9Wg3sJ_g_PmLs2de4";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let myName = "";
+let myPlayerId = null;
+let myRoomId = null;
+let currentRoom = null;
+let currentPlayers = [];
+let channel = null;
+
+const screens = {
+  lobby: document.getElementById("screenLobby"),
+  waiting: document.getElementById("screenWaiting"),
+  game: document.getElementById("screenGame")
+};
+
+function showScreen(name) {
+  Object.values(screens).forEach(s => s.classList.remove("active"));
+  screens[name].classList.add("active");
+}
+
+function showLobbyError(msg) {
+  const el = document.getElementById("lobbyError");
+  el.textContent = msg;
+  el.classList.add("show");
+}
+function clearLobbyError() {
+  document.getElementById("lobbyError").classList.remove("show");
+}
+
+function updateUrl() {
+  const params = new URLSearchParams();
+  if (myRoomId) params.set("room", myRoomId);
+  if (myPlayerId) params.set("player", myPlayerId);
+  if (myName) params.set("name", myName);
+  history.replaceState(null, "", "#" + params.toString());
+}
+
+async function fetchRoomAndPlayers(roomId) {
+  const [{ data: room, error: roomErr }, { data: players, error: playersErr }] = await Promise.all([
+    sb.from("hangman_rooms").select("*").eq("id", roomId).single(),
+    sb.from("hangman_players").select("*").eq("room_id", roomId).order("turn_order", { ascending: true })
+  ]);
+  if (roomErr || playersErr) throw roomErr || playersErr;
+  currentRoom = room;
+  currentPlayers = players;
+}
+
+function subscribeToRoom(roomId) {
+  if (channel) sb.removeChannel(channel);
+  channel = sb.channel(`hangman-room-${roomId}`)
+    .on("postgres_changes", { event: "*", schema: "public", table: "hangman_rooms", filter: `id=eq.${roomId}` },
+      async () => { await fetchRoomAndPlayers(roomId); render(); })
+    .on("postgres_changes", { event: "*", schema: "public", table: "hangman_players", filter: `room_id=eq.${roomId}` },
+      async () => { await fetchRoomAndPlayers(roomId); render(); })
+    .subscribe();
+}
+
+function render() {
+  if (!currentRoom) return;
+  if (currentRoom.status === "lobby") {
+    renderWaiting();
+    showScreen("waiting");
+  } else {
+    renderGame();
+    showScreen("game");
+  }
+}
+
+function renderWaiting() {
+  document.getElementById("waitingCode").textContent = currentRoom.code;
+  const list = document.getElementById("waitingPlayerList");
+  list.innerHTML = "";
+  currentPlayers.forEach(p => {
+    const row = document.createElement("div");
+    row.className = "player-row";
+    row.innerHTML = `<span class="name">${escapeHtml(p.name)}</span>`;
+    list.appendChild(row);
+  });
+}
+
+function renderPlayerList(elId) {
+  const list = document.getElementById(elId);
+  list.innerHTML = "";
+  currentPlayers.forEach(p => {
+    const isTurn = p.id === currentRoom.current_turn_player_id;
+    const isOut = (currentRoom.eliminated_player_ids || []).includes(p.id);
+    const row = document.createElement("div");
+    row.className = "player-row" + (isTurn ? " turn" : "") + (isOut ? " eliminated" : "");
+    row.innerHTML = `
+      <span class="name">${escapeHtml(p.name)}${isTurn ? '<span class="badge">Turn</span>' : ""}${isOut ? '<span class="badge out">Out</span>' : ""}</span>
+      <span class="score">${p.score}</span>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function renderGame() {
+  renderPlayerList("gamePlayerList");
+
+  document.getElementById("clueEra").textContent = currentRoom.current_era || "";
+  document.getElementById("clueKind").textContent = currentRoom.current_kind || "";
+  document.getElementById("maskedWordDisplay").textContent = currentRoom.masked_word || "";
+
+  const roundOver = currentRoom.status === "round_over";
+  document.getElementById("roundOverPanel").style.display = roundOver ? "block" : "none";
+  document.getElementById("playPanel").style.display = roundOver ? "none" : "block";
+
+  if (roundOver) {
+    const banner = document.getElementById("roundOverBanner");
+    const headline = document.getElementById("roundOverHeadline");
+    const answer = document.getElementById("roundOverAnswer");
+    if (currentRoom.round_result === "solved") {
+      const winner = currentPlayers.find(p => p.id === currentRoom.round_winner_player_id);
+      banner.className = "round-over-banner solved";
+      headline.textContent = winner ? `${winner.name} solved it!` : "Solved!";
+    } else {
+      banner.className = "round-over-banner unsolved";
+      headline.textContent = "Nobody solved it this time.";
+    }
+    answer.textContent = currentRoom.revealed_answer_display || "";
+    return;
+  }
+
+  const isMyTurn = currentRoom.current_turn_player_id === myPlayerId;
+  const iAmEliminated = (currentRoom.eliminated_player_ids || []).includes(myPlayerId);
+  const turnBanner = document.getElementById("turnBanner");
+  const turnPlayer = currentPlayers.find(p => p.id === currentRoom.current_turn_player_id);
+
+  if (iAmEliminated) {
+    turnBanner.className = "turn-banner eliminated";
+    turnBanner.textContent = "You're out for this round. Watching the rest play out.";
+  } else if (isMyTurn) {
+    turnBanner.className = "turn-banner";
+    turnBanner.textContent = "Your turn!";
+  } else {
+    turnBanner.className = "turn-banner waiting";
+    turnBanner.textContent = turnPlayer ? `Waiting on ${turnPlayer.name}...` : "Waiting...";
+  }
+
+  renderKeyboard(isMyTurn && !iAmEliminated);
+
+  const solveDisabled = !isMyTurn || iAmEliminated;
+  document.getElementById("solveBtn").disabled = solveDisabled;
+  document.getElementById("solveInput").disabled = solveDisabled;
+}
+
+function renderKeyboard(enabled) {
+  const kb = document.getElementById("keyboard");
+  kb.innerHTML = "";
+  const guessed = currentRoom.guessed_letters || [];
+  const revealed = currentRoom.revealed_letters || [];
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(letter => {
+    const btn = document.createElement("button");
+    btn.className = "key";
+    btn.textContent = letter;
+    const wasGuessed = guessed.includes(letter);
+    if (wasGuessed) {
+      btn.classList.add(revealed.includes(letter) ? "used-right" : "used-wrong");
+    }
+    btn.disabled = !enabled || wasGuessed;
+    btn.addEventListener("click", () => doGuessLetter(letter));
+    kb.appendChild(btn);
+  });
+}
+
+function escapeHtml(s) {
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+async function doGuessLetter(letter) {
+  try {
+    const { error } = await sb.rpc("guess_letter", { p_room_id: myRoomId, p_player_id: myPlayerId, p_letter: letter });
+    if (error) throw error;
+  } catch (e) {
+    alert(e.message || "Couldn't guess that letter.");
+  }
+}
+
+async function doSolve() {
+  const input = document.getElementById("solveInput");
+  const guess = input.value.trim();
+  if (!guess) return;
+  input.value = "";
+  try {
+    const { error } = await sb.rpc("attempt_solve", { p_room_id: myRoomId, p_player_id: myPlayerId, p_guess: guess });
+    if (error) throw error;
+  } catch (e) {
+    alert(e.message || "Couldn't submit that guess.");
+  }
+}
+
+async function doStartRound() {
+  try {
+    const { error } = await sb.rpc("start_round", { p_room_id: myRoomId });
+    if (error) throw error;
+  } catch (e) {
+    alert(e.message || "Couldn't start the round.");
+  }
+}
+
+async function enterRoom(roomId, playerId, name) {
+  myRoomId = roomId;
+  myPlayerId = playerId;
+  myName = name;
+  updateUrl();
+  await fetchRoomAndPlayers(roomId);
+  subscribeToRoom(roomId);
+  render();
+}
+
+async function handleCreate() {
+  clearLobbyError();
+  const name = document.getElementById("nameInput").value.trim();
+  if (!name) { showLobbyError("Enter your name first."); return; }
+  try {
+    const { data: roomData, error: createErr } = await sb.rpc("create_room");
+    if (createErr) throw createErr;
+    const room = roomData[0];
+    const { data: playerId, error: joinErr } = await sb.rpc("join_room", { p_code: room.room_code, p_name: name });
+    if (joinErr) throw joinErr;
+    await enterRoom(room.room_id, playerId, name);
+  } catch (e) {
+    showLobbyError(e.message || "Couldn't create a game.");
+  }
+}
+
+async function handleJoin() {
+  clearLobbyError();
+  const name = document.getElementById("nameInput").value.trim();
+  const code = document.getElementById("codeInput").value.trim().toUpperCase();
+  if (!name) { showLobbyError("Enter your name first."); return; }
+  if (!code) { showLobbyError("Enter a game code."); return; }
+  try {
+    const { data: playerId, error: joinErr } = await sb.rpc("join_room", { p_code: code, p_name: name });
+    if (joinErr) throw joinErr;
+    const { data: room, error: roomErr } = await sb.from("hangman_rooms").select("id").eq("code", code).single();
+    if (roomErr) throw roomErr;
+    await enterRoom(room.id, playerId, name);
+  } catch (e) {
+    showLobbyError(e.message || "Couldn't find that game.");
+  }
+}
+
+document.getElementById("createBtn").addEventListener("click", handleCreate);
+document.getElementById("joinBtn").addEventListener("click", handleJoin);
+document.getElementById("startGameBtn").addEventListener("click", doStartRound);
+document.getElementById("nextRoundBtn").addEventListener("click", doStartRound);
+document.getElementById("solveBtn").addEventListener("click", doSolve);
+document.getElementById("solveInput").addEventListener("keydown", e => { if (e.key === "Enter") doSolve(); });
+
+async function init() {
+  const hashParams = new URLSearchParams(location.hash.replace(/^#/, ""));
+  const searchParams = new URLSearchParams(location.search);
+
+  const savedRoom = hashParams.get("room");
+  const savedPlayer = hashParams.get("player");
+  const savedName = hashParams.get("name");
+
+  if (savedRoom && savedPlayer) {
+    try {
+      const { data: player, error } = await sb.from("hangman_players").select("*").eq("id", savedPlayer).single();
+      if (error || !player) throw error || new Error("not found");
+      await enterRoom(savedRoom, savedPlayer, savedName || player.name);
+      return;
+    } catch (e) {
+      // fall through to lobby if the saved session is no longer valid
+    }
+  }
+
+  const codeFromLink = searchParams.get("code");
+  if (codeFromLink) {
+    document.getElementById("codeInput").value = codeFromLink.toUpperCase();
+  }
+  showScreen("lobby");
+}
+
+init();
+</script>
+</body>
+</html>
