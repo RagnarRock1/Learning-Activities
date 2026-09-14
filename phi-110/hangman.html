@@ -18,10 +18,7 @@
     --bad: #8C3B2E;
   }
 
-  * {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
   html, body {
     margin: 0;
@@ -31,16 +28,9 @@
     color: var(--ink);
   }
 
-  .wrap {
-    max-width: 560px;
-    margin: 0 auto;
-    padding: 28px 16px 60px;
-  }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 28px 16px 60px; }
 
-  .masthead {
-    text-align: center;
-    margin-bottom: 18px;
-  }
+  .masthead { text-align: center; margin-bottom: 18px; }
 
   .back-link {
     display: inline-block;
@@ -50,9 +40,7 @@
     margin-bottom: 10px;
   }
 
-  .back-link:hover {
-    color: #F7F5EF;
-  }
+  .back-link:hover { color: #F7F5EF; }
 
   .stamp {
     display: inline-block;
@@ -77,11 +65,7 @@
     margin: 0 0 4px;
   }
 
-  .masthead p {
-    color: rgba(247,245,239,0.6);
-    font-size: 0.85rem;
-    margin: 0;
-  }
+  .masthead p { color: rgba(247,245,239,0.6); font-size: 0.85rem; margin: 0; }
 
   .panel {
     background: var(--paper);
@@ -113,10 +97,7 @@
     margin-bottom: 14px;
   }
 
-  input[type="text"]:focus {
-    outline: none;
-    border-color: var(--accent);
-  }
+  input[type="text"]:focus { outline: none; border-color: var(--accent); }
 
   input[type="text"].code-input {
     text-transform: uppercase;
@@ -136,32 +117,12 @@
     width: 100%;
   }
 
-  button.primary {
-    background: var(--accent);
-    color: #FBF9F3;
-    margin-bottom: 10px;
-  }
+  button.primary { background: var(--accent); color: #FBF9F3; margin-bottom: 10px; }
+  button.primary:hover { background: var(--accent-dark); }
+  button.primary:disabled { opacity: 0.45; cursor: default; }
+  button.secondary { background: #EFE9D8; color: var(--ink); }
 
-  button.primary:hover {
-    background: var(--accent-dark);
-  }
-
-  button.primary:disabled {
-    opacity: 0.45;
-    cursor: default;
-  }
-
-  button.secondary {
-    background: #EFE9D8;
-    color: var(--ink);
-  }
-
-  .divider {
-    text-align: center;
-    color: var(--ink-soft);
-    font-size: 0.8rem;
-    margin: 6px 0 14px;
-  }
+  .divider { text-align: center; color: var(--ink-soft); font-size: 0.8rem; margin: 6px 0 14px; }
 
   .error-box {
     background: rgba(140,59,46,0.12);
@@ -173,15 +134,9 @@
     display: none;
   }
 
-  .error-box.show {
-    display: block;
-  }
+  .error-box.show { display: block; }
 
-  .screen-title {
-    font-size: 1.15rem;
-    font-weight: 800;
-    margin: 0 0 14px;
-  }
+  .screen-title { font-size: 1.15rem; font-weight: 800; margin: 0 0 14px; }
 
   .back-btn {
     background: none;
@@ -207,9 +162,7 @@
     cursor: pointer;
   }
 
-  .choice-card:hover:not(.disabled) {
-    border-color: var(--accent);
-  }
+  .choice-card:hover:not(.disabled) { border-color: var(--accent); }
 
   .choice-card.disabled {
     opacity: 0.55;
@@ -217,17 +170,9 @@
     background: rgba(36,33,27,0.04);
   }
 
-  .card-code {
-    font-weight: 800;
-    font-size: 1.05rem;
-    color: var(--ink);
-  }
+  .card-code { font-weight: 800; font-size: 1.05rem; color: var(--ink); }
 
-  .card-title {
-    color: var(--ink-soft);
-    font-size: 0.92rem;
-    margin-top: 4px;
-  }
+  .card-title { color: var(--ink-soft); font-size: 0.92rem; margin-top: 4px; }
 
   .card-note {
     color: var(--bad);
@@ -238,23 +183,10 @@
     margin-top: 6px;
   }
 
-  .topic-display {
-    font-weight: 800;
-    color: var(--accent);
-    margin-bottom: 12px;
-  }
+  .topic-display { font-weight: 800; color: var(--accent); margin-bottom: 12px; }
+  .topic-display.small { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 10px; }
 
-  .topic-display.small {
-    font-size: 0.85rem;
-    color: var(--ink-soft);
-    margin-bottom: 10px;
-  }
-
-  .room-code-display {
-    text-align: center;
-    margin-bottom: 16px;
-  }
-
+  .room-code-display { text-align: center; margin-bottom: 16px; }
   .room-code-display .code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 2.1rem;
@@ -262,20 +194,9 @@
     letter-spacing: 0.18em;
     color: var(--accent);
   }
+  .room-code-display .hint { font-size: 0.78rem; color: var(--ink-soft); margin-top: 4px; }
 
-  .room-code-display .hint {
-    font-size: 0.78rem;
-    color: var(--ink-soft);
-    margin-top: 4px;
-  }
-
-  .player-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 4px;
-  }
-
+  .player-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
   .player-row {
     display: flex;
     align-items: center;
@@ -285,25 +206,10 @@
     background: rgba(36,33,27,0.04);
     font-size: 0.9rem;
   }
-
-  .player-row.turn {
-    background: rgba(178,58,46,0.12);
-    border: 1px solid var(--accent);
-  }
-
-  .player-row.eliminated {
-    opacity: 0.5;
-  }
-
-  .player-row .name {
-    font-weight: 700;
-  }
-
-  .player-row .score {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    color: var(--ink-soft);
-  }
-
+  .player-row.turn { background: rgba(178,58,46,0.12); border: 1px solid var(--accent); }
+  .player-row.eliminated { opacity: 0.5; }
+  .player-row .name { font-weight: 700; }
+  .player-row .score { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--ink-soft); }
   .player-row .badge {
     font-size: 0.65rem;
     text-transform: uppercase;
@@ -315,10 +221,7 @@
     color: #FBF9F3;
     margin-left: 8px;
   }
-
-  .player-row .badge.out {
-    background: var(--bad);
-  }
+  .player-row .badge.out { background: var(--bad); }
 
   .clue-box {
     background: #F1EDDD;
@@ -329,13 +232,7 @@
     font-size: 0.98rem;
   }
 
-  .clue-row {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-
+  .clue-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 14px; }
   .clue-tag {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 0.72rem;
@@ -371,24 +268,10 @@
     background: var(--good-bg);
     color: var(--good);
   }
+  .turn-banner.waiting { background: rgba(36,33,27,0.05); color: var(--ink-soft); }
+  .turn-banner.eliminated { background: rgba(140,59,46,0.1); color: var(--bad); }
 
-  .turn-banner.waiting {
-    background: rgba(36,33,27,0.05);
-    color: var(--ink-soft);
-  }
-
-  .turn-banner.eliminated {
-    background: rgba(140,59,46,0.1);
-    color: var(--bad);
-  }
-
-  .keyboard {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 6px;
-    margin-bottom: 16px;
-  }
-
+  .keyboard { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 16px; }
   .key {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-weight: 700;
@@ -401,88 +284,23 @@
     cursor: pointer;
     width: auto;
   }
+  .key:hover:not(:disabled) { border-color: var(--accent); }
+  .key:disabled { opacity: 0.3; cursor: default; }
+  .key.used-right { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+  .key.used-wrong { background: rgba(140,59,46,0.1); border-color: var(--bad); color: var(--bad); }
 
-  .key:hover:not(:disabled) {
-    border-color: var(--accent);
-  }
+  .solve-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .solve-row input { margin-bottom: 0; flex: 1; }
+  .solve-row button { width: auto; padding: 11px 16px; }
 
-  .key:disabled {
-    opacity: 0.3;
-    cursor: default;
-  }
+  .round-over-banner { text-align: center; padding: 16px; border-radius: 10px; margin-bottom: 16px; }
+  .round-over-banner.solved { background: var(--good-bg); }
+  .round-over-banner.unsolved { background: rgba(140,59,46,0.1); }
+  .round-over-banner .headline { font-weight: 700; font-size: 1.05rem; margin-bottom: 4px; }
+  .round-over-banner .answer { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 1.2rem; font-weight: 700; }
 
-  .key.used-right {
-    background: var(--good-bg);
-    border-color: var(--good);
-    color: var(--good);
-  }
-
-  .key.used-wrong {
-    background: rgba(140,59,46,0.1);
-    border-color: var(--bad);
-    color: var(--bad);
-  }
-
-  .solve-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .solve-row input {
-    margin-bottom: 0;
-    flex: 1;
-  }
-
-  .solve-row button {
-    width: auto;
-    padding: 11px 16px;
-  }
-
-  .round-over-banner {
-    text-align: center;
-    padding: 16px;
-    border-radius: 10px;
-    margin-bottom: 16px;
-  }
-
-  .round-over-banner.solved {
-    background: var(--good-bg);
-  }
-
-  .round-over-banner.unsolved {
-    background: rgba(140,59,46,0.1);
-  }
-
-  .round-over-banner .headline {
-    font-weight: 700;
-    font-size: 1.05rem;
-    margin-bottom: 4px;
-  }
-
-  .round-over-banner .answer {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 1.2rem;
-    font-weight: 700;
-  }
-
-  #screenCourses,
-  #screenUnits,
-  #screenJoin,
-  #screenLobby,
-  #screenWaiting,
-  #screenGame {
-    display: none;
-  }
-
-  #screenCourses.active,
-  #screenUnits.active,
-  #screenJoin.active,
-  #screenLobby.active,
-  #screenWaiting.active,
-  #screenGame.active {
-    display: block;
-  }
+  #screenCourses, #screenUnits, #screenJoin, #screenLobby, #screenWaiting, #screenGame { display: none; }
+  #screenCourses.active, #screenUnits.active, #screenJoin.active, #screenLobby.active, #screenWaiting.active, #screenGame.active { display: block; }
 </style>
 </head>
 <body>
@@ -721,4 +539,460 @@ function renderUnits(courseCode) {
     const playable = Number(unit.word_count || 0) > 0;
 
     const card = document.createElement("button");
-    card.className = "choice
+    card.className = "choice-card" + (playable ? "" : " disabled");
+
+    card.innerHTML = `
+      <div class="card-code">${escapeHtml(unit.title)}</div>
+      ${playable ? "" : '<div class="card-note">Coming soon</div>'}
+    `;
+
+    if (playable) {
+      card.addEventListener("click", () => openLobby(unit.course_code, unit.slug, unit.title));
+    }
+
+    list.appendChild(card);
+  });
+}
+
+function openLobby(courseCode, unitSlug, unitTitle) {
+  selectedCourseCode = courseCode;
+  selectedUnitSlug = unitSlug;
+  selectedUnitTitle = unitTitle;
+
+  document.getElementById("lobbyTopic").textContent =
+    `${selectedCourseCode} · ${selectedUnitTitle}`;
+
+  clearError("lobbyError");
+  showScreen("lobby");
+}
+
+async function fetchRoomAndPlayers(roomId) {
+  const [{ data: room, error: roomErr }, { data: players, error: playersErr }] = await Promise.all([
+    sb.from("hangman_rooms").select("*").eq("id", roomId).single(),
+    sb.from("hangman_players").select("*").eq("room_id", roomId).order("turn_order", { ascending: true })
+  ]);
+
+  if (roomErr) throw roomErr;
+  if (playersErr) throw playersErr;
+
+  currentRoom = room;
+  currentPlayers = players;
+}
+
+function subscribeToRoom(roomId) {
+  if (channel) sb.removeChannel(channel);
+
+  channel = sb.channel(`hangman-room-${roomId}`)
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "hangman_rooms", filter: `id=eq.${roomId}` },
+      async () => {
+        await fetchRoomAndPlayers(roomId);
+        render();
+      }
+    )
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "hangman_players", filter: `room_id=eq.${roomId}` },
+      async () => {
+        await fetchRoomAndPlayers(roomId);
+        render();
+      }
+    )
+    .subscribe();
+}
+
+function updateUrl() {
+  const params = new URLSearchParams();
+  if (myRoomId) params.set("room", myRoomId);
+  if (myPlayerId) params.set("player", myPlayerId);
+  if (myName) params.set("name", myName);
+  history.replaceState(null, "", "#" + params.toString());
+}
+
+async function enterRoom(roomId, playerId, name) {
+  myRoomId = roomId;
+  myPlayerId = playerId;
+  myName = name;
+
+  updateUrl();
+
+  await fetchRoomAndPlayers(roomId);
+  subscribeToRoom(roomId);
+  render();
+}
+
+function render() {
+  if (!currentRoom) return;
+
+  if (currentRoom.status === "lobby") {
+    renderWaiting();
+    showScreen("waiting");
+  } else {
+    renderGame();
+    showScreen("game");
+  }
+}
+
+function renderWaiting() {
+  const topic = [currentRoom.course_code, currentRoom.unit_title].filter(Boolean).join(" · ");
+  const waitingTopic = document.getElementById("waitingTopic");
+
+  waitingTopic.textContent = topic;
+  waitingTopic.style.display = topic ? "block" : "none";
+
+  document.getElementById("waitingCode").textContent = currentRoom.code;
+
+  const list = document.getElementById("waitingPlayerList");
+  list.innerHTML = "";
+
+  currentPlayers.forEach(p => {
+    const row = document.createElement("div");
+    row.className = "player-row";
+    row.innerHTML = `<span class="name">${escapeHtml(p.name)}</span>`;
+    list.appendChild(row);
+  });
+}
+
+function renderPlayerList(elId) {
+  const list = document.getElementById(elId);
+  list.innerHTML = "";
+
+  currentPlayers.forEach(p => {
+    const isTurn = p.id === currentRoom.current_turn_player_id;
+    const isOut = (currentRoom.eliminated_player_ids || []).includes(p.id);
+
+    const row = document.createElement("div");
+    row.className = "player-row" + (isTurn ? " turn" : "") + (isOut ? " eliminated" : "");
+
+    row.innerHTML = `
+      <span class="name">
+        ${escapeHtml(p.name)}
+        ${isTurn ? '<span class="badge">Turn</span>' : ""}
+        ${isOut ? '<span class="badge out">Out</span>' : ""}
+      </span>
+      <span class="score">${p.score}</span>
+    `;
+
+    list.appendChild(row);
+  });
+}
+
+function renderGame() {
+  renderPlayerList("gamePlayerList");
+
+  const topic = [currentRoom.course_code, currentRoom.unit_title].filter(Boolean).join(" · ");
+  const gameTopic = document.getElementById("gameTopic");
+
+  gameTopic.textContent = topic;
+  gameTopic.style.display = topic ? "block" : "none";
+
+  document.getElementById("clueBox").textContent =
+    currentRoom.current_clue || "No clue provided yet.";
+
+  const eraEl = document.getElementById("clueEra");
+  const kindEl = document.getElementById("clueKind");
+
+  if (currentRoom.current_era) {
+    eraEl.textContent = currentRoom.current_era;
+    eraEl.style.display = "inline-block";
+  } else {
+    eraEl.style.display = "none";
+  }
+
+  if (currentRoom.current_kind) {
+    kindEl.textContent = currentRoom.current_kind;
+    kindEl.style.display = "inline-block";
+  } else {
+    kindEl.style.display = "none";
+  }
+
+  document.getElementById("maskedWordDisplay").textContent = currentRoom.masked_word || "";
+
+  const roundOver = currentRoom.status === "round_over";
+
+  document.getElementById("roundOverPanel").style.display = roundOver ? "block" : "none";
+  document.getElementById("playPanel").style.display = roundOver ? "none" : "block";
+
+  if (roundOver) {
+    const banner = document.getElementById("roundOverBanner");
+    const headline = document.getElementById("roundOverHeadline");
+    const answer = document.getElementById("roundOverAnswer");
+
+    if (currentRoom.round_result === "solved") {
+      const winner = currentPlayers.find(p => p.id === currentRoom.round_winner_player_id);
+      banner.className = "round-over-banner solved";
+      headline.textContent = winner ? `${winner.name} solved it!` : "Solved!";
+    } else {
+      banner.className = "round-over-banner unsolved";
+      headline.textContent = "Nobody solved it this time.";
+    }
+
+    answer.textContent = currentRoom.revealed_answer_display || "";
+    return;
+  }
+
+  const isMyTurn = currentRoom.current_turn_player_id === myPlayerId;
+  const iAmEliminated = (currentRoom.eliminated_player_ids || []).includes(myPlayerId);
+
+  const turnBanner = document.getElementById("turnBanner");
+  const turnPlayer = currentPlayers.find(p => p.id === currentRoom.current_turn_player_id);
+
+  if (iAmEliminated) {
+    turnBanner.className = "turn-banner eliminated";
+    turnBanner.textContent = "You're out for this round. Watching the rest play out.";
+  } else if (isMyTurn) {
+    turnBanner.className = "turn-banner";
+    turnBanner.textContent = "Your turn!";
+  } else {
+    turnBanner.className = "turn-banner waiting";
+    turnBanner.textContent = turnPlayer ? `Waiting on ${turnPlayer.name}...` : "Waiting...";
+  }
+
+  renderKeyboard(isMyTurn && !iAmEliminated);
+
+  const solveDisabled = !isMyTurn || iAmEliminated;
+  document.getElementById("solveBtn").disabled = solveDisabled;
+  document.getElementById("solveInput").disabled = solveDisabled;
+}
+
+function renderKeyboard(enabled) {
+  const kb = document.getElementById("keyboard");
+  kb.innerHTML = "";
+
+  const guessed = currentRoom.guessed_letters || [];
+  const revealed = currentRoom.revealed_letters || [];
+
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(letter => {
+    const btn = document.createElement("button");
+    btn.className = "key";
+    btn.textContent = letter;
+
+    const wasGuessed = guessed.includes(letter);
+
+    if (wasGuessed) {
+      btn.classList.add(revealed.includes(letter) ? "used-right" : "used-wrong");
+    }
+
+    btn.disabled = !enabled || wasGuessed;
+    btn.addEventListener("click", () => doGuessLetter(letter));
+
+    kb.appendChild(btn);
+  });
+}
+
+async function doGuessLetter(letter) {
+  try {
+    const { error } = await sb.rpc("guess_letter", {
+      p_room_id: myRoomId,
+      p_player_id: myPlayerId,
+      p_letter: letter
+    });
+
+    if (error) throw error;
+  } catch (e) {
+    alert(e.message || "Couldn't guess that letter.");
+  }
+}
+
+async function doSolve() {
+  const input = document.getElementById("solveInput");
+  const guess = input.value.trim();
+
+  if (!guess) return;
+
+  input.value = "";
+
+  try {
+    const { error } = await sb.rpc("attempt_solve", {
+      p_room_id: myRoomId,
+      p_player_id: myPlayerId,
+      p_guess: guess
+    });
+
+    if (error) throw error;
+  } catch (e) {
+    alert(e.message || "Couldn't submit that guess.");
+  }
+}
+
+async function doStartRound() {
+  try {
+    const { error } = await sb.rpc("start_round", {
+      p_room_id: myRoomId
+    });
+
+    if (error) throw error;
+  } catch (e) {
+    alert(e.message || "Couldn't start the round.");
+  }
+}
+
+async function handleCreate() {
+  clearError("lobbyError");
+
+  const name = document.getElementById("nameInput").value.trim();
+
+  if (!name) {
+    showError("lobbyError", "Enter your name first.");
+    return;
+  }
+
+  if (!selectedCourseCode || !selectedUnitSlug) {
+    showError("lobbyError", "Please choose a course and unit first.");
+    return;
+  }
+
+  try {
+    const { data: roomData, error: createErr } = await sb.rpc("create_room", {
+      p_course_code: selectedCourseCode,
+      p_unit_slug: selectedUnitSlug
+    });
+
+    if (createErr) throw createErr;
+
+    const room = Array.isArray(roomData) ? roomData[0] : roomData;
+
+    const { data: playerId, error: joinErr } = await sb.rpc("join_room", {
+      p_code: room.room_code,
+      p_name: name
+    });
+
+    if (joinErr) throw joinErr;
+
+    await enterRoom(room.room_id, playerId, name);
+  } catch (e) {
+    showError("lobbyError", e.message || "Couldn't create a game.");
+  }
+}
+
+async function joinWithCode(name, code, errorId) {
+  clearError(errorId);
+
+  if (!name) {
+    showError(errorId, "Enter your name first.");
+    return;
+  }
+
+  const cleanCode = code.trim().toUpperCase();
+
+  if (!cleanCode) {
+    showError(errorId, "Enter a game code.");
+    return;
+  }
+
+  try {
+    const { data: playerId, error: joinErr } = await sb.rpc("join_room", {
+      p_code: cleanCode,
+      p_name: name
+    });
+
+    if (joinErr) throw joinErr;
+
+    const { data: room, error: roomErr } = await sb
+      .from("hangman_rooms")
+      .select("id")
+      .eq("code", cleanCode)
+      .single();
+
+    if (roomErr) throw roomErr;
+
+    await enterRoom(room.id, playerId, name);
+  } catch (e) {
+    showError(errorId, e.message || "Couldn't find that game.");
+  }
+}
+
+document.getElementById("joinFromCoursesBtn").addEventListener("click", () => {
+  clearError("joinError");
+  showScreen("join");
+});
+
+document.getElementById("backToCoursesBtn").addEventListener("click", () => {
+  showScreen("courses");
+});
+
+document.getElementById("backToCoursesFromJoinBtn").addEventListener("click", () => {
+  showScreen("courses");
+});
+
+document.getElementById("backToUnitsBtn").addEventListener("click", () => {
+  if (selectedCourseCode) {
+    document.getElementById("unitTitle").textContent = `${selectedCourseCode} Units`;
+    renderUnits(selectedCourseCode);
+    showScreen("units");
+  } else {
+    showScreen("courses");
+  }
+});
+
+document.getElementById("createBtn").addEventListener("click", handleCreate);
+
+document.getElementById("joinBtn").addEventListener("click", () => {
+  const name = document.getElementById("nameInput").value.trim();
+  const code = document.getElementById("codeInput").value.trim();
+  joinWithCode(name, code, "lobbyError");
+});
+
+document.getElementById("joinGameBtn").addEventListener("click", () => {
+  const name = document.getElementById("joinNameInput").value.trim();
+  const code = document.getElementById("joinCodeInput").value.trim();
+  joinWithCode(name, code, "joinError");
+});
+
+document.getElementById("startGameBtn").addEventListener("click", doStartRound);
+document.getElementById("nextRoundBtn").addEventListener("click", doStartRound);
+document.getElementById("solveBtn").addEventListener("click", doSolve);
+
+document.getElementById("solveInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") doSolve();
+});
+
+async function init() {
+  try {
+    await loadCoursesAndUnits();
+    renderCourses();
+  } catch (e) {
+    showError("courseError", e.message || "Could not load courses. Run the SQL patch first.");
+  }
+
+  const hashParams = new URLSearchParams(location.hash.replace(/^#/, ""));
+  const searchParams = new URLSearchParams(location.search);
+
+  const savedRoom = hashParams.get("room");
+  const savedPlayer = hashParams.get("player");
+  const savedName = hashParams.get("name");
+
+  if (savedRoom && savedPlayer) {
+    try {
+      const { data: player, error } = await sb
+        .from("hangman_players")
+        .select("*")
+        .eq("id", savedPlayer)
+        .single();
+
+      if (!error && player) {
+        await enterRoom(savedRoom, savedPlayer, savedName || player.name);
+        return;
+      }
+    } catch (e) {
+      // Fall through to course selection.
+    }
+  }
+
+  const codeFromLink = searchParams.get("code");
+
+  if (codeFromLink) {
+    document.getElementById("joinCodeInput").value = codeFromLink.toUpperCase();
+    document.getElementById("codeInput").value = codeFromLink.toUpperCase();
+    showScreen("join");
+    return;
+  }
+
+  showScreen("courses");
+}
+
+init();
+</script>
+</body>
+</html>
