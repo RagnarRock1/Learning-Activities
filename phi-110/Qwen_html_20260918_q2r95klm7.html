@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHI 110 Metaphysics — Jeopardy Review</title>
+<style>
+    :root {
+        --jeopardy-blue: #060ce9;
+        --jeopardy-yellow: #ffc000;
+        --dark-bg: #0a0a1a;
+        --panel-bg: #11112b;
+        --text-light: #f0f0f0;
+        --accent-green: #28a745;
+        --accent-red: #dc3545;
+    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--dark-bg); color: var(--text-light); margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+    header { width: 100%; background: var(--jeopardy-blue); padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+    header h1 { margin: 0; color: var(--jeopardy-yellow); font-size: 2rem; text-transform: uppercase; letter-spacing: 2px; }
+    header p { margin: 5px 0 0; font-size: 1rem; opacity: 0.9; }
+    .container { width: 100%; max-width: 1200px; padding: 20px; flex: 1; display: flex; flex-direction: column; }
+    
+    /* Menu & Tracker Styles */
+    .screen { display: none; flex-direction: column; align-items: center; gap: 20px; }
+    .screen.active { display: flex; }
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; width: 100%; margin-top: 20px; }
+    .menu-card { background: var(--panel-bg); border: 2px solid var(--jeopardy-blue); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .menu-card:hover { transform: translateY(-5px); border-color: var(--jeopardy-yellow); background: #1a1a40; }
+    .menu-card h3 { color: var(--jeopardy-yellow); margin-top: 0; }
+    .menu-card .badge { display: inline-block; background: var(--accent-red); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-top: 10px; }
+    
+    /* Disabled / Coming Soon Cards */
+    .menu-card.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+        border-color: #444;
+        background: #151525;
+    }
+    .menu-card.disabled:hover { transform: none; border-color: #444; background: #151525; }
+    .menu-card.disabled h3 { color: #888; }
+    .menu-card.disabled .badge { background: #555; }
+
+    /* HUD */
+    .hud { display: flex; justify-content: space-between; background: var(--panel-bg); padding: 15px; border-radius: 10px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .hud-item { text-align: center; }
+    .hud-item span { display: block; font-size: 0.8rem; opacity: 0.7; text-transform: uppercase; }
+    .hud-item strong { font-size: 1.5rem; color: var(--jeopardy-yellow); }
+    
+    /* Game Board */
+    .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; }
+    .category-header { background: var(--jeopardy-blue); color: var(--jeopardy-yellow); padding: 20px 10px; text-align: center; font-weight: bold; font-size: 1.1rem; border-radius: 5px; min-height: 80px; display: flex; align-items: center; justify-content: center; text-transform: uppercase; }
+    .tile { background: var(--jeopardy-blue); color: var(--jeopardy-yellow); font-size: 2rem; font-weight: bold; text-align: center; padding: 30px 10px; border-radius: 5px; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+    .tile:hover { background: #0808c4; border-color: var(--jeopardy-yellow); transform: scale(1.02); }
+    .tile.used { background: var(--dark-bg); color: transparent; cursor: default; border: 2px solid #333; }
+    .tile.used:hover { transform: none; border-color: #333; }
+    
+    /* Modals */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 100; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--panel-bg); border: 3px solid var(--jeopardy-yellow); border-radius: 15px; padding: 30px; max-width: 600px; width: 90%; text-align: center; position: relative; }
+    .modal h2 { color: var(--jeopardy-yellow); margin-top: 0; }
+    .modal p { font-size: 1.2rem; line-height: 1.5; margin: 20px 0; }
+    .timer-bar { width: 100%; height: 10px; background: #333; border-radius: 5px; margin-bottom: 20px; overflow: hidden; }
+    .timer-fill { height: 100%; background: var(--accent-green); transition: width 1s linear, background 0.3s; }
+    .timer-fill.warning { background: var(--jeopardy-yellow); }
+    .timer-fill.danger { background: var(--accent-red); }
+    
+    /* Buttons */
+    .btn { background: var(--jeopardy-blue); color: white; border: none; padding: 12px 24px; font-size: 1rem; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.2s; margin: 5px; }
+    .btn:hover { background: #0808c4; }
+    .btn-yellow { background: var(--jeopardy-yellow); color: var(--dark-bg); }
+    .btn-yellow:hover { background: #e6ad00; }
+    .btn-danger { background: var(--accent-red); }
+    .btn-danger:hover { background: #b02a37; }
+    .btn-secondary { background: #444; }
+    .btn-secondary:hover { background: #555; }
+    
+    /* Inputs */
+    input[type="number"] { width: 100%; padding: 10px; font-size: 1.2rem; text-align: center; border: 2px solid #444; border-radius: 5px; background: #222; color: white; margin: 10px 0; }
+    input[type="number"]:focus { outline: none; border-color: var(--jeopardy-yellow); }
+    
+    /* Tracker */
+    .tracker-list { width: 100%; max-height: 60vh; overflow-y: auto; text-align: left; }
+    .tracker-item { background: #1a1a40; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--accent-red); }
+    .tracker-item h4 { margin: 0 0 5px; color: var(--jeopardy-yellow); }
+    .tracker-item p { margin: 5px 0; font-size: 0.95rem; }
+    .tracker-item .correct { color: var(--accent-green); font-weight: bold; }
+
+    .double-banner { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%); background: var(--accent-red); color: white; padding: 20px 40px; font-size: 2rem; font-weight: bold; border-radius: 10px; z-index: 200; display: none; animation: pulse 0.5s infinite alternate; }
+    @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.05); } }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>PHI 110: Introduction to Philosophy</h1>
+    <p>Metaphysics Jeopardy Review</p>
+</header>
+
+<div class="container">
+    <!-- MAIN MENU -->
+    <div id="menu-screen" class="screen active">
+        <h2 style="color: var(--jeopardy-yellow); margin-bottom: 0;">Select a Game Mode</h2>
+        <div class="menu-grid">
+            <div class="menu-card" onclick="startGame('unit1', false)">
+                <h3>📘 Unit 1</h3>
+                <p>Pre-Socratics, Classical, Modernist, Mixed Bag</p>
+                <p>200 - 1000 pts</p>
+            </div>
+            <div class="menu-card" onclick="startGame('unit1', true)">
+                <h3>⚡ Unit 1 — Lightning Mode</h3>
+                <p>Same content, 20-second timer per question.</p>
+                <span class="badge">Timed</span>
+            </div>
+            <div class="menu-card" onclick="startGame('unit2', false)">
+                <h3>📗 Unit 2</h3>
+                <p>Pre-Socratics, Classical, Modernist, Mixed Bag</p>
+                <p>400 - 2000 pts</p>
+            </div>
+            <div class="menu-card" onclick="startGame('unit2', true)">
+                <h3>⚡ Unit 2 — Lightning Mode</h3>
+                <p>Same content, 20-second timer per question.</p>
+                <span class="badge">Timed</span>
+            </div>
+            
+            <!-- COMING SOON PLACEHOLDERS -->
+            <div class="menu-card disabled">
+                <h3>🏆 Final Exam Mode</h3>
+                <p>Coming Soon...</p>
+                <span class="badge">Locked</span>
+            </div>
+            <div class="menu-card disabled">
+                <h3>☠️ Final Exam — Lightning</h3>
+                <p>Coming Soon...</p>
+                <span class="badge">Locked</span>
+            </div>
+
+            <div class="menu-card" onclick="showTracker()" style="grid-column: 1 / -1; max-width: 400px; justify-self: center;">
+                <h3>📚 Study Tracker</h3>
+                <p>Review your missed questions across all attempts.</p>
+                <p><strong id="menu-study-count">0</strong> questions to review</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen" class="screen">
+        <div class="hud">
+            <div class="hud-item"><span>Score</span><strong id="hud-score">0</strong></div>
+            <div class="hud-item"><span>Streak</span><strong id="hud-streak">0</strong></div>
+            <div class="hud-item"><span>🔥 Best</span><strong id="hud-best">0</strong></div>
+            <div class="hud-item"><span>Study</span><strong id="hud-study">0</strong></div>
+            <div><button class="btn btn-secondary" onclick="confirmQuit()">⚠ ← Back to Menu</button></div>
+        </div>
+        <div id="game-board" class="board"></div>
+    </div>
+
+    <!-- TRACKER SCREEN -->
+    <div id="tracker-screen" class="screen">
+        <h2 style="color: var(--jeopardy-yellow);">📚 Study Tracker</h2>
+        <p>Performance across all attempts. Review the questions you missed.</p>
+        <div style="width: 100%; display: flex; gap: 10px; justify-content: center; margin-bottom: 10px;">
+            <button class="btn btn-secondary" onclick="showScreen('menu-screen')">← Back to Menu</button>
+            <button class="btn btn-danger" onclick="resetTracker()">Reset all tracking data</button>
+        </div>
+        <div id="tracker-list" class="tracker-list"></div>
+    </div>
+</div>
+
+<!-- QUESTION MODAL -->
+<div id="question-modal" class="modal-overlay">
+    <div class="modal">
+        <div id="timer-container" class="timer-bar" style="display: none;">
+            <div id="timer-fill" class="timer-fill" style="width: 100%;"></div>
+        </div>
+        <h2 id="q-category">Category</h2>
+        <h3 id="q-value" style="color: var(--jeopardy-yellow); margin: 0;">200</h3>
+        <p id="q-text" style="font-size: 1.4rem; font-weight: bold;">Question text goes here?</p>
+        <div id="q-answer-section" style="display: none;">
+            <hr style="border-color: #444;">
+            <p style="color: var(--accent-green); font-weight: bold;">What is...</p>
+            <p id="q-answer" style="font-size: 1.2rem; color: var(--jeopardy-yellow);">Answer text goes here.</p>
+        </div>
+        <div id="q-actions">
+            <button class="btn btn-yellow" onclick="revealAnswer()">Reveal Answer</button>
+        </div>
+        <div id="q-actions-post" style="display: none;">
+            <button class="btn btn-danger" onclick="markMissed()">I missed it</button>
+            <button class="btn" onclick="nextQuestion()">Continue →</button>
+        </div>
+    </div>
+</div>
+
+<!-- FINAL JEOPARDY MODAL -->
+<div id="final-modal" class="modal-overlay">
+    <div class="modal">
+        <h2>🏆 Final Jeopardy</h2>
+        <h3>PHI 110 · Metaphysics</h3>
+        <p>Current score: <strong id="final-current-score">0</strong> pts</p>
+        <p>How much do you want to wager? <br><small>(You can wager up to your current score)</small></p>
+        <input type="number" id="final-wager" min="0" value="0">
+        <button class="btn btn-yellow" onclick="lockWager()">Lock in wager →</button>
+    </div>
+</div>
+
+<!-- FINAL JEOPARDY QUESTION MODAL -->
+<div id="final-q-modal" class="modal-overlay">
+    <div class="modal">
+        <h2>Final Jeopardy</h2>
+        <p>Wager: <strong id="final-wager-display">0</strong></p>
+        <p id="final-q-text" style="font-size: 1.3rem; font-weight: bold;">Question?</p>
+        <div id="final-a-section" style="display: none;">
+            <hr style="border-color: #444;">
+            <p style="color: var(--accent-green); font-weight: bold;">Answer:</p>
+            <p id="final-a-text" style="font-size: 1.2rem; color: var(--jeopardy-yellow);">Answer</p>
+        </div>
+        <button class="btn btn-yellow" id="final-reveal-btn" onclick="revealFinalAnswer()">See Results →</button>
+        <button class="btn" id="final-continue-btn" style="display: none;" onclick="finishGame()">Finish Game</button>
+    </div>
+</div>
+
+<!-- GAME COMPLETE MODAL -->
+<div id="complete-modal" class="modal-overlay">
+    <div class="modal">
+        <h2>🏆 Game Complete!</h2>
+        <p id="high-score-msg" style="color: var(--jeopardy-yellow); font-size: 1.5rem; display: none;">🌟 New High Score!</p>
+        <div style="display: flex; justify-content: space-around; margin: 20px 0; font-size: 1.2rem;">
+            <div>Score<br><strong id="final-score">0</strong></div>
+            <div>Correct<br><strong id="final-correct">0</strong> of <span id="final-total">0</span></div>
+            <div>Accuracy<br><strong id="final-accuracy">0%</strong></div>
+        </div>
+        <button class="btn btn-yellow" onclick="playAgain()">Play Again</button>
+        <button class="btn btn-secondary" onclick="showScreen('menu-screen')">Change Unit</button>
+        <button class="btn" onclick="showTracker()">Review Missed</button>
+    </div>
+</div>
+
+<div id="double-banner" class="double-banner">⚡ DOUBLE JEOPARDY! ⚡<br><small>Points doubled for this question!</small></div>
+
+<script>
+    // ==========================================
+    // DATA: PHI 110 METAPHYSICS
+    // ==========================================
+    const categories = ["Pre-Socratics", "Classical Philosophers", "Modernist Metaphysics", "Mixed Bag"];
+    
+    const unit1Data = {
+        "Pre-Socratics": [
+            { q: "Who was the first Greek philosopher to break from tradition and religious explanations and offer a theory of the nature of reality based on observation?", a: "Thales" },
+            { q: "Who argued that reality was made from a substance known as Apeiron?", a: "Anaximander" },
+            { q: "Democritus helped create which ancient theory?", a: "Ancient Atomism" },
+            { q: "What did Anaximenes, the student of Anaximander, think the universe was made from?", a: "Pneuma or Air" },
+            { q: "According to Heraclitus, what was Logos?", a: "The law or form of Reality" }
+        ],
+        "Classical Philosophers": [
+            { q: "What are the two realms that Plato's allegory of the cave refers to?", a: "The Realm of Being (or Forms) and the Realm of Becoming (or Shadows)" },
+            { q: "Name three of Aristotle's Four Causes.", a: "Efficient, Final, Formal, and Material" },
+            { q: "According to Plato, what is the connection between the two realms that allows for participation with humanity?", a: "The Soul" },
+            { q: "Arguably, what is the most important contribution from Aristotle that changed our use of the word 'stuff' in metaphysics?", a: "Substance" },
+            { q: "What are Forms?", a: "Perfect/ideal models or blueprints within the world of Being" }
+        ],
+        "Modernist Metaphysics": [
+            { q: "What are the three Cartesian substances?", a: "Mind / Body / God" },
+            { q: "According to Spinoza, how many substances are there?", a: "One" },
+            { q: "What is the Principle of the Identity of Indiscernibles?", a: "No two monads can ever be identical" },
+            { q: "What does Causa Sui translate to?", a: "Cause of itself" },
+            { q: "According to Descartes, how do the two substances of mind and body interact?", a: "Through Ideas" }
+        ],
+        "Mixed Bag": [
+            { q: "What is materialism?", a: "The idea that the universe or reality is fundamentally composed of physical material." },
+            { q: "The ancient idea of evolution competed against which Aristotelian argument?", a: "Teleology" },
+            { q: "What is the term for a sequence that endlessly goes back in time?", a: "Infinite Regress" },
+            { q: "What is a monad?", a: "'Perception perceiving Perception,' or the fundamental substance in Leibniz's metaphysical theory" },
+            { q: "What is pluralism?", a: "The idea that Reality is composed of multiple separate substances." }
+        ]
+    };
+
+    const unit2Data = {
+        "Pre-Socratics": [
+            { q: "Which Greek philosopher argued that Reality was composed of numbers or mathematical relationships?", a: "Pythagoras" },
+            { q: "Which pre-Socratic philosopher argued that all of reality is one substance known simply as Being?", a: "Parmenides" },
+            { q: "What does Apeiron roughly translate to?", a: "The indefinite / void / chaos" },
+            { q: "According to Thales, what is the base substance of Reality?", a: "Water" },
+            { q: "Which group of philosophers denied belief in an ultimate reality?", a: "The Sophists" }
+        ],
+        "Classical Philosophers": [
+            { q: "What is the simple definition of Substance?", a: "An independent thing" },
+            { q: "Aristotle argued that substance was a composite of what two 'things'?", a: "Form and Matter" },
+            { q: "Aristotle argued for an ultimate final cause. What is it called?", a: "Prime Mover / Unmoved Mover" },
+            { q: "What was Plato's famous allegory called?", a: "The Allegory of the Cave" },
+            { q: "What is the name of the school founded by Aristotle?", a: "The Lyceum" }
+        ],
+        "Modernist Metaphysics": [
+            { q: "What is the Principle of Sufficient Reason?", a: "An argument that all actions, even the actions of God, require a reason" },
+            { q: "Explain the difference between Leibniz's and Spinoza's ideas of determinism.", a: "Spinoza argues for hard/negative determinism. Leibniz argues for teleological determinism (pre-established harmony)." },
+            { q: "What did Spinoza identify as the one substance?", a: "God / The Universe" },
+            { q: "This philosopher argued that substance must be immaterial, because material substances can always be reduced.", a: "Leibniz" },
+            { q: "Name one specific way a modernist philosopher innovated or rejected Aristotle's concepts.", a: "e.g., Descartes rejected hylomorphism, Spinoza rejected multiple substances, Leibniz innovated with monads." }
+        ],
+        "Mixed Bag": [
+            { q: "What is Monism?", a: "An argument that Reality is composed of a single substance." },
+            { q: "If you have a silver spoon, what is its form and what is its matter?", a: "Silver is the matter; the shape of the spoon (or its purpose) is the form." },
+            { q: "Name five Pre-Socratic philosophers from this unit.", a: "Thales, Anaximander, Anaximenes, Pythagoras, Heraclitus, Democritus, Protagoras, Parmenides." },
+            { q: "What is dualism?", a: "An argument that there are two separate and independent concepts or materials." },
+            { q: "What is idealism?", a: "A concept that identifies what is real to the mind or conscious." }
+        ]
+    };
+
+    const finalJeopardy = {
+        q: "Synthesize the concept of 'Substance' across the eras: How did Aristotle's definition differ fundamentally from Spinoza's and Leibniz's views on the ultimate nature of reality?",
+        a: "Aristotle saw substance as independent things (form/matter composites). Spinoza argued there is only ONE substance (God/Universe). Leibniz argued substances are immaterial, indivisible monads."
+    };
+
+    // ==========================================
+    // STATE & LOCAL STORAGE
+    // ==========================================
+    let state = {
+        currentUnit: 'unit1',
+        isTimed: false,
+        isDouble: false,
+        score: 0,
+        streak: 0,
+        correct: 0,
+        totalQuestions: 0,
+        questionsAsked: 0,
+        currentQuestion: null,
+        timerInterval: null,
+        timeLeft: 20,
+        boardData: {},
+        missedThisGame: []
+    };
+
+    let tracker = JSON.parse(localStorage.getItem('phi110_tracker')) || [];
+    let bestScores = JSON.parse(localStorage.getItem('phi110_best')) || { unit1: 0, unit2: 0 };
+
+    function saveTracker() { localStorage.setItem('phi110_tracker', JSON.stringify(tracker)); }
+    function saveBest() { localStorage.setItem('phi110_best', JSON.stringify(bestScores)); }
+
+    // ==========================================
+    // UI NAVIGATION
+    // ==========================================
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        clearInterval(state.timerInterval);
+        document.getElementById('menu-study-count').innerText = tracker.length;
+    }
+
+    function confirmQuit() {
+        if(confirm("Are you sure you want to quit? Your current progress will be lost.")) {
+            showScreen('menu-screen');
+        }
+    }
+
+    // ==========================================
+    // GAME LOGIC
+    // ==========================================
+    function startGame(unit, isTimed) {
+        state.currentUnit = unit;
+        state.isTimed = isTimed;
+        state.score = 0;
+        state.streak = 0;
+        state.correct = 0;
+        state.questionsAsked = 0;
+        state.missedThisGame = [];
+        state.boardData = {};
+
+        let dataPool = unit === 'unit1' ? unit1Data : unit2Data;
+
+        // RANDOMIZE QUESTIONS WITHIN EACH CATEGORY
+        for(let cat of categories) {
+            // Creates a copy of the array and shuffles it
+            state.boardData[cat] = [...dataPool[cat]].sort(() => 0.5 - Math.random());
+        }
+
+        state.totalQuestions = 20; // 4 categories * 5 questions
+
+        showScreen('game-screen');
+        renderBoard();
+        updateHUD();
+    }
+
+    function renderBoard() {
+        const board = document.getElementById('game-board');
+        board.innerHTML = '';
+        
+        // Headers
+        categories.forEach(cat => {
+            let header = document.createElement('div');
+            header.className = 'category-header';
+            header.innerText = cat;
+            board.appendChild(header);
+        });
+
+        // Determine point values based on Unit
+        let values = state.currentUnit === 'unit2' 
+            ? [400, 800, 1200, 1600, 2000] 
+            : [200, 400, 600, 800, 1000];
+
+        // Tiles (5 rows)
+        for(let row=0; row<5; row++) {
+            categories.forEach((cat) => {
+                let tile = document.createElement('div');
+                tile.className = 'tile';
+                tile.innerText = values[row];
+                
+                // Attach the randomized question data directly to the tile
+                let qData = state.boardData[cat][row];
+                tile.dataset.q = JSON.stringify(qData);
+                
+                tile.onclick = () => askQuestion(tile);
+                board.appendChild(tile);
+            });
+        }
+    }
+
+    function askQuestion(tileElement) {
+        if(tileElement.classList.contains('used')) return;
+        tileElement.classList.add('used');
+
+        // Retrieve the specific randomized question for this tile
+        let qData = JSON.parse(tileElement.dataset.q);
+        state.currentQuestion = qData;
+        
+        // Double Jeopardy chance (15%)
+        state.isDouble = Math.random() < 0.15;
+        if(state.isDouble) {
+            let banner = document.getElementById('double-banner');
+            banner.style.display = 'block';
+            setTimeout(() => banner.style.display = 'none', 2000);
+        }
+
+        document.getElementById('q-category').innerText = qData.category || tileElement.previousElementSibling?.innerText || "Category"; 
+        // Fallback for category name if not stored in qData:
+        let catName = "";
+        for(let c of categories) {
+            if(state.boardData[c].includes(qData)) { catName = c; break; }
+        }
+        document.getElementById('q-category').innerText = catName;
+
+        document.getElementById('q-value').innerText = tileElement.innerText;
+        document.getElementById('q-text').innerText = qData.q;
+        document.getElementById('q-answer').innerText = qData.a;
+        
+        document.getElementById('q-answer-section').style.display = 'none';
+        document.getElementById('q-actions').style.display = 'block';
+        document.getElementById('q-actions-post').style.display = 'none';
+
+        document.getElementById('question-modal').classList.add('active');
+
+        if(state.isTimed) {
+            startTimer(20);
+        }
+    }
+
+    function startTimer(seconds) {
+        state.timeLeft = seconds;
+        let container = document.getElementById('timer-container');
+        let fill = document.getElementById('timer-fill');
+        container.style.display = 'block';
+        fill.style.width = '100%';
+        fill.className = 'timer-fill';
+
+        clearInterval(state.timerInterval);
+        state.timerInterval = setInterval(() => {
+            state.timeLeft--;
+            let pct = (state.timeLeft / seconds) * 100;
+            fill.style.width = pct + '%';
+            
+            if(pct <= 30) fill.className = 'timer-fill danger';
+            else if(pct <= 60) fill.className = 'timer-fill warning';
+
+            if(state.timeLeft <= 0) {
+                clearInterval(state.timerInterval);
+                handleTimeUp();
+            }
+        }, 1000);
+    }
+
+    function handleTimeUp() {
+        revealAnswer();
+        state.streak = 0;
+        state.missedThisGame.push(state.currentQuestion);
+        document.getElementById('q-actions-post').querySelector('.btn-danger').style.display = 'none';
+    }
+
+    function revealAnswer() {
+        clearInterval(state.timerInterval);
+        document.getElementById('timer-container').style.display = 'none';
+        document.getElementById('q-answer-section').style.display = 'block';
+        document.getElementById('q-actions').style.display = 'none';
+        document.getElementById('q-actions-post').style.display = 'block';
+        document.getElementById('q-actions-post').querySelector('.btn-danger').style.display = 'inline-block';
+    }
+
+    function markMissed() {
+        state.streak = 0;
+        state.missedThisGame.push(state.currentQuestion);
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        document.getElementById('question-modal').classList.remove('active');
+        state.questionsAsked++;
+        
+        // Add score if they didn't miss it
+        if(!state.missedThisGame.includes(state.currentQuestion)) {
+            let baseVal = parseInt(document.getElementById('q-value').innerText);
+            let points = state.isDouble ? baseVal * 2 : baseVal;
+            state.score += points;
+            state.correct++;
+            state.streak++;
+        }
+        
+        updateHUD();
+
+        if(state.questionsAsked >= state.totalQuestions) {
+            startFinalJeopardy();
+        }
+    }
+
+    function updateHUD() {
+        document.getElementById('hud-score').innerText = state.score;
+        document.getElementById('hud-streak').innerText = state.streak;
+        document.getElementById('hud-best').innerText = bestScores[state.currentUnit] || 0;
+        document.getElementById('hud-study').innerText = tracker.length;
+    }
+
+    // ==========================================
+    // FINAL JEOPARDY
+    // ==========================================
+    function startFinalJeopardy() {
+        document.getElementById('final-current-score').innerText = state.score;
+        document.getElementById('final-wager').max = state.score;
+        document.getElementById('final-wager').value = 0;
+        document.getElementById('final-modal').classList.add('active');
+    }
+
+    function lockWager() {
+        let wager = parseInt(document.getElementById('final-wager').value);
+        if(isNaN(wager) || wager < 0) { alert("Please enter a valid wager."); return; }
+        if(wager > state.score) { alert("You cannot wager more than your current score!"); return; }
+        
+        state.finalWager = wager;
+        document.getElementById('final-modal').classList.remove('active');
+        
+        document.getElementById('final-wager-display').innerText = wager;
+        document.getElementById('final-q-text').innerText = finalJeopardy.q;
+        document.getElementById('final-a-text').innerText = finalJeopardy.a;
+        document.getElementById('final-a-section').style.display = 'none';
+        document.getElementById('final-reveal-btn').style.display = 'inline-block';
+        document.getElementById('final-continue-btn').style.display = 'none';
+        
+        document.getElementById('final-q-modal').classList.add('active');
+    }
+
+    function revealFinalAnswer() {
+        document.getElementById('final-a-section').style.display = 'block';
+        document.getElementById('final-reveal-btn').style.display = 'none';
+        document.getElementById('final-continue-btn').style.display = 'inline-block';
+    }
+
+    function finishGame() {
+        document.getElementById('final-q-modal').classList.remove('active');
+        
+        let gotIt = confirm("Did you get the Final Jeopardy question correct?\n\n(OK = Correct, Cancel = Incorrect)");
+        
+        if(gotIt) {
+            state.score += state.finalWager;
+            state.correct++;
+        } else {
+            state.score -= state.finalWager;
+            state.missedThisGame.push({ category: "Final Jeopardy", q: finalJeopardy.q, a: finalJeopardy.a });
+        }
+        state.totalQuestions++;
+
+        state.missedThisGame.forEach(q => {
+            if(!tracker.find(t => t.q === q.q)) {
+                tracker.push(q);
+            }
+        });
+        saveTracker();
+
+        if(state.score > (bestScores[state.currentUnit] || 0)) {
+            bestScores[state.currentUnit] = state.score;
+            saveBest();
+            document.getElementById('high-score-msg').style.display = 'block';
+        } else {
+            document.getElementById('high-score-msg').style.display = 'none';
+        }
+
+        document.getElementById('final-score').innerText = state.score;
+        document.getElementById('final-correct').innerText = state.correct;
+        document.getElementById('final-total').innerText = state.totalQuestions;
+        let acc = state.totalQuestions > 0 ? Math.round((state.correct / state.totalQuestions) * 100) : 0;
+        document.getElementById('final-accuracy').innerText = acc + '%';
+        document.getElementById('complete-modal').classList.add('active');
+    }
+
+    function playAgain() {
+        document.getElementById('complete-modal').classList.remove('active');
+        startGame(state.currentUnit, state.isTimed);
+    }
+
+    // ==========================================
+    // STUDY TRACKER
+    // ==========================================
+    function showTracker() {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        showScreen('tracker-screen');
+        renderTracker();
+    }
+
+    function renderTracker() {
+        const list = document.getElementById('tracker-list');
+        list.innerHTML = '';
+        if(tracker.length === 0) {
+            list.innerHTML = '<p style="text-align: center; opacity: 0.6;">No missed questions yet! Keep playing to build your study list.</p>';
+            return;
+        }
+        tracker.forEach((item, index) => {
+            let div = document.createElement('div');
+            div.className = 'tracker-item';
+            div.innerHTML = `
+                <h4>${item.category}</h4>
+                <p><strong>Q:</strong> ${item.q}</p>
+                <p class="correct"><strong>A:</strong> ${item.a}</p>
+                <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem; margin-top: 10px;" onclick="removeFromTracker(${index})">Remove from Tracker</button>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function removeFromTracker(index) {
+        tracker.splice(index, 1);
+        saveTracker();
+        renderTracker();
+        document.getElementById('menu-study-count').innerText = tracker.length;
+    }
+
+    function resetTracker() {
+        if(confirm("Are you sure you want to delete ALL tracked questions? This cannot be undone.")) {
+            tracker = [];
+            saveTracker();
+            renderTracker();
+            document.getElementById('menu-study-count').innerText = 0;
+        }
+    }
+
+    // Init
+    document.getElementById('menu-study-count').innerText = tracker.length;
+</script>
+</body>
+</html>
