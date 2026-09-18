@@ -4,91 +4,110 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PHI 110 Metaphysics — Jeopardy Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
     :root {
-        --jeopardy-blue: #060ce9;
-        --jeopardy-yellow: #ffc000;
-        --dark-bg: #0a0a1a;
-        --panel-bg: #11112b;
-        --text-light: #f0f0f0;
-        --accent-green: #28a745;
-        --accent-red: #dc3545;
+        --jeopardy-blue: #1e3368;
+        --jeopardy-yellow: #e8a020;
+        --gold-light: #f5c84a;
+        --dark-bg: #0d1b3e;
+        --panel-bg: #1e3368;
+        --text-light: #faf8f2;
+        --text-dark: #0d1b3e;
+        --text-mid: #3a4a6b;
+        --cream: #faf8f2;
+        --accent-green: #1a7a4a;
+        --green-light: #e8f7ef;
+        --accent-red: #b53030;
+        --red-light: #fdeaea;
+        --radius: 12px;
+        --radius-sm: 8px;
     }
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--dark-bg); color: var(--text-light); margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
-    header { width: 100%; background: var(--jeopardy-blue); padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-    header h1 { margin: 0; color: var(--jeopardy-yellow); font-size: 2rem; text-transform: uppercase; letter-spacing: 2px; }
-    header p { margin: 5px 0 0; font-size: 1rem; opacity: 0.9; }
-    .container { width: 100%; max-width: 1200px; padding: 20px; flex: 1; display: flex; flex-direction: column; }
+    * { box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background-color: var(--dark-bg); color: var(--text-light); margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; position: relative; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(1px 1px at 20% 15%, rgba(255,255,255,0.35) 0%, transparent 100%), radial-gradient(1px 1px at 75% 8%, rgba(255,255,255,0.25) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 88% 40%, rgba(255,255,255,0.25) 0%, transparent 100%), radial-gradient(1px 1px at 10% 60%, rgba(255,255,255,0.2) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 30% 85%, rgba(255,255,255,0.2) 0%, transparent 100%), radial-gradient(1px 1px at 92% 90%, rgba(255,255,255,0.15) 0%, transparent 100%); pointer-events: none; z-index: 0; }
+    header { width: 100%; background: transparent; border-bottom: 1px solid rgba(232,160,32,0.25); padding: 24px 15px 18px; text-align: center; position: relative; z-index: 1; }
+    header h1 { margin: 0; font-family: 'Playfair Display', serif; font-weight: 900; color: var(--gold-light); font-size: clamp(1.4rem,4vw,2rem); text-transform: uppercase; letter-spacing: 2px; }
+    header p { margin: 6px 0 0; font-size: 0.85rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 2px; }
+    .container { width: 100%; max-width: 960px; padding: 20px; flex: 1; display: flex; flex-direction: column; position: relative; z-index: 1; }
     
     /* Menu & Tracker Styles */
     .screen { display: none; flex-direction: column; align-items: center; gap: 20px; }
     .screen.active { display: flex; }
-    .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; width: 100%; margin-top: 20px; }
-    .menu-card { background: var(--panel-bg); border: 2px solid var(--jeopardy-blue); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
-    .menu-card:hover { transform: translateY(-5px); border-color: var(--jeopardy-yellow); background: #1a1a40; }
-    .menu-card h3 { color: var(--jeopardy-yellow); margin-top: 0; }
-    .menu-card .badge { display: inline-block; background: var(--accent-red); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; margin-top: 10px; }
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; width: 100%; margin-top: 20px; }
+    .menu-card { background: var(--panel-bg); border: 1px solid rgba(232,160,32,0.25); border-radius: var(--radius); padding: 20px; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s, transform 0.12s; }
+    .menu-card:hover { transform: translateY(-4px); border-color: var(--jeopardy-yellow); background: #274080; }
+    .menu-card h3 { font-family: 'Playfair Display', serif; color: var(--gold-light); margin-top: 0; font-weight: 700; }
+    .menu-card .badge { display: inline-block; background: rgba(181,48,48,0.3); color: #ff9999; border: 1px solid rgba(220,80,80,0.35); padding: 3px 10px; border-radius: 99px; font-size: 0.75rem; font-weight: 700; margin-top: 10px; }
     
     /* Disabled / Coming Soon Cards */
-    .menu-card.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        pointer-events: none;
-        border-color: #444;
-        background: #151525;
-    }
-    .menu-card.disabled:hover { transform: none; border-color: #444; background: #151525; }
-    .menu-card.disabled h3 { color: #888; }
-    .menu-card.disabled .badge { background: #555; }
+    .menu-card.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); }
+    .menu-card.disabled:hover { transform: none; border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); }
+    .menu-card.disabled h3 { color: rgba(255,255,255,0.4); }
+    .menu-card.disabled .badge { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); border-color: transparent; }
 
     /* HUD */
-    .hud { display: flex; justify-content: space-between; background: var(--panel-bg); padding: 15px; border-radius: 10px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-    .hud-item { text-align: center; }
-    .hud-item span { display: block; font-size: 0.8rem; opacity: 0.7; text-transform: uppercase; }
-    .hud-item strong { font-size: 1.5rem; color: var(--jeopardy-yellow); }
+    .hud { display: flex; justify-content: center; align-items: center; background: var(--panel-bg); padding: 12px 15px; border-radius: var(--radius); margin-bottom: 20px; flex-wrap: wrap; gap: 10px; border: 1px solid rgba(232,160,32,0.2); }
+    .hud-item { text-align: center; background: rgba(255,255,255,0.05); border-radius: 999px; padding: 6px 16px; }
+    .hud-item span { display: block; font-size: 0.7rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; }
+    .hud-item strong { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--gold-light); }
     
     /* Game Board */
-    .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; }
-    .category-header { background: var(--jeopardy-blue); color: var(--jeopardy-yellow); padding: 20px 10px; text-align: center; font-weight: bold; font-size: 1.1rem; border-radius: 5px; min-height: 80px; display: flex; align-items: center; justify-content: center; text-transform: uppercase; }
-    .tile { background: var(--jeopardy-blue); color: var(--jeopardy-yellow); font-size: 2rem; font-weight: bold; text-align: center; padding: 30px 10px; border-radius: 5px; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
-    .tile:hover { background: #0808c4; border-color: var(--jeopardy-yellow); transform: scale(1.02); }
-    .tile.used { background: var(--dark-bg); color: transparent; cursor: default; border: 2px solid #333; }
-    .tile.used:hover { transform: none; border-color: #333; }
+    .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; width: 100%; }
+    .category-header { background: var(--jeopardy-yellow); color: var(--dark-bg); padding: 14px 8px; text-align: center; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: clamp(0.7rem,1.8vw,0.95rem); border-radius: var(--radius-sm); min-height: 64px; display: flex; align-items: center; justify-content: center; text-transform: uppercase; letter-spacing: 0.5px; }
+    .tile { background: var(--panel-bg); color: var(--gold-light); font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 700; text-align: center; padding: 26px 10px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s; border: 1px solid rgba(232,160,32,0.25); }
+    .tile:hover { background: #274080; border-color: var(--jeopardy-yellow); transform: scale(1.03); }
+    .tile.used { background: rgba(255,255,255,0.03); color: transparent; cursor: default; border: 1px solid rgba(255,255,255,0.06); }
+    .tile.used:hover { transform: none; border-color: rgba(255,255,255,0.06); }
     
     /* Modals */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 100; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,10,30,0.88); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 100; padding: 12px; }
     .modal-overlay.active { display: flex; }
-    .modal { background: var(--panel-bg); border: 3px solid var(--jeopardy-yellow); border-radius: 15px; padding: 30px; max-width: 600px; width: 90%; text-align: center; position: relative; }
-    .modal h2 { color: var(--jeopardy-yellow); margin-top: 0; }
-    .modal p { font-size: 1.2rem; line-height: 1.5; margin: 20px 0; }
-    .timer-bar { width: 100%; height: 10px; background: #333; border-radius: 5px; margin-bottom: 20px; overflow: hidden; }
-    .timer-fill { height: 100%; background: var(--accent-green); transition: width 1s linear, background 0.3s; }
+    .modal { background: var(--cream); border: none; border-top: 6px solid var(--jeopardy-yellow); border-radius: var(--radius); padding: 28px; max-width: 620px; width: 90%; text-align: center; position: relative; max-height: 90vh; overflow-y: auto; color: var(--text-dark); }
+    .modal h2 { font-family: 'Playfair Display', serif; color: var(--text-dark); margin-top: 0; font-weight: 700; }
+    .modal h3 { color: var(--text-mid); }
+    .modal p { font-size: 1.05rem; line-height: 1.5; margin: 15px 0; color: var(--text-mid); }
+    .timer-bar { width: 100%; height: 8px; background: #e8ecf5; border-radius: 99px; margin-bottom: 20px; overflow: hidden; }
+    .timer-fill { height: 100%; background: var(--accent-green); border-radius: 99px; transition: width 1s linear, background 0.3s; }
     .timer-fill.warning { background: var(--jeopardy-yellow); }
     .timer-fill.danger { background: var(--accent-red); }
     
+    /* Multiple Choice Grid */
+    .choices-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    @media (max-width: 600px) { .choices-grid { grid-template-columns: 1fr; } }
+    .choice-btn {
+        background: var(--white,#ffffff); color: var(--text-dark); border: 1.5px solid #d4dae8; padding: 14px 16px; font-size: 0.95rem; font-family: 'DM Sans', sans-serif;
+        border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s; text-align: left; line-height: 1.4; font-weight: 500;
+    }
+    .choice-btn:hover:not(:disabled) { border-color: var(--jeopardy-blue); background: #f0f2f8; transform: scale(1.01); }
+    .choice-btn.correct { background: var(--green-light); border-color: var(--accent-green); color: var(--accent-green); font-weight: 700; }
+    .choice-btn.incorrect { background: var(--red-light); border-color: var(--accent-red); color: var(--accent-red); font-weight: 600; }
+    .choice-btn:disabled { cursor: not-allowed; opacity: 0.85; }
+
     /* Buttons */
-    .btn { background: var(--jeopardy-blue); color: white; border: none; padding: 12px 24px; font-size: 1rem; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background 0.2s; margin: 5px; }
-    .btn:hover { background: #0808c4; }
+    .btn { background: var(--dark-bg); color: var(--gold-light); border: none; padding: 12px 24px; font-size: 0.95rem; font-family: 'DM Sans', sans-serif; border-radius: var(--radius-sm); cursor: pointer; font-weight: 700; transition: opacity 0.15s; margin: 5px; }
+    .btn:hover { opacity: 0.85; }
     .btn-yellow { background: var(--jeopardy-yellow); color: var(--dark-bg); }
-    .btn-yellow:hover { background: #e6ad00; }
-    .btn-danger { background: var(--accent-red); }
-    .btn-danger:hover { background: #b02a37; }
-    .btn-secondary { background: #444; }
-    .btn-secondary:hover { background: #555; }
+    .btn-yellow:hover { background: var(--gold-light); opacity: 1; }
+    .btn-danger { background: var(--accent-red); color: #fff; }
+    .btn-danger:hover { opacity: 0.85; }
+    .btn-secondary { background: transparent; color: var(--text-mid); border: 1px solid #d4dae8; }
+    .btn-secondary:hover { background: #f0f2f8; opacity: 1; }
     
     /* Inputs */
-    input[type="number"] { width: 100%; padding: 10px; font-size: 1.2rem; text-align: center; border: 2px solid #444; border-radius: 5px; background: #222; color: white; margin: 10px 0; }
+    input[type="number"] { width: 100%; padding: 12px; font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; text-align: center; border: 2px solid #d4dae8; border-radius: var(--radius-sm); background: #fff; color: var(--text-dark); margin: 10px 0; }
     input[type="number"]:focus { outline: none; border-color: var(--jeopardy-yellow); }
     
     /* Tracker */
     .tracker-list { width: 100%; max-height: 60vh; overflow-y: auto; text-align: left; }
-    .tracker-item { background: #1a1a40; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--accent-red); }
-    .tracker-item h4 { margin: 0 0 5px; color: var(--jeopardy-yellow); }
-    .tracker-item p { margin: 5px 0; font-size: 0.95rem; }
-    .tracker-item .correct { color: var(--accent-green); font-weight: bold; }
+    .tracker-item { background: var(--panel-bg); padding: 15px; border-radius: var(--radius-sm); margin-bottom: 10px; border-left: 4px solid var(--jeopardy-yellow); border-top: 1px solid rgba(232,160,32,0.15); border-right: 1px solid rgba(232,160,32,0.15); border-bottom: 1px solid rgba(232,160,32,0.15); }
+    .tracker-item h4 { margin: 0 0 5px; font-family: 'Playfair Display', serif; color: var(--gold-light); }
+    .tracker-item p { margin: 5px 0; font-size: 0.9rem; color: rgba(255,255,255,0.8); }
+    .tracker-item .correct { color: #7adcaa; font-weight: 700; }
 
-    .double-banner { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%); background: var(--accent-red); color: white; padding: 20px 40px; font-size: 2rem; font-weight: bold; border-radius: 10px; z-index: 200; display: none; animation: pulse 0.5s infinite alternate; }
-    @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.05); } }
+    .double-banner { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%); background: var(--jeopardy-yellow); color: var(--dark-bg); padding: 18px 36px; font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 900; border-radius: var(--radius); z-index: 200; display: none; animation: pulse 0.6s infinite alternate; box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+    .double-banner small { font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; }
+    @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.04); } }
 </style>
 </head>
 <body>
@@ -176,18 +195,14 @@
         </div>
         <h2 id="q-category">Category</h2>
         <h3 id="q-value" style="color: var(--jeopardy-yellow); margin: 0;">200</h3>
-        <p id="q-text" style="font-size: 1.4rem; font-weight: bold;">Question text goes here?</p>
-        <div id="q-answer-section" style="display: none;">
-            <hr style="border-color: #444;">
-            <p style="color: var(--accent-green); font-weight: bold;">What is...</p>
-            <p id="q-answer" style="font-size: 1.2rem; color: var(--jeopardy-yellow);">Answer text goes here.</p>
+        <p id="q-text" style="font-size: 1.3rem; font-weight: bold; margin: 15px 0;">Question text goes here?</p>
+        
+        <div id="q-choices" class="choices-grid">
+            <!-- Buttons injected here -->
         </div>
-        <div id="q-actions">
-            <button class="btn btn-yellow" onclick="revealAnswer()">Reveal Answer</button>
-        </div>
-        <div id="q-actions-post" style="display: none;">
-            <button class="btn btn-danger" onclick="markMissed()">I missed it</button>
-            <button class="btn" onclick="nextQuestion()">Continue →</button>
+
+        <div id="q-actions-post" style="display: none; text-align: center;">
+            <button class="btn btn-yellow" onclick="nextQuestion()">Continue →</button>
         </div>
     </div>
 </div>
@@ -240,69 +255,69 @@
 
 <script>
     // ==========================================
-    // DATA: PHI 110 METAPHYSICS
+    // DATA: PHI 110 METAPHYSICS (MULTIPLE CHOICE)
     // ==========================================
     const categories = ["Pre-Socratics", "Classical Philosophers", "Modernist Metaphysics", "Mixed Bag"];
     
     const unit1Data = {
         "Pre-Socratics": [
-            { q: "Who was the first Greek philosopher to break from tradition and religious explanations and offer a theory of the nature of reality based on observation?", a: "Thales" },
-            { q: "Who argued that reality was made from a substance known as Apeiron?", a: "Anaximander" },
-            { q: "Democritus helped create which ancient theory?", a: "Ancient Atomism" },
-            { q: "What did Anaximenes, the student of Anaximander, think the universe was made from?", a: "Pneuma or Air" },
-            { q: "According to Heraclitus, what was Logos?", a: "The law or form of Reality" }
+            { q: "Who was the first Greek philosopher to break from tradition and religious explanations and offer a theory of the nature of reality based on observation?", choices: [{text:"Thales",c:1},{text:"Anaximander",c:0},{text:"Pythagoras",c:0},{text:"Heraclitus",c:0}] },
+            { q: "Who argued that reality was made from a substance known as Apeiron?", choices: [{text:"Anaximander",c:1},{text:"Thales",c:0},{text:"Anaximenes",c:0},{text:"Democritus",c:0}] },
+            { q: "Democritus helped create which ancient theory?", choices: [{text:"Ancient Atomism",c:1},{text:"Teleology",c:0},{text:"Monism",c:0},{text:"Idealism",c:0}] },
+            { q: "What did Anaximenes, the student of Anaximander, think the universe was made from?", choices: [{text:"Pneuma or Air",c:1},{text:"Water",c:0},{text:"Fire",c:0},{text:"Apeiron",c:0}] },
+            { q: "According to Heraclitus, what was Logos?", choices: [{text:"The law or form of Reality",c:1},{text:"The ultimate void",c:0},{text:"The atomic structure",c:0},{text:"The soul of the world",c:0}] }
         ],
         "Classical Philosophers": [
-            { q: "What are the two realms that Plato's allegory of the cave refers to?", a: "The Realm of Being (or Forms) and the Realm of Becoming (or Shadows)" },
-            { q: "Name three of Aristotle's Four Causes.", a: "Efficient, Final, Formal, and Material" },
-            { q: "According to Plato, what is the connection between the two realms that allows for participation with humanity?", a: "The Soul" },
-            { q: "Arguably, what is the most important contribution from Aristotle that changed our use of the word 'stuff' in metaphysics?", a: "Substance" },
-            { q: "What are Forms?", a: "Perfect/ideal models or blueprints within the world of Being" }
+            { q: "What are the two realms that Plato's allegory of the cave refers to?", choices: [{text:"Realm of Being and Realm of Becoming",c:1},{text:"Realm of Mind and Realm of Body",c:0},{text:"Realm of God and Realm of Man",c:0},{text:"Realm of Form and Realm of Void",c:0}] },
+            { q: "Which of the following lists three of Aristotle's Four Causes?", choices: [{text:"Efficient, Final, Formal",c:1},{text:"Material, Spatial, Temporal",c:0},{text:"Efficient, Quantum, Formal",c:0},{text:"Final, Material, Astral",c:0}] },
+            { q: "According to Plato, what is the connection between the two realms that allows for participation with humanity?", choices: [{text:"The Soul",c:1},{text:"The Mind",c:0},{text:"The Body",c:0},{text:"The Logos",c:0}] },
+            { q: "Arguably, what is the most important contribution from Aristotle that changed our use of the word 'stuff' in metaphysics?", choices: [{text:"Substance",c:1},{text:"Form",c:0},{text:"Matter",c:0},{text:"Teleology",c:0}] },
+            { q: "What are Forms?", choices: [{text:"Perfect/ideal models or blueprints within the world of Being",c:1},{text:"Physical objects we can touch and measure",c:0},{text:"The atoms that make up physical reality",c:0},{text:"The mathematical equations of nature",c:0}] }
         ],
         "Modernist Metaphysics": [
-            { q: "What are the three Cartesian substances?", a: "Mind / Body / God" },
-            { q: "According to Spinoza, how many substances are there?", a: "One" },
-            { q: "What is the Principle of the Identity of Indiscernibles?", a: "No two monads can ever be identical" },
-            { q: "What does Causa Sui translate to?", a: "Cause of itself" },
-            { q: "According to Descartes, how do the two substances of mind and body interact?", a: "Through Ideas" }
+            { q: "What are the three Cartesian substances?", choices: [{text:"Mind / Body / God",c:1},{text:"Mind / Body / Soul",c:0},{text:"Matter / Energy / Space",c:0},{text:"God / Nature / Humanity",c:0}] },
+            { q: "According to Spinoza, how many substances are there?", choices: [{text:"One",c:1},{text:"Two",c:0},{text:"Three",c:0},{text:"Infinite",c:0}] },
+            { q: "What is the Principle of the Identity of Indiscernibles?", choices: [{text:"No two monads can ever be identical",c:1},{text:"All substances are made of the same matter",c:0},{text:"God is the only true substance",c:0},{text:"Mind and body are the same substance",c:0}] },
+            { q: "What does Causa Sui translate to?", choices: [{text:"Cause of itself",c:1},{text:"Effect of another",c:0},{text:"First motion",c:0},{text:"Ultimate destruction",c:0}] },
+            { q: "According to Descartes, how do the two substances of mind and body interact?", choices: [{text:"Through Ideas",c:1},{text:"Through the blood",c:0},{text:"Through physical contact",c:0},{text:"Through the soul's gravity",c:0}] }
         ],
         "Mixed Bag": [
-            { q: "What is materialism?", a: "The idea that the universe or reality is fundamentally composed of physical material." },
-            { q: "The ancient idea of evolution competed against which Aristotelian argument?", a: "Teleology" },
-            { q: "What is the term for a sequence that endlessly goes back in time?", a: "Infinite Regress" },
-            { q: "What is a monad?", a: "'Perception perceiving Perception,' or the fundamental substance in Leibniz's metaphysical theory" },
-            { q: "What is pluralism?", a: "The idea that Reality is composed of multiple separate substances." }
+            { q: "What is materialism?", choices: [{text:"The idea that reality is fundamentally composed of physical material.",c:1},{text:"The idea that reality is composed of mental states.",c:0},{text:"The idea that reality is composed of mathematical forms.",c:0},{text:"The idea that reality is composed of divine substance.",c:0}] },
+            { q: "The ancient idea of evolution competed against which Aristotelian argument?", choices: [{text:"Teleology",c:1},{text:"Atomism",c:0},{text:"Materialism",c:0},{text:"Dualism",c:0}] },
+            { q: "What is the term for a sequence that endlessly goes back in time?", choices: [{text:"Infinite Regress",c:1},{text:"Prime Mover",c:0},{text:"Causa Sui",c:0},{text:"Apeiron",c:0}] },
+            { q: "What is a monad?", choices: [{text:"'Perception perceiving Perception,' or fundamental substance in Leibniz's theory",c:1},{text:"A physical atom in Democritus's theory",c:0},{text:"A mathematical point in Pythagoras's theory",c:0},{text:"A Cartesian substance in Descartes's theory",c:0}] },
+            { q: "What is pluralism?", choices: [{text:"The idea that Reality is composed of multiple separate substances.",c:1},{text:"The idea that Reality is composed of a single substance.",c:0},{text:"The idea that Reality is an illusion.",c:0},{text:"The idea that Reality is purely mental.",c:0}] }
         ]
     };
 
     const unit2Data = {
         "Pre-Socratics": [
-            { q: "Which Greek philosopher argued that Reality was composed of numbers or mathematical relationships?", a: "Pythagoras" },
-            { q: "Which pre-Socratic philosopher argued that all of reality is one substance known simply as Being?", a: "Parmenides" },
-            { q: "What does Apeiron roughly translate to?", a: "The indefinite / void / chaos" },
-            { q: "According to Thales, what is the base substance of Reality?", a: "Water" },
-            { q: "Which group of philosophers denied belief in an ultimate reality?", a: "The Sophists" }
+            { q: "Which Greek philosopher argued that Reality was composed of numbers or mathematical relationships?", choices: [{text:"Pythagoras",c:1},{text:"Thales",c:0},{text:"Heraclitus",c:0},{text:"Parmenides",c:0}] },
+            { q: "Which pre-Socratic philosopher argued that all of reality is one substance known simply as Being?", choices: [{text:"Parmenides",c:1},{text:"Heraclitus",c:0},{text:"Thales",c:0},{text:"Protagoras",c:0}] },
+            { q: "What does Apeiron roughly translate to?", choices: [{text:"The indefinite / void / chaos",c:1},{text:"The ultimate water",c:0},{text:"The infinite fire",c:0},{text:"The perfect form",c:0}] },
+            { q: "According to Thales, what is the base substance of Reality?", choices: [{text:"Water",c:1},{text:"Air",c:0},{text:"Fire",c:0},{text:"Earth",c:0}] },
+            { q: "Which group of philosophers denied belief in an ultimate reality?", choices: [{text:"The Sophists",c:1},{text:"The Stoics",c:0},{text:"The Epicureans",c:0},{text:"The Cynics",c:0}] }
         ],
         "Classical Philosophers": [
-            { q: "What is the simple definition of Substance?", a: "An independent thing" },
-            { q: "Aristotle argued that substance was a composite of what two 'things'?", a: "Form and Matter" },
-            { q: "Aristotle argued for an ultimate final cause. What is it called?", a: "Prime Mover / Unmoved Mover" },
-            { q: "What was Plato's famous allegory called?", a: "The Allegory of the Cave" },
-            { q: "What is the name of the school founded by Aristotle?", a: "The Lyceum" }
+            { q: "What is the simple definition of Substance?", choices: [{text:"An independent thing",c:1},{text:"A dependent thing",c:0},{text:"A physical atom",c:0},{text:"A mathematical relation",c:0}] },
+            { q: "Aristotle argued that substance was a composite of what two 'things'?", choices: [{text:"Form and Matter",c:1},{text:"Mind and Body",c:0},{text:"God and Nature",c:0},{text:"Form and Void",c:0}] },
+            { q: "Aristotle argued for an ultimate final cause. What is it called?", choices: [{text:"Prime Mover / Unmoved Mover",c:1},{text:"The First Atom",c:0},{text:"The Prime Material",c:0},{text:"The Uncaused Effect",c:0}] },
+            { q: "What was Plato's famous allegory called?", choices: [{text:"The Allegory of the Cave",c:1},{text:"The Allegory of the Ship",c:0},{text:"The Allegory of the Ring",c:0},{text:"The Allegory of the Theater",c:0}] },
+            { q: "What is the name of the school founded by Aristotle?", choices: [{text:"The Lyceum",c:1},{text:"The Academy",c:0},{text:"The Stoa",c:0},{text:"The Garden",c:0}] }
         ],
         "Modernist Metaphysics": [
-            { q: "What is the Principle of Sufficient Reason?", a: "An argument that all actions, even the actions of God, require a reason" },
-            { q: "Explain the difference between Leibniz's and Spinoza's ideas of determinism.", a: "Spinoza argues for hard/negative determinism. Leibniz argues for teleological determinism (pre-established harmony)." },
-            { q: "What did Spinoza identify as the one substance?", a: "God / The Universe" },
-            { q: "This philosopher argued that substance must be immaterial, because material substances can always be reduced.", a: "Leibniz" },
-            { q: "Name one specific way a modernist philosopher innovated or rejected Aristotle's concepts.", a: "e.g., Descartes rejected hylomorphism, Spinoza rejected multiple substances, Leibniz innovated with monads." }
+            { q: "What is the Principle of Sufficient Reason?", choices: [{text:"An argument that all actions, even the actions of God, require a reason",c:1},{text:"An argument that all actions are completely random",c:0},{text:"An argument that God does not need a reason for creation",c:0},{text:"An argument that only physical objects have causes",c:0}] },
+            { q: "Explain the difference between Leibniz's and Spinoza's ideas of determinism.", choices: [{text:"Spinoza: hard determinism; Leibniz: teleological determinism (pre-established harmony)",c:1},{text:"Spinoza: teleological determinism; Leibniz: hard determinism",c:0},{text:"Both argue for complete free will",c:0},{text:"Spinoza: monads; Leibniz: single substance",c:0}] },
+            { q: "What did Spinoza identify as the one substance?", choices: [{text:"God / The Universe",c:1},{text:"Mind / Body",c:0},{text:"The Monad",c:0},{text:"The Apeiron",c:0}] },
+            { q: "This philosopher argued that substance must be immaterial, because material substances can always be reduced.", choices: [{text:"Leibniz",c:1},{text:"Descartes",c:0},{text:"Spinoza",c:0},{text:"Aristotle",c:0}] },
+            { q: "Which of the following best describes a major shift in Modernist Metaphysics compared to Aristotle?", choices: [{text:"Rejection of hylomorphism in favor of mechanistic views",c:1},{text:"Return to the idea of Apeiron",c:0},{text:"Acceptance of infinite regress",c:0},{text:"Denial of the existence of substance",c:0}] }
         ],
         "Mixed Bag": [
-            { q: "What is Monism?", a: "An argument that Reality is composed of a single substance." },
-            { q: "If you have a silver spoon, what is its form and what is its matter?", a: "Silver is the matter; the shape of the spoon (or its purpose) is the form." },
-            { q: "Name five Pre-Socratic philosophers from this unit.", a: "Thales, Anaximander, Anaximenes, Pythagoras, Heraclitus, Democritus, Protagoras, Parmenides." },
-            { q: "What is dualism?", a: "An argument that there are two separate and independent concepts or materials." },
-            { q: "What is idealism?", a: "A concept that identifies what is real to the mind or conscious." }
+            { q: "What is Monism?", choices: [{text:"An argument that Reality is composed of a single substance.",c:1},{text:"An argument that Reality is composed of multiple substances.",c:0},{text:"An argument that Reality is composed of two substances.",c:0},{text:"An argument that Reality is an illusion.",c:0}] },
+            { q: "If you have a silver spoon, what is its form and what is its matter?", choices: [{text:"Silver is the matter; the shape/purpose is the form.",c:1},{text:"The shape is the matter; silver is the form.",c:0},{text:"Both the silver and the shape are matter.",c:0},{text:"Both the silver and the shape are form.",c:0}] },
+            { q: "Which list contains five Pre-Socratic philosophers?", choices: [{text:"Thales, Anaximander, Anaximenes, Pythagoras, Heraclitus",c:1},{text:"Plato, Aristotle, Socrates, Epicurus, Zeno",c:0},{text:"Descartes, Spinoza, Leibniz, Kant, Hume",c:0},{text:"Parmenides, Protagoras, Democritus, Newton, Galileo",c:0}] },
+            { q: "What is dualism?", choices: [{text:"An argument that there are two separate and independent concepts or materials.",c:1},{text:"An argument that there is only one fundamental substance.",c:0},{text:"An argument that there are infinite separate substances.",c:0},{text:"An argument that only the mind exists.",c:0}] },
+            { q: "What is idealism?", choices: [{text:"A concept that identifies what is real to the mind or conscious.",c:1},{text:"A concept that identifies what is real to physical matter.",c:0},{text:"A concept that identifies what is real to mathematical forms.",c:0},{text:"A concept that identifies what is real to divine substance.",c:0}] }
         ]
     };
 
@@ -369,11 +384,10 @@
 
         // RANDOMIZE QUESTIONS WITHIN EACH CATEGORY
         for(let cat of categories) {
-            // Creates a copy of the array and shuffles it
             state.boardData[cat] = [...dataPool[cat]].sort(() => 0.5 - Math.random());
         }
 
-        state.totalQuestions = 20; // 4 categories * 5 questions
+        state.totalQuestions = 20; 
 
         showScreen('game-screen');
         renderBoard();
@@ -384,7 +398,6 @@
         const board = document.getElementById('game-board');
         board.innerHTML = '';
         
-        // Headers
         categories.forEach(cat => {
             let header = document.createElement('div');
             header.className = 'category-header';
@@ -392,19 +405,14 @@
             board.appendChild(header);
         });
 
-        // Determine point values based on Unit
-        let values = state.currentUnit === 'unit2' 
-            ? [400, 800, 1200, 1600, 2000] 
-            : [200, 400, 600, 800, 1000];
+        let values = state.currentUnit === 'unit2' ? [400, 800, 1200, 1600, 2000] : [200, 400, 600, 800, 1000];
 
-        // Tiles (5 rows)
         for(let row=0; row<5; row++) {
             categories.forEach((cat) => {
                 let tile = document.createElement('div');
                 tile.className = 'tile';
                 tile.innerText = values[row];
                 
-                // Attach the randomized question data directly to the tile
                 let qData = state.boardData[cat][row];
                 tile.dataset.q = JSON.stringify(qData);
                 
@@ -418,9 +426,15 @@
         if(tileElement.classList.contains('used')) return;
         tileElement.classList.add('used');
 
-        // Retrieve the specific randomized question for this tile
         let qData = JSON.parse(tileElement.dataset.q);
         state.currentQuestion = qData;
+
+        // Find category name
+        let catName = "";
+        for(let c of categories) {
+            if(state.boardData[c].some(item => item.q === qData.q)) { catName = c; break; }
+        }
+        state.currentQuestion.category = catName;
         
         // Double Jeopardy chance (15%)
         state.isDouble = Math.random() < 0.15;
@@ -430,27 +444,52 @@
             setTimeout(() => banner.style.display = 'none', 2000);
         }
 
-        document.getElementById('q-category').innerText = qData.category || tileElement.previousElementSibling?.innerText || "Category"; 
-        // Fallback for category name if not stored in qData:
-        let catName = "";
-        for(let c of categories) {
-            if(state.boardData[c].includes(qData)) { catName = c; break; }
-        }
         document.getElementById('q-category').innerText = catName;
-
         document.getElementById('q-value').innerText = tileElement.innerText;
         document.getElementById('q-text').innerText = qData.q;
-        document.getElementById('q-answer').innerText = qData.a;
         
-        document.getElementById('q-answer-section').style.display = 'none';
-        document.getElementById('q-actions').style.display = 'block';
-        document.getElementById('q-actions-post').style.display = 'none';
+        // Shuffle and render choices
+        let shuffledChoices = [...qData.choices].sort(() => 0.5 - Math.random());
+        const choicesContainer = document.getElementById('q-choices');
+        choicesContainer.innerHTML = '';
+        
+        shuffledChoices.forEach(choice => {
+            let btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.innerText = choice.text;
+            btn.onclick = () => handleChoice(btn, choice.c === 1);
+            choicesContainer.appendChild(btn);
+        });
 
+        document.getElementById('q-actions-post').style.display = 'none';
         document.getElementById('question-modal').classList.add('active');
 
-        if(state.isTimed) {
-            startTimer(20);
+        if(state.isTimed) startTimer(20);
+    }
+
+    function handleChoice(btn, isCorrect) {
+        clearInterval(state.timerInterval);
+        document.getElementById('timer-container').style.display = 'none';
+        
+        document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+        
+        if(isCorrect) {
+            btn.classList.add('correct');
+        } else {
+            btn.classList.add('incorrect');
+            let correctText = state.currentQuestion.choices.find(c => c.c === 1).text;
+            document.querySelectorAll('.choice-btn').forEach(b => {
+                if(b.innerText === correctText) b.classList.add('correct');
+            });
+            state.streak = 0;
+            state.missedThisGame.push({
+                category: state.currentQuestion.category,
+                q: state.currentQuestion.q,
+                a: correctText
+            });
         }
+        
+        document.getElementById('q-actions-post').style.display = 'block';
     }
 
     function startTimer(seconds) {
@@ -478,33 +517,32 @@
     }
 
     function handleTimeUp() {
-        revealAnswer();
-        state.streak = 0;
-        state.missedThisGame.push(state.currentQuestion);
-        document.getElementById('q-actions-post').querySelector('.btn-danger').style.display = 'none';
-    }
-
-    function revealAnswer() {
         clearInterval(state.timerInterval);
         document.getElementById('timer-container').style.display = 'none';
-        document.getElementById('q-answer-section').style.display = 'block';
-        document.getElementById('q-actions').style.display = 'none';
-        document.getElementById('q-actions-post').style.display = 'block';
-        document.getElementById('q-actions-post').querySelector('.btn-danger').style.display = 'inline-block';
-    }
-
-    function markMissed() {
+        
+        let correctText = state.currentQuestion.choices.find(c => c.c === 1).text;
+        document.querySelectorAll('.choice-btn').forEach(b => {
+            b.disabled = true;
+            if(b.innerText === correctText) b.classList.add('correct');
+        });
+        
         state.streak = 0;
-        state.missedThisGame.push(state.currentQuestion);
-        nextQuestion();
+        state.missedThisGame.push({
+            category: state.currentQuestion.category,
+            q: state.currentQuestion.q,
+            a: correctText
+        });
+        
+        document.getElementById('q-actions-post').style.display = 'block';
     }
 
     function nextQuestion() {
         document.getElementById('question-modal').classList.remove('active');
         state.questionsAsked++;
         
-        // Add score if they didn't miss it
-        if(!state.missedThisGame.includes(state.currentQuestion)) {
+        let wasMissed = state.missedThisGame.some(m => m.q === state.currentQuestion.q);
+        
+        if(!wasMissed) {
             let baseVal = parseInt(document.getElementById('q-value').innerText);
             let points = state.isDouble ? baseVal * 2 : baseVal;
             state.score += points;
