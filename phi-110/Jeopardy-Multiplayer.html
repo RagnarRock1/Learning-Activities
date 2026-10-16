@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHI 110 Jeopardy Multiplayer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+    :root {
+        --jeopardy-blue: #1e3368;
+        --jeopardy-yellow: #e8a020;
+        --gold-light: #f5c84a;
+        --dark-bg: #0d1b3e;
+        --panel-bg: #1e3368;
+        --text-light: #faf8f2;
+        --text-dark: #0d1b3e;
+        --text-mid: #3a4a6b;
+        --cream: #faf8f2;
+        --accent-green: #1a7a4a;
+        --green-light: #e8f7ef;
+        --accent-red: #b53030;
+        --red-light: #fdeaea;
+        --radius: 12px;
+        --radius-sm: 8px;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background-color: var(--dark-bg); color: var(--text-light); margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; position: relative; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(1px 1px at 20% 15%, rgba(255,255,255,0.35) 0%, transparent 100%), radial-gradient(1px 1px at 75% 8%, rgba(255,255,255,0.25) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 88% 40%, rgba(255,255,255,0.25) 0%, transparent 100%), radial-gradient(1px 1px at 10% 60%, rgba(255,255,255,0.2) 0%, transparent 100%), radial-gradient(1.5px 1.5px at 30% 85%, rgba(255,255,255,0.2) 0%, transparent 100%); pointer-events: none; z-index: 0; }
+    header { width: 100%; border-bottom: 1px solid rgba(232,160,32,0.25); padding: 18px 15px 14px; text-align: center; position: relative; z-index: 1; }
+    header h1 { margin: 0; font-family: 'Playfair Display', serif; font-weight: 900; color: var(--gold-light); font-size: clamp(1.3rem,4vw,2rem); text-transform: uppercase; letter-spacing: 2px; }
+    header p { margin: 6px 0 0; font-size: 0.8rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 2px; }
+    .container { width: 100%; max-width: 960px; padding: 14px; flex: 1; display: flex; flex-direction: column; position: relative; z-index: 1; }
+    .screen { display: none; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+    .screen.active { display: flex; }
+
+    .card { width: 100%; background: var(--panel-bg); border: 1px solid rgba(232,160,32,0.25); border-radius: var(--radius); padding: 18px; }
+    .card h3 { font-family: 'Playfair Display', serif; color: var(--gold-light); margin: 0 0 10px; }
+    .card p { margin: 6px 0; color: rgba(255,255,255,0.8); font-size: 0.95rem; line-height: 1.45; }
+    .narrow { max-width: 520px; }
+    label.field { display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.6); margin: 12px 0 6px; }
+    input[type="text"], select { width: 100%; padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 1rem; border: 2px solid #d4dae8; border-radius: var(--radius-sm); background: #fff; color: var(--text-dark); }
+    input[type="text"]:focus, select:focus, input[type="number"]:focus { outline: none; border-color: var(--jeopardy-yellow); }
+    input.code { text-transform: uppercase; letter-spacing: 6px; text-align: center; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.5rem; }
+    input[type="number"] { width: 100%; padding: 12px; font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; text-align: center; border: 2px solid #d4dae8; border-radius: var(--radius-sm); background: #fff; color: var(--text-dark); margin: 10px 0; }
+    .radio { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.15); border-radius: var(--radius-sm); margin: 6px 0; cursor: pointer; }
+    .radio input { margin-top: 4px; }
+    .radio small { display: block; color: rgba(255,255,255,0.55); }
+    .radio:has(input:checked) { border-color: var(--jeopardy-yellow); background: rgba(232,160,32,0.08); }
+
+    .btn { background: var(--dark-bg); color: var(--gold-light); border: none; padding: 13px 22px; font-size: 1rem; font-family: 'DM Sans', sans-serif; border-radius: var(--radius-sm); cursor: pointer; font-weight: 700; transition: opacity 0.15s; margin: 5px 0; }
+    .btn:hover { opacity: 0.85; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-yellow { background: var(--jeopardy-yellow); color: var(--dark-bg); }
+    .btn-block { width: 100%; }
+    .btn-secondary { background: transparent; color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.25); }
+    .modal .btn-secondary { color: var(--text-mid); border-color: #d4dae8; }
+    .btn-small { padding: 8px 14px; font-size: 0.85rem; margin: 2px; }
+    .link { color: var(--gold-light); text-decoration: none; font-size: 0.9rem; }
+    .msg { min-height: 1.2em; color: #ff9b9b; font-size: 0.9rem; margin: 8px 0 0; }
+
+    /* Lobby */
+    .room-code { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 3rem; letter-spacing: 10px; color: var(--gold-light); text-align: center; margin: 4px 0; }
+    .player-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-radius: var(--radius-sm); background: rgba(255,255,255,0.06); margin: 6px 0; font-weight: 600; }
+    .player-row.empty { color: rgba(255,255,255,0.35); font-weight: 400; border: 1px dashed rgba(255,255,255,0.2); background: transparent; }
+    .badge { font-size: 0.7rem; background: rgba(232,160,32,0.2); color: var(--gold-light); border: 1px solid rgba(232,160,32,0.4); padding: 2px 8px; border-radius: 99px; margin-left: 8px; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Game */
+    .label { width: 100%; text-align: center; font-family: 'Playfair Display', serif; color: var(--gold-light); letter-spacing: 1px; margin: 0; font-size: 1rem; }
+    .scoreboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; }
+    .chip { background: var(--panel-bg); border: 2px solid rgba(232,160,32,0.2); border-radius: var(--radius); padding: 8px 6px; text-align: center; min-width: 0; }
+    .chip.control { border-color: var(--jeopardy-yellow); box-shadow: 0 0 0 1px var(--jeopardy-yellow) inset; }
+    .chip.me .nm::after { content: ' (you)'; font-weight: 400; opacity: 0.6; }
+    .chip .nm { font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chip .sc { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--gold-light); }
+    .chip .sc.neg { color: #ff9b9b; }
+    .chip .st { font-size: 0.7rem; min-height: 1em; color: rgba(255,255,255,0.6); }
+    .status { width: 100%; text-align: center; background: rgba(255,255,255,0.06); border-radius: var(--radius-sm); padding: 10px 12px; font-weight: 600; }
+    .bar { width: 100%; height: 8px; background: rgba(255,255,255,0.12); border-radius: 99px; overflow: hidden; margin-top: 8px; }
+    .modal .bar { background: #e8ecf5; margin: 0 0 14px; }
+    .fill { height: 100%; width: 100%; background: var(--accent-green); border-radius: 99px; transition: width 0.25s linear, background 0.3s; }
+    .fill.warning { background: var(--jeopardy-yellow); }
+    .fill.danger { background: var(--accent-red); }
+
+    .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; }
+    .category-header { background: var(--jeopardy-yellow); color: var(--dark-bg); padding: 8px 2px; text-align: center; font-weight: 700; font-size: clamp(0.5rem,2.2vw,0.95rem); border-radius: var(--radius-sm); min-height: 52px; display: flex; align-items: center; justify-content: center; text-transform: uppercase; letter-spacing: 0; line-height: 1.15; overflow-wrap: anywhere; }
+    .tile { background: var(--panel-bg); color: var(--gold-light); font-family: 'Playfair Display', serif; font-size: clamp(1rem,4.4vw,1.7rem); font-weight: 700; text-align: center; padding: 18px 4px; border-radius: var(--radius-sm); border: 1px solid rgba(232,160,32,0.25); user-select: none; }
+    .tile.pick { cursor: pointer; border-color: var(--jeopardy-yellow); }
+    .tile.pick:active { background: #274080; }
+    .tile.used { background: rgba(255,255,255,0.03); color: transparent; border-color: rgba(255,255,255,0.06); }
+    .tile.active { background: var(--jeopardy-yellow); color: var(--dark-bg); }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(5,10,30,0.88); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 100; padding: 10px; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: var(--cream); border-top: 6px solid var(--jeopardy-yellow); border-radius: var(--radius); padding: 22px; max-width: 620px; width: 100%; text-align: center; max-height: 92vh; overflow-y: auto; color: var(--text-dark); }
+    .modal h2 { font-family: 'Playfair Display', serif; color: var(--text-dark); margin: 0 0 4px; }
+    .modal .val { color: var(--jeopardy-yellow); font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.2rem; margin: 0 0 8px; }
+    .modal p { font-size: 1rem; line-height: 1.45; margin: 10px 0; color: var(--text-mid); }
+    .modal .qtext { font-size: 1.2rem; font-weight: 700; color: var(--text-dark); }
+    .dd { background: var(--jeopardy-yellow); color: var(--dark-bg); font-family: 'Playfair Display', serif; font-weight: 900; font-size: 1.5rem; border-radius: var(--radius-sm); padding: 8px; margin-bottom: 10px; }
+    .choices { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 14px 0; }
+    .choice { background: #fff; color: var(--text-dark); border: 1.5px solid #d4dae8; padding: 13px 14px; font-size: 0.95rem; font-family: 'DM Sans', sans-serif; border-radius: var(--radius-sm); text-align: left; line-height: 1.4; font-weight: 500; cursor: pointer; }
+    .choice:active:not(:disabled) { background: #f0f2f8; }
+    .choice:disabled { cursor: default; }
+    .choice.sel { border-color: var(--jeopardy-blue); background: #e9edf8; font-weight: 700; }
+    .choice.correct { background: var(--green-light); border-color: var(--accent-green); color: var(--accent-green); font-weight: 700; }
+    .choice.incorrect { background: var(--red-light); border-color: var(--accent-red); color: var(--accent-red); font-weight: 600; }
+    .who { display: inline-block; font-size: 0.7rem; font-weight: 700; background: rgba(13,27,62,0.1); color: var(--text-dark); border-radius: 99px; padding: 1px 8px; margin: 4px 4px 0 0; }
+    .results { width: 100%; margin: 6px 0; text-align: left; }
+    .results .row { display: flex; justify-content: space-between; gap: 8px; padding: 6px 4px; border-top: 1px solid #e3e7f1; font-size: 0.95rem; color: var(--text-dark); }
+    .pos { color: var(--accent-green); font-weight: 700; }
+    .neg { color: var(--accent-red); font-weight: 700; }
+    .dim { color: #8a93a8; }
+    .note { font-size: 0.85rem; color: var(--text-mid); }
+
+    /* Finished */
+    .rank { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: var(--radius-sm); background: rgba(255,255,255,0.06); margin: 6px 0; font-weight: 700; }
+    .rank.first { background: rgba(232,160,32,0.18); border: 1px solid var(--jeopardy-yellow); }
+    .rank .pts { font-family: 'Playfair Display', serif; color: var(--gold-light); font-size: 1.3rem; }
+    .winner { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--gold-light); text-align: center; margin: 4px 0 10px; }
+    .cream-card { background: var(--cream); color: var(--text-dark); border-radius: var(--radius); padding: 16px; width: 100%; border-top: 6px solid var(--jeopardy-yellow); }
+    .cream-card p { color: var(--text-mid); }
+
+    .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #fff; color: var(--text-dark); border-left: 5px solid var(--accent-red); padding: 12px 18px; border-radius: var(--radius-sm); box-shadow: 0 8px 30px rgba(0,0,0,0.4); z-index: 300; max-width: 92vw; display: none; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>PHI 110 Jeopardy</h1>
+    <p>Multiplayer</p>
+</header>
+
+<div class="container">
+
+    <!-- HOME -->
+    <div id="home" class="screen active">
+        <div class="card narrow">
+            <h3>Play with friends</h3>
+            <p>Up to 3 players, each on their own phone. Everyone answers every question, and the first correct answer takes control of the board.</p>
+            <label class="field" for="name">Your name</label>
+            <input type="text" id="name" maxlength="20" autocomplete="off" placeholder="Name shown to other players">
+        </div>
+
+        <div class="card narrow">
+            <h3>Start a new game</h3>
+            <label class="field" for="unit">Unit</label>
+            <select id="unit"><option>Loading...</option></select>
+            <label class="field">Length</label>
+            <label class="radio"><input type="radio" name="mode" value="full" checked><span>Full game<small>Round 1, Round 2, then Final Jeopardy</small></span></label>
+            <label class="radio"><input type="radio" name="mode" value="r1"><span>Round 1 + Final<small>Shorter. Tiles worth 200 to 1000.</small></span></label>
+            <label class="radio"><input type="radio" name="mode" value="r2"><span>Round 2 + Final<small>Shorter. Tiles worth 400 to 2000.</small></span></label>
+            <button class="btn btn-yellow btn-block" id="create-btn" onclick="createGame()">Create game</button>
+        </div>
+
+        <div class="card narrow">
+            <h3>Join a game</h3>
+            <label class="field" for="code">Room code</label>
+            <input type="text" id="code" class="code" maxlength="4" autocomplete="off" placeholder="ABCD">
+            <button class="btn btn-yellow btn-block" id="join-btn" onclick="joinGame()">Join game</button>
+        </div>
+
+        <p id="home-msg" class="msg narrow" style="width:100%"></p>
+        <a class="link" href="Study-Jeopardy.html">← Back to solo Jeopardy</a>
+    </div>
+
+    <!-- LOBBY -->
+    <div id="lobby" class="screen">
+        <div class="card narrow" style="text-align:center">
+            <p>Room code</p>
+            <div class="room-code" id="lobby-code">----</div>
+            <p id="lobby-info" class="note" style="color:rgba(255,255,255,0.6)"></p>
+            <button class="btn btn-secondary btn-small" onclick="shareCode()">Share invite</button>
+        </div>
+        <div class="card narrow">
+            <h3>Players</h3>
+            <div id="lobby-players"></div>
+            <button class="btn btn-yellow btn-block" id="start-btn" onclick="startGame()" style="display:none">Start game</button>
+            <p id="lobby-wait" class="note" style="color:rgba(255,255,255,0.6); text-align:center"></p>
+        </div>
+        <p id="lobby-msg" class="msg narrow" style="width:100%"></p>
+        <button class="btn btn-secondary" onclick="leaveGame()">Leave room</button>
+    </div>
+
+    <!-- GAME -->
+    <div id="game" class="screen">
+        <h3 class="label" id="game-label"></h3>
+        <div class="scoreboard" id="scoreboard"></div>
+        <div class="status"><span id="status-text"></span>
+            <div class="bar" id="top-bar" style="display:none"><div class="fill mp-fill"></div></div>
+        </div>
+        <div class="board" id="board"></div>
+        <div id="finished" style="width:100%"></div>
+        <button class="btn btn-secondary btn-small" onclick="leaveGame()" id="leave-btn">Leave game</button>
+    </div>
+</div>
+
+<div id="modal-overlay" class="modal-overlay"><div class="modal" id="modal"></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+const SUPABASE_URL = "https://psktfkynkbhxcvoewktk.supabase.co";
+const SUPABASE_KEY = "sb_publishable_XNghtb8kNChIdG9Wg3sJ_g_PmLs2de4";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const UNITS = {
+    'PHI 110|metaphysics':  { num: 1, name: 'Metaphysics' },
+    'PHI 110|epistemology': { num: 2, name: 'Epistemology' }
+};
+const AWAY_SECS = 60;
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function loadJSON(k, fb) { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : fb; } catch (e) { return fb; } }
+function saveJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function dropKey(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+// ---------- state ----------
+let sess = loadJSON('phi110_mp_session', null);       // {roomId, playerId, code}
+let S = { room: null, players: [], tiles: [], results: [] };
+let offset = 0;                                       // server clock minus this device's clock
+let myPicks = {};                                     // tileId -> choice index chosen on this device
+let recorded = new Set();                             // result ids already sent to the Study Tracker
+let addedToTracker = 0;
+let channel = null, pollTimer = null, hbTimer = null, uiTimer = null;
+let fetching = false, refetch = false, tickBusy = false, lastTick = 0, busy = false;
+let seenFirst = false;
+
+const serverNow = () => Date.now() + offset;
+const me = () => S.players.find(p => sess && p.id === sess.playerId);
+const nameOf = id => { const p = S.players.find(x => x.id === id); return p ? p.name : 'Someone'; };
+
+function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.style.display = 'block';
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.style.display = 'none', 3500);
+}
+async function rpc(fn, params) {
+    const { data, error } = await sb.rpc(fn, params || {});
+    if (error) throw new Error(error.message);
+    return data;
+}
+function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    $(id).classList.add('active');
+}
+function setHTML(el, key, html) { if (el._key !== key) { el._key = key; el.innerHTML = html; return true; } return false; }
+
+// ---------- home ----------
+$('name').value = (loadJSON('phi110_mp_name', '') || '');
+const urlCode = new URLSearchParams(location.search).get('code');
+if (urlCode) $('code').value = urlCode.toUpperCase().slice(0, 4);
+
+async function loadUnits() {
+    const sel = $('unit');
+    try {
+        const rows = await rpc('jeopardy_available_units');
+        if (!rows || !rows.length) throw new Error('none');
+        rows.sort((a, b) => (UNITS[a.course + '|' + a.unit]?.num || 9) - (UNITS[b.course + '|' + b.unit]?.num || 9));
+        sel.innerHTML = rows.map(r => {
+            const u = UNITS[r.course + '|' + r.unit] || { num: '', name: r.unit };
+            return '<option value="' + esc(r.course + '|' + r.unit) + '">' + esc(r.course) + ' · ' + (u.num ? 'Unit ' + u.num + ' · ' : '') + esc(u.name) + '</option>';
+        }).join('');
+    } catch (e) {
+        sel.innerHTML = '<option value="">Not available</option>';
+        $('create-btn').disabled = true;
+        $('home-msg').textContent = 'Multiplayer is not set up on the database yet, so creating a game is unavailable. You can still join with a code once it is.';
+    }
+}
+
+function myName() {
+    const n = $('name').value.trim();
+    if (!n) { $('home-msg').textContent = 'Please enter your name first.'; $('name').focus(); return null; }
+    saveJSON('phi110_mp_name', n);
+    $('home-msg').textContent = '';
+    return n;
+}
+
+async function createGame() {
+    const n = myName(); if (!n || busy) return;
+    const [course, unit] = $('unit').value.split('|');
+    const mode = document.querySelector('input[name=mode]:checked').value;
+    busy = true;
+    try { enterRoom(await rpc('jeopardy_create_room', { p_name: n, p_course: course, p_unit: unit, p_mode: mode })); }
+    catch (e) { $('home-msg').textContent = e.message; }
+    busy = false;
+}
+async function joinGame() {
+    const n = myName(); if (!n || busy) return;
+    const c = $('code').value.trim();
+    if (c.length !== 4) { $('home-msg').textContent = 'Room codes have 4 letters.'; return; }
+    busy = true;
+    try { enterRoom(await rpc('jeopardy_join_room', { p_code: c, p_name: n })); }
+    catch (e) { $('home-msg').textContent = e.message; }
+    busy = false;
+}
+function enterRoom(d) {
+    sess = { roomId: d.room_id, playerId: d.player_id, code: d.code };
+    saveJSON('phi110_mp_session', sess);
+    myPicks = {}; recorded = new Set(); addedToTracker = 0; seenFirst = false;
+    S = { room: null, players: [], tiles: [], results: [] };
+    startSync();
+}
+
+// ---------- syncing ----------
+function startSync() {
+    stopSync();
+    fetchAll();
+    heartbeat();
+    pollTimer = setInterval(fetchAll, 2500);
+    hbTimer = setInterval(heartbeat, 15000);
+    uiTimer = setInterval(uiTick, 250);
+    try {
+        const f = (t, col) => ({ event: '*', schema: 'public', table: t, filter: col + '=eq.' + sess.roomId });
+        channel = sb.channel('jeo-' + sess.roomId)
+            .on('postgres_changes', f('jeopardy_rooms', 'id'), scheduleFetch)
+            .on('postgres_changes', f('jeopardy_players', 'room_id'), scheduleFetch)
+            .on('postgres_changes', f('jeopardy_tiles', 'room_id'), scheduleFetch)
+            .on('postgres_changes', f('jeopardy_results', 'room_id'), scheduleFetch)
+            .subscribe();
+    } catch (e) { /* polling still keeps everything current */ }
+}
+function stopSync() {
+    clearInterval(pollTimer); clearInterval(hbTimer); clearInterval(uiTimer);
+    if (channel) { try { sb.removeChannel(channel); } catch (e) {} channel = null; }
+}
+let schedT = null;
+function scheduleFetch() { clearTimeout(schedT); schedT = setTimeout(fetchAll, 120); }
+
+async function heartbeat() {
+    if (!sess) return;
+    try {
+        await rpc('jeopardy_heartbeat', { p_room: sess.roomId, p_player: sess.playerId });
+        const { data } = await sb.from('jeopardy_players').select('last_seen').eq('id', sess.playerId).maybeSingle();
+        if (data) offset = Date.parse(data.last_seen) - Date.now();
+    } catch (e) {}
+}
+
+async function fetchAll() {
+    if (!sess) return;
+    if (fetching) { refetch = true; return; }
+    fetching = true;
+    try {
+        const id = sess.roomId;
+        const [r, p, t, res] = await Promise.all([
+            sb.from('jeopardy_rooms').select('*').eq('id', id).maybeSingle(),
+            sb.from('jeopardy_players').select('*').eq('room_id', id).order('seat'),
+            sb.from('jeopardy_tiles').select('*').eq('room_id', id),
+            sb.from('jeopardy_results').select('*').eq('room_id', id).order('id')
+        ]);
+        if (r.error || p.error) throw new Error((r.error || p.error).message);
+        if (!r.data || !p.data.find(x => x.id === sess.playerId)) {
+            if (seenFirst || !r.data) { exitToHome(r.data ? 'You are no longer in that room.' : 'That room has ended.'); return; }
+        }
+        seenFirst = true;
+        S = { room: r.data, players: p.data, tiles: t.data || [], results: res.data || [] };
+        recordMisses();
+        render();
+    } catch (e) { /* network blip: try again on the next poll */ }
+    fetching = false;
+    if (refetch) { refetch = false; fetchAll(); }
+}
+
+function exitToHome(message) {
+    stopSync(); sess = null; dropKey('phi110_mp_session');
+    S = { room: null, players: [], tiles: [], results: [] };
+    $('modal-overlay').classList.remove('active');
+    $('modal')._key = null; $('board')._key = null; $('scoreboard')._key = null; $('finished')._key = null;
+    show('home');
+    $('home-msg').textContent = message || '';
+    fetching = false;
+}
+
+async function leaveGame() {
+    if (!sess) return;
+    const inGame = S.room && S.room.phase !== 'lobby' && S.room.phase !== 'finished';
+    if (inGame && !confirm('Leave this game? The other players will keep playing without you.')) return;
+    try { await rpc('jeopardy_leave_room', { p_room: sess.roomId, p_player: sess.playerId }); } catch (e) {}
+    exitToHome('');
+}
+
+// ---------- timers ----------
+function remainingSecs() {
+    const r = S.room;
+    if (!r || !r.phase_deadline) return null;
+    return (Date.parse(r.phase_deadline) - serverNow()) / 1000;
+}
+function totalSecs() {
+    const r = S.room;
+    return Math.max(1, (Date.parse(r.phase_deadline) - Date.parse(r.updated_at)) / 1000);
+}
+function uiTick() {
+    const rem = remainingSecs();
+    const bars = document.querySelectorAll('.mp-fill');
+    if (rem === null || !S.room) { return; }
+    const pct = Math.max(0, Math.min(100, (rem / totalSecs()) * 100));
+    bars.forEach(f => {
+        f.style.width = pct + '%';
+        f.className = 'fill mp-fill' + (pct <= 25 ? ' danger' : pct <= 50 ? ' warning' : '');
+    });
+    document.querySelectorAll('.mp-secs').forEach(e => e.textContent = Math.max(0, Math.ceil(rem)) + 's');
+    if (rem <= 0) maybeTick();
+}
+async function maybeTick() {
+    if (tickBusy || Date.now() - lastTick < 1500 || !sess) return;
+    tickBusy = true; lastTick = Date.now();
+    try {
+        await new Promise(r => setTimeout(r, Math.random() * 400));   // spread out so three phones do not all call at once
+        await rpc('jeopardy_tick', { p_room: sess.roomId });
+        await fetchAll();
+    } catch (e) {}
+    tickBusy = false;
+}
+
+// ---------- study tracker ----------
+function recordMisses() {
+    if (!S.room || !sess) return;
+    const info = UNITS[S.room.course + '|' + S.room.unit] || { num: '', name: S.room.unit };
+    const source = 'Unit ' + info.num + ' · ' + info.name + ' · Multiplayer';
+    let tracker = loadJSON('phi110_tracker', []);
+    let changed = false;
+    S.results.forEach(r => {
+        if (r.player_id !== sess.playerId || recorded.has(r.id) || r.correct !== false) return;
+        const tile = S.tiles.find(t => t.id === r.tile_id);
+        if (!tile || !tile.q) return;
+        recorded.add(r.id);
+        if (!tracker.find(t => t.q === tile.q)) {
+            tracker.push({ category: tile.round === 0 ? 'Final Jeopardy' : tile.category, q: tile.q, a: r.correct_answer, source: source });
+            addedToTracker++; changed = true;
+        }
+    });
+    if (changed) saveJSON('phi110_tracker', tracker);
+}
+
+// ---------- rendering ----------
+function render() {
+    const r = S.room; if (!r) return;
+    if (r.phase === 'lobby') { renderLobby(); return; }
+    show('game');
+    renderScoreboard();
+    renderStatus();
+    renderBoard();
+    renderModal();
+    renderFinished();
+    uiTick();
+}
+
+function renderLobby() {
+    show('lobby');
+    const r = S.room, mine = me();
+    $('lobby-code').textContent = r.code;
+    const info = UNITS[r.course + '|' + r.unit] || { num: '', name: r.unit };
+    const modeTxt = r.rounds.length === 2 ? 'Full game (Round 1, Round 2, Final)' : 'Round ' + r.rounds[0] + ' + Final';
+    $('lobby-info').textContent = r.course + ' · Unit ' + info.num + ' · ' + info.name + ' · ' + modeTxt;
+    let html = '';
+    for (let seat = 1; seat <= 3; seat++) {
+        const p = S.players.find(x => x.seat === seat);
+        html += p ? '<div class="player-row"><span>' + esc(p.name) + (p.id === sess.playerId ? ' <span class="dim">(you)</span>' : '') + '</span>' + (p.id === r.host_id ? '<span class="badge">Host</span>' : '') + '</div>'
+                  : '<div class="player-row empty">Waiting for a player...</div>';
+    }
+    setHTML($('lobby-players'), html, html);
+    const isHost = mine && r.host_id === mine.id;
+    $('start-btn').style.display = isHost ? 'block' : 'none';
+    $('start-btn').disabled = S.players.length < 2;
+    $('lobby-wait').textContent = isHost
+        ? (S.players.length < 2 ? 'Share the code. You need at least 2 players to start.' : 'Ready when you are.')
+        : 'Waiting for ' + nameOf(r.host_id) + ' to start the game.';
+}
+
+async function startGame() {
+    if (busy) return; busy = true;
+    try { await rpc('jeopardy_start_game', { p_room: sess.roomId, p_player: sess.playerId }); await fetchAll(); }
+    catch (e) { $('lobby-msg').textContent = e.message; }
+    busy = false;
+}
+function shareCode() {
+    const url = location.origin + location.pathname + '?code=' + S.room.code;
+    const text = 'Join my PHI 110 Jeopardy game. Room code ' + S.room.code;
+    if (navigator.share) navigator.share({ title: 'PHI 110 Jeopardy', text: text, url: url }).catch(() => {});
+    else if (navigator.clipboard) navigator.clipboard.writeText(text + ' ' + url).then(() => toast('Invite copied')).catch(() => toast(text));
+    else toast(text);
+}
+
+function isAway(p) {
+    return p.left_at || (serverNow() - Date.parse(p.last_seen)) / 1000 > AWAY_SECS;
+}
+function renderScoreboard() {
+    const r = S.room;
+    const key = JSON.stringify([r.phase, r.picker_id, S.players.map(p => [p.id, p.score, p.has_answered, p.final_wagered, p.final_answered, !!p.left_at, isAway(p)])]);
+    const html = S.players.map(p => {
+        let st = '';
+        if (p.left_at) st = 'left';
+        else if (isAway(p)) st = 'away';
+        else if (r.phase === 'question' && p.has_answered) st = '✔ answered';
+        else if (r.phase === 'final_wager' && p.final_wagered) st = '✔ wagered';
+        else if (r.phase === 'final_question' && p.final_answered) st = '✔ answered';
+        else if (r.picker_id === p.id && r.phase !== 'finished' && r.phase !== 'final_wager' && r.phase !== 'final_question') st = '🎯 in control';
+        return '<div class="chip' + (r.picker_id === p.id && !['finished','final_wager','final_question'].includes(r.phase) ? ' control' : '') + (p.id === sess.playerId ? ' me' : '') + '">' +
+            '<div class="nm">' + esc(p.name) + '</div><div class="sc' + (p.score < 0 ? ' neg' : '') + '">' + p.score + '</div><div class="st">' + st + '</div></div>';
+    }).join('');
+    setHTML($('scoreboard'), key, html);
+}
+
+function renderStatus() {
+    const r = S.room, mine = me();
+    const info = UNITS[r.course + '|' + r.unit] || { num: '', name: r.unit };
+    const inFinal = ['final_wager', 'final_question'].includes(r.phase);
+    $('game-label').textContent = 'Unit ' + info.num + ' · ' + info.name + ' · ' + (r.phase === 'finished' ? 'Game over' : inFinal ? 'Final Jeopardy' : 'Round ' + r.current_round);
+    const iPick = mine && r.picker_id === mine.id;
+    let t = '';
+    switch (r.phase) {
+        case 'board': t = iPick ? 'Your turn. Pick a tile.' : nameOf(r.picker_id) + ' is choosing a tile...'; break;
+        case 'wager': t = iPick ? 'Daily Double! Place your wager.' : nameOf(r.picker_id) + ' found the Daily Double!'; break;
+        case 'question': t = tileNow()?.is_daily_double ? (iPick ? 'Daily Double. Answer carefully.' : nameOf(r.picker_id) + ' is answering the Daily Double') : 'Answer before time runs out'; break;
+        case 'reveal': t = nameOf(r.picker_id) + ' has control'; break;
+        case 'final_wager': t = 'Final Jeopardy. Place your wager.'; break;
+        case 'final_question': t = 'Final Jeopardy. Choose your answer.'; break;
+        case 'finished': t = 'Final scores'; break;
+    }
+    const showTimer = r.phase_deadline && r.phase !== 'finished';
+    $('status-text').innerHTML = esc(t) + (showTimer ? ' <span class="dim mp-secs"></span>' : '');
+    $('top-bar').style.display = showTimer ? 'block' : 'none';
+    $('leave-btn').style.display = r.phase === 'finished' ? 'none' : '';
+}
+function tileNow() { return S.room && S.room.tile_id ? S.tiles.find(t => t.id === S.room.tile_id) : null; }
+
+function renderBoard() {
+    const r = S.room, boardEl = $('board');
+    const show = r.current_round && !['final_wager', 'final_question', 'finished'].includes(r.phase);
+    boardEl.style.display = show ? 'grid' : 'none';
+    if (!show) return;
+    const tiles = S.tiles.filter(t => t.round === r.current_round);
+    const cols = [...new Set(tiles.map(t => t.col))].sort((a, b) => a - b);
+    const iPick = me() && r.picker_id === sess.playerId && r.phase === 'board';
+    const key = JSON.stringify([r.current_round, iPick, r.tile_id, tiles.map(t => [t.id, t.status])]);
+    boardEl.style.gridTemplateColumns = 'repeat(' + cols.length + ', 1fr)';
+    let html = cols.map(c => '<div class="category-header">' + esc(tiles.find(t => t.col === c).category) + '</div>').join('');
+    for (let slot = 1; slot <= 5; slot++) {
+        cols.forEach(c => {
+            const t = tiles.find(x => x.col === c && x.slot === slot);
+            if (!t) { html += '<div class="tile used"></div>'; return; }
+            const cls = t.status === 'played' ? 'used' : t.status === 'active' ? 'active' : (iPick ? 'pick' : '');
+            html += '<div class="tile ' + cls + '" ' + (cls === 'pick' ? 'onclick="pickTile(\'' + t.id + '\')"' : '') + '>' + (t.status === 'played' ? '' : t.value) + '</div>';
+        });
+    }
+    setHTML(boardEl, key, html);
+}
+
+async function pickTile(id) {
+    if (busy) return; busy = true;
+    try { await rpc('jeopardy_pick_tile', { p_room: sess.roomId, p_player: sess.playerId, p_tile: id }); await fetchAll(); }
+    catch (e) { toast(e.message); fetchAll(); }
+    busy = false;
+}
+
+// ----- modal -----
+function barHTML() { return '<div class="bar"><div class="fill mp-fill"></div></div>'; }
+
+function choicesHTML(tile, opts) {
+    // opts: {mode:'play'|'locked'|'reveal'|'watch', picked, correct, results}
+    return '<div class="choices">' + (tile.choices || []).map((c, i) => {
+        let cls = 'choice', who = '', dis = opts.mode !== 'play';
+        if (opts.mode === 'locked' && opts.picked === i) cls += ' sel';
+        if (opts.mode === 'reveal') {
+            if (c === opts.correct) cls += ' correct';
+            else if (opts.myChoice === i) cls += ' incorrect';
+            who = (opts.results || []).filter(x => x.choice === i).map(x => '<span class="who">' + esc(nameOfResult(x)) + '</span>').join('');
+        }
+        return '<button class="' + cls + '"' + (dis ? ' disabled' : ' onclick="answer(' + i + ')"') + '>' + esc(c) + (who ? '<br>' + who : '') + '</button>';
+    }).join('') + '</div>';
+}
+function nameOfResult(x) { return nameOf(x.player_id); }
+
+function renderModal() {
+    const r = S.room, mine = me(), ov = $('modal-overlay'), m = $('modal');
+    const tile = tileNow();
+    const iPick = mine && r.picker_id === mine.id;
+    let key = null, html = '';
+
+    if (r.phase === 'wager' && tile) {
+        const top = Math.max(...S.tiles.filter(t => t.round === r.current_round).map(t => t.value));
+        const cap = Math.max(mine ? mine.score : 0, top);
+        key = 'wager:' + tile.id + ':' + iPick;
+        html = '<div class="dd">⚡ DAILY DOUBLE ⚡</div><h2>' + esc(tile.category) + '</h2>' + barHTML();
+        if (iPick) {
+            html += '<p>Your score: <strong>' + mine.score + '</strong>. You can wager from 5 up to <strong>' + cap + '</strong>.</p>' +
+                '<input type="number" id="wager-in" inputmode="numeric" min="5" max="' + cap + '" value="5">' +
+                '<div><button class="btn btn-secondary btn-small" onclick="$(\'wager-in\').value=5">Minimum</button><button class="btn btn-secondary btn-small" onclick="$(\'wager-in\').value=' + cap + '">All in (' + cap + ')</button></div>' +
+                '<button class="btn btn-yellow btn-block" onclick="lockWager(' + cap + ')">Lock in wager</button>' +
+                '<p class="note">A wrong answer, or no answer, loses the wager.</p>';
+        } else {
+            html += '<p><strong>' + esc(nameOf(r.picker_id)) + '</strong> is deciding on a wager...</p>';
+        }
+    }
+    else if (r.phase === 'question' && tile) {
+        const dd = tile.is_daily_double, canAnswer = !dd || iPick;
+        const picked = myPicks[tile.id];
+        const locked = picked !== undefined || (mine && mine.has_answered);
+        const answered = S.players.filter(p => p.has_answered).length, need = S.players.filter(p => !isAway(p) && (!dd || p.id === r.picker_id)).length;
+        key = 'q:' + tile.id + ':' + canAnswer + ':' + (picked === undefined ? (locked ? 'L' : '-') : picked) + ':' + (locked ? answered : 0);
+        html = (dd ? '<div class="dd">⚡ DAILY DOUBLE ⚡</div>' : '') + barHTML() +
+            '<h2>' + esc(tile.category) + '</h2><div class="val">' + tile.value + '</div>' +
+            '<p class="qtext">' + esc(tile.q) + '</p>';
+        if (!canAnswer) {
+            html += choicesHTML(tile, { mode: 'watch' }) + '<p class="note">' + esc(nameOf(r.picker_id)) + ' is answering this one.</p>';
+        } else if (locked) {
+            html += choicesHTML(tile, { mode: 'locked', picked: picked }) + '<p class="note">Answer locked in. Waiting for others' + (need > 0 ? ' (' + Math.min(answered, need) + ' of ' + need + ')' : '') + '...</p>';
+        } else {
+            html += choicesHTML(tile, { mode: 'play' });
+        }
+    }
+    else if (r.phase === 'reveal' && tile) {
+        const rs = S.results.filter(x => x.tile_id === tile.id);
+        const my = rs.find(x => x.player_id === sess.playerId);
+        key = 'rev:' + tile.id + ':' + rs.length;
+        const correct = rs.length ? rs[0].correct_answer : '';
+        html = barHTML() + '<h2>' + esc(tile.category) + '</h2><div class="val">' + (tile.is_daily_double ? 'Daily Double' : tile.value) + '</div>' +
+            '<p class="qtext">' + esc(tile.q) + '</p>' +
+            choicesHTML(tile, { mode: 'reveal', correct: correct, myChoice: my ? my.choice : undefined, results: rs }) +
+            '<div class="results">' + S.players.filter(p => rs.find(x => x.player_id === p.id)).map(p => {
+                const x = rs.find(y => y.player_id === p.id);
+                const d = x.delta === 0 ? '<span class="dim">' + (x.answered ? '0' : 'no answer') + '</span>' : '<span class="' + (x.delta > 0 ? 'pos' : 'neg') + '">' + (x.delta > 0 ? '+' : '') + x.delta + '</span>';
+                return '<div class="row"><span>' + esc(p.name) + (x.wager != null ? ' <span class="dim">(wagered ' + x.wager + ')</span>' : '') + '</span><span>' + d + ' <span class="dim">→ ' + x.score_after + '</span></span></div>';
+            }).join('') + '</div>' +
+            '<p class="note">' + esc(nameOf(r.picker_id)) + ' picks next.</p>';
+    }
+    else if (r.phase === 'final_wager' && tile) {
+        const sc = mine ? mine.score : 0;
+        const done = mine && mine.final_wagered;
+        key = 'fw:' + tile.id + ':' + (done ? 'd' : 'o') + ':' + (sc > 0);
+        const info = UNITS[r.course + '|' + r.unit] || { name: '' };
+        html = '<h2>🏆 Final Jeopardy</h2><div class="val">' + esc(info.name) + '</div>' + barHTML();
+        if (sc <= 0) {
+            html += '<p>Your score is ' + sc + ', so you cannot wager. You can still answer the question for practice.</p>';
+        } else if (done) {
+            html += '<p>Your wager is locked in. Waiting for the other players...</p>';
+        } else {
+            html += '<p>Your score: <strong>' + sc + '</strong>. Wager anything from 0 to your full score. Other players cannot see your wager until the end.</p>' +
+                '<input type="number" id="wager-in" inputmode="numeric" min="0" max="' + sc + '" value="0">' +
+                '<div><button class="btn btn-secondary btn-small" onclick="$(\'wager-in\').value=0">0</button><button class="btn btn-secondary btn-small" onclick="$(\'wager-in\').value=' + sc + '">All in (' + sc + ')</button></div>' +
+                '<button class="btn btn-yellow btn-block" onclick="lockFinalWager()">Lock in wager</button>';
+        }
+    }
+    else if (r.phase === 'final_question' && tile) {
+        const picked = myPicks[tile.id];
+        const locked = picked !== undefined || (mine && mine.final_answered);
+        const answered = S.players.filter(p => p.final_answered).length, need = S.players.filter(p => !isAway(p)).length;
+        key = 'fq:' + tile.id + ':' + (picked === undefined ? (locked ? 'L' : '-') : picked) + ':' + (locked ? answered : 0);
+        html = '<h2>🏆 Final Jeopardy</h2>' + barHTML() + '<p class="qtext">' + esc(tile.q) + '</p>' +
+            (locked ? choicesHTML(tile, { mode: 'locked', picked: picked }) + '<p class="note">Answer locked in. Waiting for others (' + Math.min(answered, need) + ' of ' + need + ')...</p>'
+                    : choicesHTML(tile, { mode: 'play' }));
+    }
+
+    if (!key) { ov.classList.remove('active'); m._key = null; return; }
+    ov.classList.add('active');
+    if (setHTML(m, key, html)) m.scrollTop = 0;
+}
+
+async function lockWager(cap) {
+    const v = parseInt($('wager-in').value, 10);
+    if (isNaN(v) || v < 5 || v > cap) { toast('Wager between 5 and ' + cap + '.'); return; }
+    if (busy) return; busy = true;
+    try { await rpc('jeopardy_set_wager', { p_room: sess.roomId, p_player: sess.playerId, p_wager: v }); await fetchAll(); }
+    catch (e) { toast(e.message); fetchAll(); }
+    busy = false;
+}
+async function lockFinalWager() {
+    const mine = me(), v = parseInt($('wager-in').value, 10), max = Math.max(mine.score, 0);
+    if (isNaN(v) || v < 0 || v > max) { toast('Wager between 0 and ' + max + '.'); return; }
+    if (busy) return; busy = true;
+    try { await rpc('jeopardy_final_wager', { p_room: sess.roomId, p_player: sess.playerId, p_wager: v }); await fetchAll(); }
+    catch (e) { toast(e.message); fetchAll(); }
+    busy = false;
+}
+async function answer(i) {
+    const tile = tileNow(); if (!tile || myPicks[tile.id] !== undefined) return;
+    myPicks[tile.id] = i;
+    renderModal();                                  // lock the screen immediately
+    const fn = S.room.phase === 'final_question' ? 'jeopardy_final_answer' : 'jeopardy_submit_answer';
+    try { await rpc(fn, { p_room: sess.roomId, p_player: sess.playerId, p_choice: i }); }
+    catch (e) { toast(e.message); }
+    fetchAll();
+}
+
+// ----- finished -----
+function renderFinished() {
+    const r = S.room, el = $('finished');
+    if (r.phase !== 'finished') { el.innerHTML = ''; el._key = null; return; }
+    const ft = S.tiles.find(t => t.round === 0);
+    const rs = ft ? S.results.filter(x => x.tile_id === ft.id) : [];
+    const ranked = [...S.players].sort((a, b) => b.score - a.score || a.seat - b.seat);
+    const topScore = ranked[0].score;
+    const winners = ranked.filter(p => p.score === topScore);
+    const medals = ['🥇', '🥈', '🥉'];
+    const key = JSON.stringify([ranked.map(p => [p.id, p.score]), rs.length, addedToTracker]);
+    const correct = rs.length ? rs[0].correct_answer : '';
+    let html = '<div class="winner">' + (winners.length > 1 ? 'A tie! ' + winners.map(w => esc(w.name)).join(' and ') : '🏆 ' + esc(winners[0].name) + ' wins!') + '</div>' +
+        ranked.map((p, i) => '<div class="rank' + (p.score === topScore ? ' first' : '') + '"><span>' + (medals[i] || '') + ' ' + esc(p.name) + (p.id === sess.playerId ? ' <span class="dim">(you)</span>' : '') + '</span><span class="pts">' + p.score + '</span></div>').join('');
+    if (ft && ft.q) {
+        html += '<div class="cream-card" style="margin-top:14px"><h3 style="margin:0 0 6px;font-family:Playfair Display,serif">Final Jeopardy</h3>' +
+            '<p style="font-weight:700;color:#0d1b3e">' + esc(ft.q) + '</p>' +
+            '<p><strong>Correct answer:</strong> ' + esc(correct) + '</p><div class="results">' +
+            ranked.filter(p => rs.find(x => x.player_id === p.id)).map(p => {
+                const x = rs.find(y => y.player_id === p.id);
+                return '<div class="row"><span>' + esc(p.name) + ' <span class="dim">(wagered ' + (x.wager || 0) + ')</span></span><span class="' + (x.delta > 0 ? 'pos' : x.delta < 0 ? 'neg' : 'dim') + '">' +
+                    (x.answered ? (x.correct ? 'Correct ' : 'Incorrect ') : 'No answer ') + (x.delta > 0 ? '+' : '') + x.delta + '</span></div>';
+            }).join('') + '</div></div>';
+    }
+    html += '<div class="card" style="margin-top:14px"><p>' + (addedToTracker ? addedToTracker + ' missed question' + (addedToTracker === 1 ? '' : 's') + ' added to your Study Tracker.' : 'No new missed questions to add to your Study Tracker.') +
+        ' Review them in <a class="link" href="Study-Jeopardy.html">solo Jeopardy</a>.</p>' +
+        '<button class="btn btn-yellow btn-block" onclick="leaveGame()">Back to start</button></div>';
+    setHTML(el, key, html);
+}
+
+// ---------- boot ----------
+document.addEventListener('visibilitychange', () => { if (!document.hidden && sess) { fetchAll(); heartbeat(); } });
+$('code').addEventListener('input', e => { e.target.value = e.target.value.replace(/[^a-zA-Z]/g, '').toUpperCase(); });
+loadUnits();
+if (sess) startSync();
+</script>
+</body>
+</html>

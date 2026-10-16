@@ -197,6 +197,15 @@
             </div>
         </div>
 
+        <h3 class="menu-section-title">Play with Others</h3>
+        <div class="menu-grid">
+            <div class="menu-card" onclick="location.href='Jeopardy-Multiplayer.html'">
+                <h3>👥 Multiplayer</h3>
+                <p>Up to 3 players, each on their own phone. Daily Doubles and Final Jeopardy included.</p>
+                <span class="badge">New</span>
+            </div>
+        </div>
+
         <h3 class="menu-section-title">Final Exam</h3>
         <div class="menu-grid">
             <!-- COMING SOON PLACEHOLDERS -->
@@ -267,6 +276,18 @@
     </div>
 </div>
 
+<!-- DAILY DOUBLE MODAL -->
+<div id="dd-modal" class="modal-overlay">
+    <div class="modal">
+        <h2>⚡ Daily Double</h2>
+        <h3 id="dd-category">Category</h3>
+        <p>Current score: <strong id="dd-score">0</strong> pts</p>
+        <p>Wager from 5 up to <strong id="dd-cap">0</strong>. <br><small>A missed Daily Double loses your wager.</small></p>
+        <input type="number" id="dd-wager" min="5" value="5">
+        <button class="btn btn-yellow" onclick="lockDailyDouble()">Lock in wager →</button>
+    </div>
+</div>
+
 <!-- FINAL JEOPARDY MODAL -->
 <div id="final-modal" class="modal-overlay">
     <div class="modal">
@@ -311,7 +332,7 @@
     </div>
 </div>
 
-<div id="double-banner" class="double-banner">⚡ DOUBLE JEOPARDY! ⚡<br><small>Points doubled for this question!</small></div>
+<div id="double-banner" class="double-banner">⚡ DAILY DOUBLE! ⚡<br><small>Place your wager</small></div>
 
 <script>
     // ==========================================
@@ -520,6 +541,8 @@
         categories: [],
         isTimed: false,
         isDouble: false,
+        dailyDouble: null,
+        wager: 0,
         score: 0,
         streak: 0,
         correct: 0,
@@ -607,6 +630,11 @@
 
         state.totalQuestions = 20; // 4 categories * 5 questions
 
+        // One true Daily Double per round, somewhere in the lower three rows
+        state.dailyDouble = { cat: Math.floor(Math.random() * state.categories.length), row: 2 + Math.floor(Math.random() * 3) };
+        state.isDouble = false;
+        state.wager = 0;
+
         document.getElementById('game-label').innerText = gameTitle() + (isTimed ? ' · Lightning' : '');
 
         showScreen('game-screen');
@@ -628,10 +656,11 @@
         const values = ROUND_VALUES[state.round];
 
         for(let row=0; row<5; row++) {
-            state.categories.forEach((cat) => {
+            state.categories.forEach((cat, ci) => {
                 let tile = document.createElement('div');
                 tile.className = 'tile';
                 tile.innerText = values[row];
+                if(state.dailyDouble && state.dailyDouble.cat === ci && state.dailyDouble.row === row) tile.dataset.dd = '1';
 
                 let qData = state.boardData[cat][row];
                 tile.dataset.q = JSON.stringify(qData);
@@ -660,16 +689,41 @@
         }
         state.currentQuestion.category = catName;
 
-        // Double Jeopardy chance (15%)
-        state.isDouble = Math.random() < 0.15;
-        if(state.isDouble) {
-            let banner = document.getElementById('double-banner');
-            banner.style.display = 'block';
-            setTimeout(() => banner.style.display = 'none', 2000);
-        }
-
+        state.isDouble = tileElement.dataset.dd === '1';
         document.getElementById('q-category').innerText = catName;
         document.getElementById('q-value').innerText = tileElement.innerText;
+
+        if(state.isDouble) {
+            // Daily Double: wager first, and the question appears only after the wager is locked in.
+            const baseVal = parseInt(tileElement.innerText);
+            const top = ROUND_VALUES[state.round][4];
+            const cap = Math.max(state.score, top);
+            state.wagerCap = cap;
+            document.getElementById('dd-category').innerText = catName;
+            document.getElementById('dd-score').innerText = state.score;
+            document.getElementById('dd-cap').innerText = cap;
+            const input = document.getElementById('dd-wager');
+            input.min = 5; input.max = cap; input.value = Math.min(cap, Math.max(5, baseVal));
+            document.getElementById('dd-modal').classList.add('active');
+            const banner = document.getElementById('double-banner');
+            banner.style.display = 'block';
+            setTimeout(() => banner.style.display = 'none', 2000);
+            return;
+        }
+        presentQuestion();
+    }
+
+    function lockDailyDouble() {
+        const w = parseInt(document.getElementById('dd-wager').value);
+        if(isNaN(w) || w < 5 || w > state.wagerCap) { alert("Please wager between 5 and " + state.wagerCap + "."); return; }
+        state.wager = w;
+        document.getElementById('dd-modal').classList.remove('active');
+        presentQuestion();
+    }
+
+    function presentQuestion() {
+        let qData = state.currentQuestion;
+        if(state.isDouble) document.getElementById('q-value').innerText = 'Daily Double · wager ' + state.wager;
         document.getElementById('q-text').innerText = qData.q;
 
         // Shuffle and render choices
@@ -760,11 +814,14 @@
 
         if(!wasMissed) {
             let baseVal = parseInt(document.getElementById('q-value').innerText);
-            let points = state.isDouble ? baseVal * 2 : baseVal;
+            let points = state.isDouble ? state.wager : baseVal;
             state.score += points;
             state.correct++;
             state.streak++;
+        } else if(state.isDouble) {
+            state.score -= state.wager;   // a missed Daily Double costs the wager
         }
+        state.isDouble = false;
 
         updateHUD();
 
