@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PHI 110 Metaphysics — Jeopardy Review</title>
+<title>PHI 110 Jeopardy Review</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
     :root {
@@ -105,6 +105,33 @@
     .tracker-item p { margin: 5px 0; font-size: 0.9rem; color: rgba(255,255,255,0.8); }
     .tracker-item .correct { color: #7adcaa; font-weight: 700; }
 
+
+    /* Menu sections and game label */
+    .menu-section-title { width: 100%; max-width: 960px; margin: 10px 0 -6px; font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--gold-light); border-bottom: 1px solid rgba(232,160,32,0.25); padding-bottom: 6px; text-align: left; }
+    .game-label { width: 100%; margin: 0; font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--gold-light); text-align: center; letter-spacing: 1px; }
+
+    /* Study focus panel */
+    .focus-panel { width: 100%; }
+    .focus-card { background: var(--panel-bg); border: 1px solid rgba(232,160,32,0.35); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; text-align: left; }
+    .focus-card h3 { margin: 0 0 4px; font-family: 'Playfair Display', serif; color: var(--gold-light); }
+    .focus-card .focus-note { margin: 0 0 12px; font-size: 0.85rem; color: rgba(255,255,255,0.6); }
+    .focus-unit-title { margin: 14px 0 8px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.55); }
+    .focus-row { display: grid; grid-template-columns: minmax(150px, 1.4fr) 2fr auto; gap: 12px; align-items: center; padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.08); }
+    @media (max-width: 600px) { .focus-row { grid-template-columns: 1fr; gap: 4px; } }
+    .focus-name { font-weight: 700; color: var(--text-light); }
+    .focus-name small { display: block; font-weight: 400; font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 2px; }
+    .focus-bar { height: 10px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; }
+    .focus-bar span { display: block; height: 100%; background: rgba(232,160,32,0.55); border-radius: 99px; }
+    .focus-row.top .focus-bar span { background: var(--jeopardy-yellow); }
+    .focus-count { font-size: 0.85rem; color: rgba(255,255,255,0.75); white-space: nowrap; }
+    .focus-badge { display: inline-block; background: var(--jeopardy-yellow); color: var(--dark-bg); font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; margin-left: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Final Jeopardy multiple choice */
+    #final-choices { grid-template-columns: 1fr; }
+    .final-result { display: none; font-weight: 700; font-size: 1.05rem; margin: 10px 0 5px; }
+    .final-result.win { color: var(--accent-green); }
+    .final-result.lose { color: var(--accent-red); }
+
     .double-banner { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -50%); background: var(--jeopardy-yellow); color: var(--dark-bg); padding: 18px 36px; font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 900; border-radius: var(--radius); z-index: 200; display: none; animation: pulse 0.6s infinite alternate; box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
     .double-banner small { font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; }
     @keyframes pulse { from { transform: translate(-50%, -50%) scale(1); } to { transform: translate(-50%, -50%) scale(1.04); } }
@@ -114,35 +141,64 @@
 
 <header>
     <h1>PHI 110: Introduction to Philosophy</h1>
-    <p>Metaphysics Jeopardy Review</p>
+    <p>Jeopardy Review</p>
 </header>
 
 <div class="container">
     <!-- MAIN MENU -->
     <div id="menu-screen" class="screen active">
-        <h2 style="color: var(--jeopardy-yellow); margin-bottom: 0;">Select a Game Mode</h2>
+        <h2 style="color: var(--jeopardy-yellow); margin-bottom: 0;">Select a Game</h2>
+
+        <h3 class="menu-section-title">Unit 1 · Metaphysics</h3>
         <div class="menu-grid">
-            <div class="menu-card" onclick="startGame('unit1', false)">
-                <h3>📘 Unit 1</h3>
+            <div class="menu-card" onclick="startGame('met', 1, false)">
+                <h3>📘 Round 1</h3>
                 <p>Pre-Socratics, Classical, Modernist, Mixed Bag</p>
                 <p>200 - 1000 pts</p>
             </div>
-            <div class="menu-card" onclick="startGame('unit1', true)">
-                <h3>⚡ Unit 1 — Lightning Mode</h3>
+            <div class="menu-card" onclick="startGame('met', 1, true)">
+                <h3>⚡ Round 1 Lightning</h3>
                 <p>Same content, 20-second timer per question.</p>
                 <span class="badge">Timed</span>
             </div>
-            <div class="menu-card" onclick="startGame('unit2', false)">
-                <h3>📗 Unit 2</h3>
+            <div class="menu-card" onclick="startGame('met', 2, false)">
+                <h3>📗 Round 2</h3>
                 <p>Pre-Socratics, Classical, Modernist, Mixed Bag</p>
                 <p>400 - 2000 pts</p>
             </div>
-            <div class="menu-card" onclick="startGame('unit2', true)">
-                <h3>⚡ Unit 2 — Lightning Mode</h3>
+            <div class="menu-card" onclick="startGame('met', 2, true)">
+                <h3>⚡ Round 2 Lightning</h3>
                 <p>Same content, 20-second timer per question.</p>
                 <span class="badge">Timed</span>
             </div>
-            
+        </div>
+
+        <h3 class="menu-section-title">Unit 2 · Epistemology</h3>
+        <div class="menu-grid">
+            <div class="menu-card" onclick="startGame('epi', 1, false)">
+                <h3>📘 Round 1</h3>
+                <p>British Empiricists, Kantian Revolution, Contemporary, Mixed Bag</p>
+                <p>200 - 1000 pts</p>
+            </div>
+            <div class="menu-card" onclick="startGame('epi', 1, true)">
+                <h3>⚡ Round 1 Lightning</h3>
+                <p>Same content, 20-second timer per question.</p>
+                <span class="badge">Timed</span>
+            </div>
+            <div class="menu-card" onclick="startGame('epi', 2, false)">
+                <h3>📗 Round 2</h3>
+                <p>British Empiricists, Kantian Revolution, Contemporary, Mixed Bag</p>
+                <p>400 - 2000 pts</p>
+            </div>
+            <div class="menu-card" onclick="startGame('epi', 2, true)">
+                <h3>⚡ Round 2 Lightning</h3>
+                <p>Same content, 20-second timer per question.</p>
+                <span class="badge">Timed</span>
+            </div>
+        </div>
+
+        <h3 class="menu-section-title">Final Exam</h3>
+        <div class="menu-grid">
             <!-- COMING SOON PLACEHOLDERS -->
             <div class="menu-card disabled">
                 <h3>🏆 Final Exam Mode</h3>
@@ -150,11 +206,13 @@
                 <span class="badge">Locked</span>
             </div>
             <div class="menu-card disabled">
-                <h3>☠️ Final Exam — Lightning</h3>
+                <h3>☠️ Final Exam Lightning</h3>
                 <p>Coming Soon...</p>
                 <span class="badge">Locked</span>
             </div>
+        </div>
 
+        <div class="menu-grid">
             <div class="menu-card" onclick="showTracker()" style="grid-column: 1 / -1; max-width: 400px; justify-self: center;">
                 <h3>📚 Study Tracker</h3>
                 <p>Review your missed questions across all attempts.</p>
@@ -165,6 +223,7 @@
 
     <!-- GAME SCREEN -->
     <div id="game-screen" class="screen">
+        <h3 id="game-label" class="game-label"></h3>
         <div class="hud">
             <div class="hud-item"><span>Score</span><strong id="hud-score">0</strong></div>
             <div class="hud-item"><span>Streak</span><strong id="hud-streak">0</strong></div>
@@ -183,6 +242,7 @@
             <button class="btn btn-secondary" onclick="showScreen('menu-screen')">← Back to Menu</button>
             <button class="btn btn-danger" onclick="resetTracker()">Reset all tracking data</button>
         </div>
+        <div id="focus-panel" class="focus-panel"></div>
         <div id="tracker-list" class="tracker-list"></div>
     </div>
 </div>
@@ -211,7 +271,7 @@
 <div id="final-modal" class="modal-overlay">
     <div class="modal">
         <h2>🏆 Final Jeopardy</h2>
-        <h3>PHI 110 · Metaphysics</h3>
+        <h3 id="final-unit-label">PHI 110</h3>
         <p>Current score: <strong id="final-current-score">0</strong> pts</p>
         <p>How much do you want to wager? <br><small>(You can wager up to your current score)</small></p>
         <input type="number" id="final-wager" min="0" value="0">
@@ -225,13 +285,13 @@
         <h2>Final Jeopardy</h2>
         <p>Wager: <strong id="final-wager-display">0</strong></p>
         <p id="final-q-text" style="font-size: 1.3rem; font-weight: bold;">Question?</p>
-        <div id="final-a-section" style="display: none;">
-            <hr style="border-color: #444;">
-            <p style="color: var(--accent-green); font-weight: bold;">Answer:</p>
-            <p id="final-a-text" style="font-size: 1.2rem; color: var(--jeopardy-yellow);">Answer</p>
+
+        <div id="final-choices" class="choices-grid">
+            <!-- Buttons injected here -->
         </div>
-        <button class="btn btn-yellow" id="final-reveal-btn" onclick="revealFinalAnswer()">See Results →</button>
-        <button class="btn" id="final-continue-btn" style="display: none;" onclick="finishGame()">Finish Game</button>
+
+        <p id="final-result" class="final-result"></p>
+        <button class="btn btn-yellow" id="final-continue-btn" style="display: none;" onclick="finishGame()">Finish Game</button>
     </div>
 </div>
 
@@ -246,7 +306,7 @@
             <div>Accuracy<br><strong id="final-accuracy">0%</strong></div>
         </div>
         <button class="btn btn-yellow" onclick="playAgain()">Play Again</button>
-        <button class="btn btn-secondary" onclick="showScreen('menu-screen')">Change Unit</button>
+        <button class="btn btn-secondary" onclick="showScreen('menu-screen')">Back to Menu</button>
         <button class="btn" onclick="showTracker()">Review Missed</button>
     </div>
 </div>
@@ -257,9 +317,7 @@
     // ==========================================
     // DATA: PHI 110 METAPHYSICS (MULTIPLE CHOICE)
     // ==========================================
-    const categories = ["Pre-Socratics", "Classical Philosophers", "Modernist Metaphysics", "Mixed Bag"];
-    
-    const unit1Data = {
+    const met1Data = {
         "Pre-Socratics": [
             { q: "Who was the first Greek philosopher to break from tradition and religious explanations and offer a theory of the nature of reality based on observation?", choices: [{text:"Thales",c:1},{text:"Anaximander",c:0},{text:"Pythagoras",c:0},{text:"Heraclitus",c:0}] },
             { q: "Who argued that reality was made from a substance known as Apeiron?", choices: [{text:"Anaximander",c:1},{text:"Thales",c:0},{text:"Anaximenes",c:0},{text:"Democritus",c:0}] },
@@ -290,7 +348,7 @@
         ]
     };
 
-    const unit2Data = {
+    const met2Data = {
         "Pre-Socratics": [
             { q: "Which Greek philosopher argued that Reality was composed of numbers or mathematical relationships?", choices: [{text:"Pythagoras",c:1},{text:"Thales",c:0},{text:"Heraclitus",c:0},{text:"Parmenides",c:0}] },
             { q: "Which pre-Socratic philosopher argued that all of reality is one substance known simply as Being?", choices: [{text:"Parmenides",c:1},{text:"Heraclitus",c:0},{text:"Thales",c:0},{text:"Protagoras",c:0}] },
@@ -321,16 +379,145 @@
         ]
     };
 
-    const finalJeopardy = {
-        q: "Synthesize the concept of 'Substance' across the eras: How did Aristotle's definition differ fundamentally from Spinoza's and Leibniz's views on the ultimate nature of reality?",
-        a: "Aristotle saw substance as independent things (form/matter composites). Spinoza argued there is only ONE substance (God/Universe). Leibniz argued substances are immaterial, indivisible monads."
+    // ==========================================
+    // DATA: PHI 110 EPISTEMOLOGY (MULTIPLE CHOICE)
+    // ==========================================
+    // Built from the Epistemology Review Game decks (Round 1 and Round 2).
+    // mc(question, correctAnswer, [three wrong answers])
+    function mc(q, correct, wrong) {
+        return { q: q, choices: [{ text: correct, c: 1 }].concat(wrong.map(function (t) { return { text: t, c: 0 }; })) };
+    }
+
+    const epi1Data = {
+        "British Empiricists": [
+            mc("This is a kind of knowledge that comes from our physical senses.", "Sense-data / impressions", ["Innate ideas", "A priori knowledge", "Synthetic a priori knowledge"]),
+            mc("Locke coined this term, which means \"blank slate.\"", "Tabula Rasa", ["Esse Est Percipi", "Cogito Ergo Sum", "Transcendental Deduction"]),
+            mc("Which school of thought argues that all knowledge, except certain logical truths and mathematics, comes from experience or sense data?", "Empiricism", ["Rationalism", "Subjective Idealism", "Historicism"]),
+            mc("In this theory, there are no material substances or physical objects, only minds and ideas in the mind.", "Subjective Idealism", ["Materialism", "Dualism", "Rationalism"]),
+            mc("Berkeley coins a famous phrase, Esse Est Percipi. What does this translate to?", "To be is to be perceived", ["I think, therefore I am", "Cause of itself", "The mind is a blank slate"])
+        ],
+        "Kantian Revolution": [
+            mc("After the Kantian revolution ends the battle between Empiricism and Rationalism, what two new schools of thought emerge?", "Absolutism and Relativism", ["Idealism and Materialism", "Monism and Pluralism", "Historicism and Deconstruction"]),
+            mc("Kant attempts to blend Empiricism and Rationalism by creating this new idea.", "Synthetic A Priori", ["Tabula Rasa", "Innate Ideas", "Hume's Fork"]),
+            mc("This philosopher argued that we could discover basic constructs or categories of the mind and justify knowledge if our experiences cohere to those categories of the mind.", "Immanuel Kant", ["Hume", "Berkeley", "Hegel"]),
+            mc("This philosopher is famous for constructing a comprehensive theory called Dialectics.", "Hegel", ["Kant", "Dilthey", "Nietzsche"]),
+            mc("Kant used a vague or opaque process to identify basic constructs of the mind. What is this process called?", "Transcendental Deduction", ["Dialectic Materialism", "Deconstruction", "Hume's Fork"])
+        ],
+        "Contemporary": [
+            mc("Which pair lists two of the three major branches of Feminist Epistemology?", "Feminist Standpoint Theory and Feminist Empiricism", ["Feminist Rationalism and Feminist Idealism", "Feminist Historicism and Feminist Dialectics", "Feminist Absolutism and Feminist Relativism"]),
+            mc("Sherry Ortner claims that women, historically, have been conditioned away from their own epistemic authority in three ways. Which choice names all three?", "Explicitly, implicitly (symbolically), and institutionally / culturally", ["Biologically, psychologically, and economically", "Explicitly, historically, and philosophically", "Symbolically, materially, and politically"]),
+            mc("In general, this branch of philosophy is a large and broad collection of scholarship that analyzes the effects of gender on individuals, knowledge, culture, and more.", "Feminism", ["Deconstructionism", "Historicism", "Absolutism"]),
+            mc("This branch of Feminist Epistemology argues that marginalized perspectives offer more advantageous forms of empirical knowledge.", "Feminist Standpoint Theory", ["Feminist Empiricism", "Feminist Post-Modernism", "Feminist Historicism"]),
+            mc("One of Helene Cixous' most famous essays is called...", "The Laugh of the Medusa", ["The Shadow of the Militant Male", "Writing the Old Woman", "The Cave of the Binaries"])
+        ],
+        "Mixed Bag": [
+            mc("This branch of philosophy explores the ways in which humanity attains and justifies knowledge.", "Epistemology", ["Metaphysics", "Ethics", "Political Philosophy"]),
+            mc("This school of thought argues that knowledge comes from innate intuition that allows us to deductively know about our world.", "Rationalism", ["Empiricism", "Subjective Idealism", "Historicism"]),
+            mc("What does Cogito Ergo Sum translate to?", "I think, therefore I am", ["To be is to be perceived", "Cause of itself", "The mind is a blank slate"]),
+            mc("This is the term for ideas born into the mind.", "Innate Ideas", ["Sense-data", "Tabula Rasa", "Synthetic A Priori"]),
+            mc("This philosopher used a method of doubt to help lead him to certainty.", "Descartes", ["Locke", "Berkeley", "Hegel"])
+        ]
+    };
+
+    const epi2Data = {
+        "British Empiricists": [
+            mc("Locke claims we can know about two properties concerning an object. What does he call these two properties?", "Primary and Secondary Properties", ["Matters of Fact and Relations of Ideas", "Form and Matter", "Subjective and Objective Properties"]),
+            mc("What are the two ideas associated with Hume's Fork?", "Matters of Fact and Relations of Ideas", ["Primary and Secondary Properties", "Form and Matter", "Cause and Effect"]),
+            mc("What does Hume call the Cement of the Universe?", "Cause and effect relationships", ["Sense impressions", "Relations of ideas", "The Prime Mover"]),
+            mc("Which statement best describes the difference between the two properties in Locke's theory?", "Primary qualities are inherent in the object (size, number, shape), while secondary qualities are perceptions in the mind caused by the object (color, taste, sound).", ["Secondary qualities are inherent in the object (color, taste, sound), while primary qualities are perceptions in the mind caused by the object (size, number, shape).", "Primary qualities are known through reason alone, while secondary qualities are known through the senses.", "Primary qualities describe minds, while secondary qualities describe bodies."]),
+            mc("Hume concludes with the Skeptical Solution. What is the Skeptical Solution?", "It is impossible to justify any form of knowledge.", ["Knowledge is justified by innate ideas present at birth.", "Knowledge is justified when our experiences cohere to the categories of the mind.", "Knowledge is justified through the conflict of ideas over time."])
+        ],
+        "Kantian Revolution": [
+            mc("This philosopher is famous for his concept of Dialectic Materialism.", "Karl Marx", ["Hegel", "Dilthey", "Nietzsche"]),
+            mc("This philosopher is well known for his theory of Historicism.", "Dilthey", ["Marx", "Hegel", "Derrida"]),
+            mc("This philosopher is known for his rejection of all truth, also known as Error Theory.", "Nietzsche", ["Hegel", "Dilthey", "Marx"]),
+            mc("What is the term for the belief that God is both identical with the universe and has a separate consciousness?", "Panentheism", ["Pantheism", "Deism", "Monism"]),
+            mc("According to Marx, the march of history, or the end of Dialectic Materialism, ends with what stage of humanity?", "Communism", ["Capitalism", "Feudalism", "Absolute Knowledge"])
+        ],
+        "Contemporary": [
+            mc("This philosopher is famous for his creation of Deconstructionism.", "Derrida", ["Cixous", "Hegel", "Dilthey"]),
+            mc("Deconstruction is the process of identifying and disrupting what?", "Binaries", ["Innate ideas", "Sense-data", "Historical stages"]),
+            mc("This philosopher argued that we should deconstruct and re-interpret cultural myths and metaphors.", "Helene Cixous", ["Sherry Ortner", "Friedrich Nietzsche", "Karl Marx"]),
+            mc("According to Cixous, what are the three steps for women to reclaim epistemic authority and agency?", "Kill the shadow of the militant male, learn from the old woman, and woman must write woman.", ["Expand sense data, adopt a marginalized standpoint, and challenge institutional authority.", "Study the canon, earn institutional power, and speak with the voice of authority.", "Kill the shadow of the militant male, win institutional power, and speak explicitly."]),
+            mc("This branch of Feminist Epistemology argues that we should continue to rely on empiricism, but expand the sense data by incorporating the sense observations of women to increase objectivity.", "Feminist Empiricism", ["Feminist Standpoint Theory", "Feminist Post-Modernism", "Feminist Rationalism"])
+        ],
+        "Mixed Bag": [
+            mc("What is a priori knowledge?", "Knowledge without prior experience", ["Knowledge that comes from the physical senses", "Knowledge that is only true for a particular culture", "Knowledge that can never be justified"]),
+            mc("This philosopher is often known as the father of Empiricism.", "Locke", ["Hume", "Berkeley", "Descartes"]),
+            mc("This theory argues that through a conflict of ideas throughout time, we will emerge with an absolute knowledge of rationality and freedom.", "Dialectics (Dialecticism)", ["Dialectic Materialism", "Historicism", "Deconstructionism"]),
+            mc("What is the difference between Dialecticism and Dialectic Materialism?", "Dialecticism argues that ideas shape history, while Dialectic Materialism argues that history, particularly material history, shapes ideas.", ["Dialectic Materialism argues that ideas shape history, while Dialecticism argues that material history shapes ideas.", "Dialecticism ends in communism, while Dialectic Materialism ends in absolute knowledge.", "Dialecticism relies on sense data, while Dialectic Materialism relies on innate ideas."]),
+            mc("Which list names all three major British Empiricists from this unit?", "Hume, Locke, and Berkeley", ["Locke, Berkeley, and Descartes", "Hume, Locke, and Kant", "Berkeley, Hume, and Hegel"])
+        ]
+    };
+
+    // ==========================================
+    // FINAL JEOPARDY (MULTIPLE CHOICE, ONE PER UNIT)
+    // ==========================================
+    const metFinal = mc(
+        "Synthesize the concept of 'Substance' across the eras: How did Aristotle's definition differ fundamentally from Spinoza's and Leibniz's views on the ultimate nature of reality?",
+        "Aristotle saw substance as independent things (form/matter composites), Spinoza argued there is only ONE substance (God/Universe), and Leibniz argued substances are immaterial, indivisible monads.",
+        [
+            "Aristotle argued there is only ONE substance (God/Universe), Spinoza saw substance as form/matter composites, and Leibniz argued substances are physical atoms.",
+            "Aristotle saw substance as immaterial, indivisible monads, Spinoza argued for two substances (mind and body), and Leibniz argued there is only ONE substance.",
+            "Aristotle, Spinoza, and Leibniz all agreed that substance is a single physical material, and they differed only on whether it is water, air, or fire."
+        ]
+    );
+
+    const epiFinal = mc(
+        "Synthesize the debate over knowledge: How did Kant respond to the long-running battle between Empiricism and Rationalism?",
+        "He blended the two with the Synthetic A Priori, arguing that knowledge is justified when our experiences cohere to the basic categories of the mind.",
+        [
+            "He sided with Empiricism, arguing that the mind begins as a blank slate and all knowledge comes from sense-data.",
+            "He sided with Rationalism, arguing that knowledge comes only from innate ideas, so experience plays no role.",
+            "He agreed with Hume's Skeptical Solution, concluding that it is impossible to justify any form of knowledge."
+        ]
+    );
+
+    // ==========================================
+    // GAME CONFIG
+    // ==========================================
+    const GAMES = {
+        met: {
+            unitNumber: 1,
+            name: "Metaphysics",
+            categories: ["Pre-Socratics", "Classical Philosophers", "Modernist Metaphysics", "Mixed Bag"],
+            focus: {
+                "Pre-Socratics": "Thales, Anaximander, Anaximenes, Heraclitus, Parmenides, Pythagoras, Democritus",
+                "Classical Philosophers": "Plato, Aristotle, Forms, substance, the Four Causes",
+                "Modernist Metaphysics": "Descartes, Spinoza, Leibniz, monads, determinism",
+                "Mixed Bag": "Core terms such as monism, dualism, idealism, materialism, and form and matter"
+            },
+            rounds: { 1: met1Data, 2: met2Data },
+            final: metFinal
+        },
+        epi: {
+            unitNumber: 2,
+            name: "Epistemology",
+            categories: ["British Empiricists", "Kantian Revolution", "Contemporary", "Mixed Bag"],
+            focus: {
+                "British Empiricists": "Locke, Berkeley, Hume, sense-data, Hume's Fork, primary and secondary qualities",
+                "Kantian Revolution": "Kant, the synthetic a priori, Hegel, Marx, Dilthey, Nietzsche",
+                "Contemporary": "Feminist epistemology, Ortner, Cixous, Derrida, deconstruction",
+                "Mixed Bag": "Core terms such as rationalism, innate ideas, a priori knowledge, and dialectics"
+            },
+            rounds: { 1: epi1Data, 2: epi2Data },
+            final: epiFinal
+        }
+    };
+
+    const ROUND_VALUES = {
+        1: [200, 400, 600, 800, 1000],
+        2: [400, 800, 1200, 1600, 2000]
     };
 
     // ==========================================
     // STATE & LOCAL STORAGE
     // ==========================================
     let state = {
-        currentUnit: 'unit1',
+        unit: 'met',
+        round: 1,
+        gameKey: 'met1',
+        categories: [],
         isTimed: false,
         isDouble: false,
         score: 0,
@@ -342,14 +529,40 @@
         timerInterval: null,
         timeLeft: 20,
         boardData: {},
-        missedThisGame: []
+        missedThisGame: [],
+        finalWager: 0
     };
 
-    let tracker = JSON.parse(localStorage.getItem('phi110_tracker')) || [];
-    let bestScores = JSON.parse(localStorage.getItem('phi110_best')) || { unit1: 0, unit2: 0 };
+    function loadJSON(key, fallback) {
+        try {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : fallback;
+        } catch (e) { return fallback; }
+    }
+    function saveJSON(key, value) {
+        try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* storage unavailable */ }
+    }
 
-    function saveTracker() { localStorage.setItem('phi110_tracker', JSON.stringify(tracker)); }
-    function saveBest() { localStorage.setItem('phi110_best', JSON.stringify(bestScores)); }
+    let tracker = loadJSON('phi110_tracker', []);
+    let bestScores = loadJSON('phi110_best', {});
+
+    // Carry over high scores saved under the old "unit1" / "unit2" names.
+    // Old Unit 1 and Unit 2 were Metaphysics Round 1 and Round 2.
+    if (bestScores.unit1 !== undefined || bestScores.unit2 !== undefined) {
+        bestScores.met1 = Math.max(bestScores.met1 || 0, bestScores.unit1 || 0);
+        bestScores.met2 = Math.max(bestScores.met2 || 0, bestScores.unit2 || 0);
+        delete bestScores.unit1;
+        delete bestScores.unit2;
+        saveJSON('phi110_best', bestScores);
+    }
+
+    function saveTracker() { saveJSON('phi110_tracker', tracker); }
+    function saveBest() { saveJSON('phi110_best', bestScores); }
+
+    function gameTitle() {
+        const g = GAMES[state.unit];
+        return 'Unit ' + g.unitNumber + ' · ' + g.name + ' · Round ' + state.round;
+    }
 
     // ==========================================
     // UI NAVIGATION
@@ -370,8 +583,12 @@
     // ==========================================
     // GAME LOGIC
     // ==========================================
-    function startGame(unit, isTimed) {
-        state.currentUnit = unit;
+    function startGame(unit, round, isTimed) {
+        const game = GAMES[unit];
+        state.unit = unit;
+        state.round = round;
+        state.gameKey = unit + round;
+        state.categories = game.categories;
         state.isTimed = isTimed;
         state.score = 0;
         state.streak = 0;
@@ -379,15 +596,18 @@
         state.questionsAsked = 0;
         state.missedThisGame = [];
         state.boardData = {};
+        state.finalWager = 0;
 
-        let dataPool = unit === 'unit1' ? unit1Data : unit2Data;
+        const dataPool = game.rounds[round];
 
         // RANDOMIZE QUESTIONS WITHIN EACH CATEGORY
-        for(let cat of categories) {
+        for(let cat of state.categories) {
             state.boardData[cat] = [...dataPool[cat]].sort(() => 0.5 - Math.random());
         }
 
-        state.totalQuestions = 20; 
+        state.totalQuestions = 20; // 4 categories * 5 questions
+
+        document.getElementById('game-label').innerText = gameTitle() + (isTimed ? ' · Lightning' : '');
 
         showScreen('game-screen');
         renderBoard();
@@ -397,29 +617,33 @@
     function renderBoard() {
         const board = document.getElementById('game-board');
         board.innerHTML = '';
-        
-        categories.forEach(cat => {
+
+        state.categories.forEach(cat => {
             let header = document.createElement('div');
             header.className = 'category-header';
             header.innerText = cat;
             board.appendChild(header);
         });
 
-        let values = state.currentUnit === 'unit2' ? [400, 800, 1200, 1600, 2000] : [200, 400, 600, 800, 1000];
+        const values = ROUND_VALUES[state.round];
 
         for(let row=0; row<5; row++) {
-            categories.forEach((cat) => {
+            state.categories.forEach((cat) => {
                 let tile = document.createElement('div');
                 tile.className = 'tile';
                 tile.innerText = values[row];
-                
+
                 let qData = state.boardData[cat][row];
                 tile.dataset.q = JSON.stringify(qData);
-                
+
                 tile.onclick = () => askQuestion(tile);
                 board.appendChild(tile);
             });
         }
+    }
+
+    function recordMiss(category, q, a) {
+        state.missedThisGame.push({ category: category, q: q, a: a, source: gameTitle() });
     }
 
     function askQuestion(tileElement) {
@@ -431,11 +655,11 @@
 
         // Find category name
         let catName = "";
-        for(let c of categories) {
+        for(let c of state.categories) {
             if(state.boardData[c].some(item => item.q === qData.q)) { catName = c; break; }
         }
         state.currentQuestion.category = catName;
-        
+
         // Double Jeopardy chance (15%)
         state.isDouble = Math.random() < 0.15;
         if(state.isDouble) {
@@ -447,12 +671,12 @@
         document.getElementById('q-category').innerText = catName;
         document.getElementById('q-value').innerText = tileElement.innerText;
         document.getElementById('q-text').innerText = qData.q;
-        
+
         // Shuffle and render choices
         let shuffledChoices = [...qData.choices].sort(() => 0.5 - Math.random());
         const choicesContainer = document.getElementById('q-choices');
         choicesContainer.innerHTML = '';
-        
+
         shuffledChoices.forEach(choice => {
             let btn = document.createElement('button');
             btn.className = 'choice-btn';
@@ -470,25 +694,21 @@
     function handleChoice(btn, isCorrect) {
         clearInterval(state.timerInterval);
         document.getElementById('timer-container').style.display = 'none';
-        
-        document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
-        
+
+        document.querySelectorAll('#q-choices .choice-btn').forEach(b => b.disabled = true);
+
         if(isCorrect) {
             btn.classList.add('correct');
         } else {
             btn.classList.add('incorrect');
             let correctText = state.currentQuestion.choices.find(c => c.c === 1).text;
-            document.querySelectorAll('.choice-btn').forEach(b => {
+            document.querySelectorAll('#q-choices .choice-btn').forEach(b => {
                 if(b.innerText === correctText) b.classList.add('correct');
             });
             state.streak = 0;
-            state.missedThisGame.push({
-                category: state.currentQuestion.category,
-                q: state.currentQuestion.q,
-                a: correctText
-            });
+            recordMiss(state.currentQuestion.category, state.currentQuestion.q, correctText);
         }
-        
+
         document.getElementById('q-actions-post').style.display = 'block';
     }
 
@@ -505,7 +725,7 @@
             state.timeLeft--;
             let pct = (state.timeLeft / seconds) * 100;
             fill.style.width = pct + '%';
-            
+
             if(pct <= 30) fill.className = 'timer-fill danger';
             else if(pct <= 60) fill.className = 'timer-fill warning';
 
@@ -519,29 +739,25 @@
     function handleTimeUp() {
         clearInterval(state.timerInterval);
         document.getElementById('timer-container').style.display = 'none';
-        
+
         let correctText = state.currentQuestion.choices.find(c => c.c === 1).text;
-        document.querySelectorAll('.choice-btn').forEach(b => {
+        document.querySelectorAll('#q-choices .choice-btn').forEach(b => {
             b.disabled = true;
             if(b.innerText === correctText) b.classList.add('correct');
         });
-        
+
         state.streak = 0;
-        state.missedThisGame.push({
-            category: state.currentQuestion.category,
-            q: state.currentQuestion.q,
-            a: correctText
-        });
-        
+        recordMiss(state.currentQuestion.category, state.currentQuestion.q, correctText);
+
         document.getElementById('q-actions-post').style.display = 'block';
     }
 
     function nextQuestion() {
         document.getElementById('question-modal').classList.remove('active');
         state.questionsAsked++;
-        
+
         let wasMissed = state.missedThisGame.some(m => m.q === state.currentQuestion.q);
-        
+
         if(!wasMissed) {
             let baseVal = parseInt(document.getElementById('q-value').innerText);
             let points = state.isDouble ? baseVal * 2 : baseVal;
@@ -549,7 +765,7 @@
             state.correct++;
             state.streak++;
         }
-        
+
         updateHUD();
 
         if(state.questionsAsked >= state.totalQuestions) {
@@ -560,14 +776,15 @@
     function updateHUD() {
         document.getElementById('hud-score').innerText = state.score;
         document.getElementById('hud-streak').innerText = state.streak;
-        document.getElementById('hud-best').innerText = bestScores[state.currentUnit] || 0;
+        document.getElementById('hud-best').innerText = bestScores[state.gameKey] || 0;
         document.getElementById('hud-study').innerText = tracker.length;
     }
 
     // ==========================================
-    // FINAL JEOPARDY
+    // FINAL JEOPARDY (MULTIPLE CHOICE)
     // ==========================================
     function startFinalJeopardy() {
+        document.getElementById('final-unit-label').innerText = 'PHI 110 · ' + GAMES[state.unit].name;
         document.getElementById('final-current-score').innerText = state.score;
         document.getElementById('final-wager').max = state.score;
         document.getElementById('final-wager').value = 0;
@@ -578,39 +795,61 @@
         let wager = parseInt(document.getElementById('final-wager').value);
         if(isNaN(wager) || wager < 0) { alert("Please enter a valid wager."); return; }
         if(wager > state.score) { alert("You cannot wager more than your current score!"); return; }
-        
+
         state.finalWager = wager;
         document.getElementById('final-modal').classList.remove('active');
-        
+
+        const finalQ = GAMES[state.unit].final;
+        state.currentFinal = finalQ;
+
         document.getElementById('final-wager-display').innerText = wager;
-        document.getElementById('final-q-text').innerText = finalJeopardy.q;
-        document.getElementById('final-a-text').innerText = finalJeopardy.a;
-        document.getElementById('final-a-section').style.display = 'none';
-        document.getElementById('final-reveal-btn').style.display = 'inline-block';
+        document.getElementById('final-q-text').innerText = finalQ.q;
+
+        const container = document.getElementById('final-choices');
+        container.innerHTML = '';
+        [...finalQ.choices].sort(() => 0.5 - Math.random()).forEach(choice => {
+            let btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.innerText = choice.text;
+            btn.onclick = () => handleFinalChoice(btn, choice.c === 1);
+            container.appendChild(btn);
+        });
+
+        document.getElementById('final-result').style.display = 'none';
         document.getElementById('final-continue-btn').style.display = 'none';
-        
         document.getElementById('final-q-modal').classList.add('active');
     }
 
-    function revealFinalAnswer() {
-        document.getElementById('final-a-section').style.display = 'block';
-        document.getElementById('final-reveal-btn').style.display = 'none';
+    function handleFinalChoice(btn, isCorrect) {
+        document.querySelectorAll('#final-choices .choice-btn').forEach(b => b.disabled = true);
+
+        const correctText = state.currentFinal.choices.find(c => c.c === 1).text;
+        const resultEl = document.getElementById('final-result');
+
+        if(isCorrect) {
+            btn.classList.add('correct');
+            state.score += state.finalWager;
+            state.correct++;
+            resultEl.className = 'final-result win';
+            resultEl.innerText = 'Correct! You won ' + state.finalWager + ' points.';
+        } else {
+            btn.classList.add('incorrect');
+            document.querySelectorAll('#final-choices .choice-btn').forEach(b => {
+                if(b.innerText === correctText) b.classList.add('correct');
+            });
+            state.score -= state.finalWager;
+            recordMiss("Final Jeopardy", state.currentFinal.q, correctText);
+            resultEl.className = 'final-result lose';
+            resultEl.innerText = 'Not quite. You lost ' + state.finalWager + ' points.';
+        }
+        state.totalQuestions++;
+
+        resultEl.style.display = 'block';
         document.getElementById('final-continue-btn').style.display = 'inline-block';
     }
 
     function finishGame() {
         document.getElementById('final-q-modal').classList.remove('active');
-        
-        let gotIt = confirm("Did you get the Final Jeopardy question correct?\n\n(OK = Correct, Cancel = Incorrect)");
-        
-        if(gotIt) {
-            state.score += state.finalWager;
-            state.correct++;
-        } else {
-            state.score -= state.finalWager;
-            state.missedThisGame.push({ category: "Final Jeopardy", q: finalJeopardy.q, a: finalJeopardy.a });
-        }
-        state.totalQuestions++;
 
         state.missedThisGame.forEach(q => {
             if(!tracker.find(t => t.q === q.q)) {
@@ -619,8 +858,8 @@
         });
         saveTracker();
 
-        if(state.score > (bestScores[state.currentUnit] || 0)) {
-            bestScores[state.currentUnit] = state.score;
+        if(state.score > (bestScores[state.gameKey] || 0)) {
+            bestScores[state.gameKey] = state.score;
             saveBest();
             document.getElementById('high-score-msg').style.display = 'block';
         } else {
@@ -637,7 +876,7 @@
 
     function playAgain() {
         document.getElementById('complete-modal').classList.remove('active');
-        startGame(state.currentUnit, state.isTimed);
+        startGame(state.unit, state.round, state.isTimed);
     }
 
     // ==========================================
@@ -649,7 +888,48 @@
         renderTracker();
     }
 
+    function renderFocusPanel() {
+        const panel = document.getElementById('focus-panel');
+        let units = '';
+        Object.keys(GAMES).forEach(unit => {
+            const g = GAMES[unit];
+            const counts = {};
+            g.categories.forEach(c => { counts[c] = 0; });
+            tracker.forEach(item => {
+                if(!Object.prototype.hasOwnProperty.call(counts, item.category)) return; // skips Final Jeopardy
+                // Older saved entries have no source label, so only trust them when the category is unique to this unit.
+                const inUnit = item.source ? item.source.indexOf(g.name) !== -1 : item.category !== 'Mixed Bag';
+                if(inUnit) counts[item.category]++;
+            });
+            const rows = g.categories.map(c => ({
+                cat: c,
+                missed: counts[c],
+                total: g.rounds[1][c].length + g.rounds[2][c].length
+            }));
+            if(rows.every(r => r.missed === 0)) return;
+            rows.sort((a, b) => b.missed - a.missed);
+            const top = rows[0].missed;
+
+            units += '<div class="focus-unit-title">Unit ' + g.unitNumber + ' \u00B7 ' + g.name + '</div>';
+            rows.forEach(r => {
+                const isTop = r.missed === top;
+                units += '<div class="focus-row' + (isTop ? ' top' : '') + '">' +
+                    '<div class="focus-name">' + r.cat + (isTop ? '<span class="focus-badge">Focus here first</span>' : '') +
+                    '<small>' + g.focus[r.cat] + '</small></div>' +
+                    '<div class="focus-bar"><span style="width:' + Math.round((r.missed / r.total) * 100) + '%"></span></div>' +
+                    '<div class="focus-count">' + r.missed + ' of ' + r.total + ' missed</div>' +
+                    '</div>';
+            });
+        });
+
+        if(!units) { panel.innerHTML = ''; return; }
+        panel.innerHTML = '<div class="focus-card"><h3>Where to focus your studying</h3>' +
+            '<p class="focus-note">Based on the questions still in your tracker. Remove a question once you know it and this list updates.</p>' +
+            units + '</div>';
+    }
+
     function renderTracker() {
+        renderFocusPanel();
         const list = document.getElementById('tracker-list');
         list.innerHTML = '';
         if(tracker.length === 0) {
@@ -659,8 +939,9 @@
         tracker.forEach((item, index) => {
             let div = document.createElement('div');
             div.className = 'tracker-item';
+            const heading = item.source ? item.source + ' · ' + item.category : item.category;
             div.innerHTML = `
-                <h4>${item.category}</h4>
+                <h4>${heading}</h4>
                 <p><strong>Q:</strong> ${item.q}</p>
                 <p class="correct"><strong>A:</strong> ${item.a}</p>
                 <button class="btn btn-danger" style="padding: 5px 10px; font-size: 0.8rem; margin-top: 10px;" onclick="removeFromTracker(${index})">Remove from Tracker</button>
