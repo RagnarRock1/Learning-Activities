@@ -197,6 +197,30 @@
             </div>
         </div>
 
+        <h3 class="menu-section-title">Unit 3 · Questions of God</h3>
+        <div class="menu-grid">
+            <div class="menu-card" onclick="startGame('god', 1, false)">
+                <h3>📘 Round 1</h3>
+                <p>Medieval Arguments, Modernist Arguments, Doubters, Mixed Bag</p>
+                <p>200 - 1000 pts</p>
+            </div>
+            <div class="menu-card" onclick="startGame('god', 1, true)">
+                <h3>⚡ Round 1 Lightning</h3>
+                <p>Same content, 20-second timer per question.</p>
+                <span class="badge">Timed</span>
+            </div>
+            <div class="menu-card" onclick="startGame('god', 2, false)">
+                <h3>📗 Round 2</h3>
+                <p>Medieval Arguments, Modernist Arguments, Doubters, Mixed Bag</p>
+                <p>400 - 2000 pts</p>
+            </div>
+            <div class="menu-card" onclick="startGame('god', 2, true)">
+                <h3>⚡ Round 2 Lightning</h3>
+                <p>Same content, 20-second timer per question.</p>
+                <span class="badge">Timed</span>
+            </div>
+        </div>
+
         <h3 class="menu-section-title">Play with Others</h3>
         <div class="menu-grid">
             <div class="menu-card" onclick="location.href='Jeopardy-Multiplayer.html'">
@@ -472,6 +496,73 @@
     };
 
     // ==========================================
+    // DATA: PHI 110 QUESTIONS OF GOD (MULTIPLE CHOICE)
+    // ==========================================
+    // Built from the Unit 3 Review Game deck and the Unit 3 lecture material.
+    // Same mc(question, correctAnswer, [three wrong answers]) helper as Epistemology.
+    const god1Data = {
+        "Medieval Arguments": [
+            mc("This medieval philosopher is said to have created the first Ontological argument for God's existence.", "Anselm", ["Aquinas", "Augustine", "Descartes"]),
+            mc("This argument for God's existence relies on the order and design of the natural world.", "Teleological Argument", ["Cosmological Argument", "Ontological Argument", "Moral Argument"]),
+            mc("This medieval philosopher offered Five Ways of arguing for God's existence, including the argument from motion.", "Aquinas", ["Anselm", "Augustine", "Pascal"]),
+            mc("This early Christian philosopher combined Platonic philosophy and Christian theology to describe God.", "Augustine", ["Aquinas", "Anselm", "Al-Ghazali"]),
+            mc("This type of argument attempts to prove God from the very definition of God and uses purely deductive methods.", "Ontological Argument", ["Cosmological Argument", "Teleological Argument", "Pragmatic Argument"])
+        ],
+        "Modernist Arguments": [
+            mc("This philosopher argued that humanity must first believe in God in order to be moral creatures.", "Immanuel Kant", ["Pascal", "Marx", "Anselm"]),
+            mc("This philosopher used probability to argue that it is more reasonable to believe in God.", "Pascal", ["Kant", "Descartes", "Hume"]),
+            mc("This modernist philosopher built an ontological argument claiming that a perfect being must exist.", "Descartes", ["Pascal", "Kant", "Hume"]),
+            mc("Pascal defends belief by appealing to what it gains. Which kind of argument is that?", "Pragmatic Argument", ["Ethical Argument", "Logical Argument", "Emotional Argument"]),
+            mc("Which argument says that people need to believe in an eternal form of justice in order to cooperate in a just society?", "The Moral Argument", ["The Cosmological Argument", "The Teleological Argument", "The Pragmatic Argument"])
+        ],
+        "Doubters": [
+            mc("Marx says the abolition of religion as the illusory happiness of the people is a demand for what?", "Real happiness", ["Greater control", "Morality", "Real suffering"]),
+            mc("Which philosopher argued that Christianity is a \"rationalization of impotence\"?", "Nietzsche", ["Marx", "Freud", "Hume"]),
+            mc("This philosopher argued that religion was the effect of \"wish fulfillment.\"", "Freud", ["Marx", "Nietzsche", "Epicurus"]),
+            mc("In his poem \"Design,\" this poet suggests that a design governing the world would be a design of darkness.", "Robert Frost", ["Voltaire", "Hume", "Nietzsche"]),
+            mc("This philosopher argued that the best explanation for such an imperfect world is that God is an infant deity or an elderly, doddering one.", "Hume", ["Voltaire", "Epicurus", "Nietzsche"])
+        ],
+        "Mixed Bag": [
+            mc("Which two attributes of God cause the logical issue in the Problem of Evil?", "Omnipotence and omnibenevolence", ["Omniscience and omnipresence", "Transcendence and omniscience", "Omnipresence and omnipotence"]),
+            mc("This is the belief that a creator may exist but does not interact with humanity.", "Deism", ["Theism", "Agnosticism", "Atheism"]),
+            mc("This position says one cannot know whether God exists because God is transcendent.", "Agnosticism", ["Atheism", "Deism", "Mysticism"]),
+            mc("Why do some claim that the cosmological argument fails to prove a Western theistic God?", "It does not justify human-like attributes, does not require God to care about humanity, and does not limit the first cause to one god.", ["It relies on pure deduction from the definition of God and ignores the physical world.", "It assumes the universe has always existed, so it needs no cause.", "It depends on the claim that suffering cannot exist."]),
+            mc("In the modernist Problem of Evil, what kind of suffering presents the most critical problem?", "Unearned suffering", ["Chosen suffering", "Suffering after death", "Suffering of the wealthy"])
+        ]
+    };
+
+    const god2Data = {
+        "Medieval Arguments": [
+            mc("Judaism, Christianity, and Islam share which family name?", "Abrahamic religions", ["Prophetic religions", "Axial religions", "Dharmic religions"]),
+            mc("Which argument says there must be a first cause or a starting point?", "Cosmological Argument", ["Teleological Argument", "Ontological Argument", "Pragmatic Argument"]),
+            mc("Which two ancient Greek thinkers shaped much of medieval Jewish, Christian, and Islamic thought?", "Plato and Aristotle", ["Socrates and Epicurus", "Xenophanes and Democritus", "Thales and Pythagoras"]),
+            mc("Augustine answers the Problem of Evil with which idea?", "Free will, which makes humans and not God responsible for evil", ["Evil is created by God to test people", "Evil is an equal force opposing God", "God is not all-powerful"]),
+            mc("Which of these arguments does NOT begin from something observed in the world?", "Ontological argument", ["Argument from motion", "Argument from design", "Argument from contingency"])
+        ],
+        "Modernist Arguments": [
+            mc("What does Pascal's Wager weigh against each other?", "Potential benefit and potential cost", ["Faith and reason", "Evidence for and against", "Logic and emotion"]),
+            mc("Pascal says reason cannot settle whether God exists. What does belief become?", "A rational bet", ["A deductive proof", "An emotional habit", "A social contract"]),
+            mc("Which two philosophers argued for God from the idea of a perfect being?", "Anselm and Descartes", ["Aquinas and Kant", "Pascal and Hume", "Augustine and Marx"]),
+            mc("What need does Kant say belief in God meets?", "Trusting in ultimate justice so people can act morally and cooperate", ["Explaining why the universe has a first cause", "Calculating the odds of belief", "Explaining the order seen in nature"]),
+            mc("How do Pascal's and Kant's reasons for belief differ?", "Pascal appeals to the benefit of believing, Kant to the need for justice in moral life.", ["Pascal appeals to the need for justice in moral life, Kant to the benefit of believing.", "Both argue from the design of nature.", "Both argue from the definition of God."])
+        ],
+        "Doubters": [
+            mc("Who said that people picture gods in their own image, as horses would draw horse-shaped gods?", "Xenophanes", ["Epicurus", "Hume", "Voltaire"]),
+            mc("What did Epicurus believe about the human soul?", "It does not survive death", ["It is immortal", "It is reborn", "It merges with the divine"]),
+            mc("Hume reads the flaws of the world as evidence of what?", "An imperfect or inexperienced designer", ["A perfect designer with hidden purposes", "No designer at all", "A designer who is indifferent to humans"]),
+            mc("If God can prevent evil but chooses not to, Epicurus concludes that God is what?", "Malevolent", ["Powerless", "Unaware", "Transcendent"]),
+            mc("Which phrase did Marx use for religion's comfort?", "The opium of the people", ["Wish fulfillment", "A rationalization of impotence", "The cement of the universe"])
+        ],
+        "Mixed Bag": [
+            mc("What is theism?", "Belief in a supreme God", ["Belief that God is indescribable", "Belief that God is the universe", "Belief that God cannot be known"]),
+            mc("Which position is the default because it does not assert that a transcendent being exists?", "Atheism", ["Deism", "Theism", "Mysticism"]),
+            mc("Describing God with human traits is called what?", "Anthropomorphic", ["Transcendent", "Ineffable", "Omnipotent"]),
+            mc("Which view holds that some knowledge of God comes only through direct experience?", "Mysticism", ["Deism", "Theism", "Skepticism"]),
+            mc("This Sufi mystic argued that if God lies beyond experience, reason and observation cannot capture knowledge of God.", "Al-Ghazali", ["Aquinas", "Anselm", "Augustine"])
+        ]
+    };
+
+    // ==========================================
     // FINAL JEOPARDY (MULTIPLE CHOICE, ONE PER UNIT)
     // ==========================================
     const metFinal = mc(
@@ -491,6 +582,16 @@
             "He sided with Empiricism, arguing that the mind begins as a blank slate and all knowledge comes from sense-data.",
             "He sided with Rationalism, arguing that knowledge comes only from innate ideas, so experience plays no role.",
             "He agreed with Hume's conclusion that it is impossible to justify any form of knowledge, and offered nothing further."
+        ]
+    );
+
+    const godFinal = mc(
+        "Synthesize the arguments for God's existence: How do the ontological, cosmological, and teleological arguments differ in where they begin?",
+        "The ontological begins from the definition of God, the cosmological from the need for a first cause, and the teleological from order and design in nature.",
+        [
+            "The ontological begins from order and design in nature, the cosmological from the definition of God, and the teleological from the need for a first cause.",
+            "The ontological begins from the need for a first cause, the cosmological from order and design in nature, and the teleological from the definition of God.",
+            "All three begin from the definition of God and differ only in how much evidence from nature they add."
         ]
     );
 
@@ -523,6 +624,19 @@
             },
             rounds: { 1: epi1Data, 2: epi2Data },
             final: epiFinal
+        },
+        god: {
+            unitNumber: 3,
+            name: "Questions of God",
+            categories: ["Medieval Arguments", "Modernist Arguments", "Doubters", "Mixed Bag"],
+            focus: {
+                "Medieval Arguments": "Anselm, Aquinas, Augustine, the ontological, cosmological, and teleological arguments",
+                "Modernist Arguments": "Kant's moral argument, Pascal's Wager, Descartes, the pragmatic argument",
+                "Doubters": "Xenophanes, Epicurus, Hume, Marx, Nietzsche, Freud, Frost",
+                "Mixed Bag": "Core terms such as theism, deism, agnosticism, atheism, mysticism, and the Problem of Evil"
+            },
+            rounds: { 1: god1Data, 2: god2Data },
+            final: godFinal
         }
     };
 
